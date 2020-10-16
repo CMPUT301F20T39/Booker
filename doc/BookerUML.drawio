@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2020-10-16T17:25:02.576Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36" etag="Cj-MlMMaBctIXpo5T54N" version="13.8.0" type="github">
+<mxfile host="app.diagrams.net" modified="2020-10-16T18:25:48.472Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36" etag="vJlsNfitOUwpP2UA0-Eg" version="13.8.0" type="github">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
     <mxGraphModel dx="2078" dy="1753" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -23,11 +23,8 @@
         <mxCell id="hIVEfl4ubrVoWIUagmLy-111" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-108" vertex="1">
           <mxGeometry y="100" width="233" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-112" value="Is Eligibale To Enroll" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=4" parent="hIVEfl4ubrVoWIUagmLy-108" vertex="1">
-          <mxGeometry y="108" width="233" height="26" as="geometry" />
-        </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-113" value="Get Seminars Taken" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-108" vertex="1">
-          <mxGeometry y="134" width="233" height="26" as="geometry" />
+        <mxCell id="hIVEfl4ubrVoWIUagmLy-113" value="&lt;&lt;constructor&gt;&gt; +State()&#xa;&lt;&lt;constructor&gt;&gt; +state(Status:BookStatus,&#xa;location:Location,state:HandoffState)" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-108" vertex="1">
+          <mxGeometry y="108" width="233" height="102" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-114" value="Location" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="-630" y="660" width="170" height="210" as="geometry">
@@ -40,7 +37,7 @@
         <mxCell id="hIVEfl4ubrVoWIUagmLy-117" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-114" vertex="1">
           <mxGeometry y="90" width="170" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-119" value="Get Seminars Taken" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-114" vertex="1">
+        <mxCell id="hIVEfl4ubrVoWIUagmLy-119" value="&lt;&lt;constructor&gt;&gt; +Location()&#xa;&lt;&lt;constructor&gt;&gt; +Location&#xa;(longitude:double,&#xa; latitude,double)" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-114" vertex="1">
           <mxGeometry y="98" width="170" height="82" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-151" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=diamond;endFill=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" edge="1">
@@ -97,8 +94,8 @@
         <mxCell id="hIVEfl4ubrVoWIUagmLy-73" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-67" vertex="1">
           <mxGeometry y="140" width="410" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-74" value="&lt;&lt;constructor&gt;&gt;BookDB(context:Context):vd==]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-67" vertex="1">
-          <mxGeometry y="148" width="410" height="132" as="geometry" />
+        <mxCell id="hIVEfl4ubrVoWIUagmLy-74" value="&lt;&lt;constructor&gt;&gt;BookDB(context:Context):void&#xa;+createAccntforValid( username:String, password:String,firstname:String,&#xa;lastname:string, email:string,phoneNo:string, image:ViewableImage):void&#xa;-createAccntforValid( username:String, password:String,firstname:String,&#xa;lastname:string, email:string,phoneNo:string, image:ViewableImage):void&#xa;&#xa;-createdaccount(user:User):void&#xa;" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-67" vertex="1">
+          <mxGeometry y="148" width="410" height="172" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-154" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classicThin;endFill=1;metaEdit=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="hIVEfl4ubrVoWIUagmLy-0" target="hIVEfl4ubrVoWIUagmLy-3" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -361,18 +358,18 @@
           <mxGeometry y="26" width="160" height="8" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-83" value="Image" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="70" y="970" width="160" height="170" as="geometry">
+          <mxGeometry x="-40" y="970" width="270" height="170" as="geometry">
             <mxRectangle x="130" y="380" width="160" height="26" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-84" value="&lt;&lt;get/set&gt;&gt;image:String" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-83" vertex="1">
-          <mxGeometry y="26" width="160" height="44" as="geometry" />
+          <mxGeometry y="26" width="270" height="44" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-86" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-83" vertex="1">
-          <mxGeometry y="70" width="160" height="8" as="geometry" />
+          <mxGeometry y="70" width="270" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-88" value="Get Seminars Taken" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-83" vertex="1">
-          <mxGeometry y="78" width="160" height="26" as="geometry" />
+        <mxCell id="hIVEfl4ubrVoWIUagmLy-88" value="&lt;&lt;constructor&gt;&gt; +ViewableImage()&#xa;&lt;&lt;constructor&gt;&gt; +ViewableImage(bitmap:Bitmap)&#xa;getBitmap(url:Url, context:Context):Bitmap" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-83" vertex="1">
+          <mxGeometry y="78" width="270" height="72" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-49" value="User" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="220" y="610" width="220" height="310" as="geometry">
@@ -385,7 +382,7 @@
         <mxCell id="hIVEfl4ubrVoWIUagmLy-52" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-49" vertex="1">
           <mxGeometry y="140" width="220" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-54" value="Get Seminars Taken" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-49" vertex="1">
+        <mxCell id="hIVEfl4ubrVoWIUagmLy-54" value="&lt;&lt;constructor&gt;&gt; +User()&#xa;&lt;&lt;constructor&gt;&gt; +" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-49" vertex="1">
           <mxGeometry y="148" width="220" height="82" as="geometry" />
         </mxCell>
         <mxCell id="zkfFHV4jXpPFQw0GAbJ--0" value="Book" style="swimlane;fontStyle=2;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
@@ -426,10 +423,13 @@
             <mxPoint x="290" y="920" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="LVkQKVmJB5QR7Muf_GGr-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;endArrow=diamond;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" target="zkfFHV4jXpPFQw0GAbJ--0" edge="1">
+        <mxCell id="LVkQKVmJB5QR7Muf_GGr-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.333;exitY=0.725;exitDx=0;exitDy=0;endArrow=diamond;endFill=0;exitPerimeter=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="LVkQKVmJB5QR7Muf_GGr-69" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="70" y="1035" as="sourcePoint" />
-            <mxPoint x="25" y="910" as="targetPoint" />
+            <mxPoint x="40" y="860" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="40" y="860" />
+            </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-102" value="Description" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
@@ -465,7 +465,7 @@
           <mxGeometry x="-970" y="280" width="120" height="260" as="geometry" />
         </mxCell>
         <mxCell id="LVkQKVmJB5QR7Muf_GGr-69" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="30" y="1010" width="30" height="20" as="geometry" />
+          <mxGeometry y="950" width="30" height="20" as="geometry" />
         </mxCell>
         <mxCell id="LVkQKVmJB5QR7Muf_GGr-71" value="0..1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="240" y="1010" width="30" height="20" as="geometry" />
@@ -547,35 +547,32 @@
           <mxGeometry y="168" width="270" height="22" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-77" value="ContactInfo" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="340" y="990" width="180" height="190" as="geometry">
+          <mxGeometry x="340" y="990" width="260" height="220" as="geometry">
             <mxRectangle x="130" y="380" width="160" height="26" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-78" value="&lt;&lt;get/set&gt;&gt;-email:String&#xa;&lt;&lt;get/set&gt;&gt; -phoneNo:String&#xa;&lt;&lt;get/set&gt;&gt; -context:Context" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-77" vertex="1">
-          <mxGeometry y="26" width="180" height="64" as="geometry" />
+          <mxGeometry y="26" width="260" height="64" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-80" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-77" vertex="1">
-          <mxGeometry y="90" width="180" height="8" as="geometry" />
+          <mxGeometry y="90" width="260" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-82" value="Get Seminars Taken" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-77" vertex="1">
-          <mxGeometry y="98" width="180" height="52" as="geometry" />
+        <mxCell id="hIVEfl4ubrVoWIUagmLy-82" value="&lt;&lt;constructor&gt;&gt; +ContactInfo():void&#xa;&lt;&lt;constructor&gt;&gt; +ContactInfo(email:String, &#xa;phoneNo:string,context:Context):void&#xa;+call():void&#xa;+email():void" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-77" vertex="1">
+          <mxGeometry y="98" width="260" height="82" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-89" value="Notification" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;rounded=0;shadow=0;strokeWidth=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="630" y="680" width="220" height="140" as="geometry">
+          <mxGeometry x="630" y="680" width="260" height="190" as="geometry">
             <mxRectangle x="130" y="380" width="160" height="26" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-90" value="&lt;&lt;get/set&gt;&gt; -notType:NotificationType&#xa;&lt;&lt;get/set&gt;&gt; -message:String" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-89" vertex="1">
-          <mxGeometry y="26" width="220" height="54" as="geometry" />
+          <mxGeometry y="26" width="260" height="54" as="geometry" />
         </mxCell>
         <mxCell id="hIVEfl4ubrVoWIUagmLy-92" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-89" vertex="1">
-          <mxGeometry y="80" width="220" height="8" as="geometry" />
+          <mxGeometry y="80" width="260" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-93" value="Is Eligibale To Enroll" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=4" parent="hIVEfl4ubrVoWIUagmLy-89" vertex="1">
-          <mxGeometry y="88" width="220" height="26" as="geometry" />
-        </mxCell>
-        <mxCell id="hIVEfl4ubrVoWIUagmLy-94" value="Get Seminars Taken" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-89" vertex="1">
-          <mxGeometry y="114" width="220" height="26" as="geometry" />
+        <mxCell id="hIVEfl4ubrVoWIUagmLy-94" value="&lt;&lt;constructor&gt;&gt;+Notification(&#xa;notType:NotificationType,message:String):void" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="hIVEfl4ubrVoWIUagmLy-89" vertex="1">
+          <mxGeometry y="88" width="260" height="82" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
