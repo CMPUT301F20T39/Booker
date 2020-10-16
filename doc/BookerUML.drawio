@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2020-10-16T19:03:07.302Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36" etag="KH-HVUDTGLuYkfoll2q4" version="13.8.0" type="github">
+<mxfile host="app.diagrams.net" modified="2020-10-16T19:09:38.032Z" agent="5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36" etag="u9H1arT98ZsmlovhwH11" version="13.8.0" type="github">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-    <mxGraphModel dx="2260" dy="2003" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2260" dy="1933" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
@@ -479,9 +479,6 @@
         </mxCell>
         <mxCell id="LVkQKVmJB5QR7Muf_GGr-67" value="Controller" style="whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="-827" y="719" width="90" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="LVkQKVmJB5QR7Muf_GGr-68" value="Attributes To Do:&lt;br&gt;&lt;br&gt;Controller:&lt;br&gt;-SignUpManager&lt;br&gt;-BookDB&lt;br&gt;-RequestHandler&lt;br&gt;&lt;br&gt;Model:&lt;br&gt;-Location&lt;br&gt;-State&lt;br&gt;-Image&lt;br&gt;-User&lt;br&gt;-ContactInfo&lt;br&gt;-Notification" style="whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="-970" y="280" width="120" height="260" as="geometry" />
         </mxCell>
         <mxCell id="LVkQKVmJB5QR7Muf_GGr-69" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=9;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry y="950" width="30" height="20" as="geometry" />
