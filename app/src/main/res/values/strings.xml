@@ -6,4 +6,7 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="search_hint">Search for books</string>
+    <string name="my_requests">My Requests</string>
+    <string name="owner">Owner</string>
+    <string name="borrower">Borrower</string>
 </resources>

@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToHome = new Intent(getApplicationContext(), HomeActivity.class);
+                Intent goToHome = new Intent(getApplicationContext(), AccountTypeActivity.class);
                 startActivity(goToHome);
             }
         });

@@ -24,6 +24,7 @@
         android:background="@android:color/white"
         android:iconifiedByDefault="false"
         android:queryHint="@string/search_hint"
+        android:focusableInTouchMode="true"
         app:layout_constraintBottom_toBottomOf="@+id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.245"
@@ -60,18 +61,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/profile_icon" />
 
-    <TextView
-        android:id="@+id/myRequestTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:text="@string/my_requests"
-        android:textColor="@android:color/black"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
     <ListView
         android:id="@+id/listView"
         android:layout_width="409dp"
@@ -79,7 +68,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myRequestTextView">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
     </ListView>
 
