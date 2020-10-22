@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Booker</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="or">OR</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="search_hint">Search for books</string>
 </resources>
