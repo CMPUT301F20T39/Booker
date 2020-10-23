@@ -19,8 +19,8 @@ public class AccountTypeActivity extends AppCompatActivity {
         borrowerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToHome = new Intent(getApplicationContext(), HomeActivity.class);
-                startActivity(goToHome);
+                Intent goToBorrowerHome = new Intent(getApplicationContext(), BorrowerHomeActivity.class);
+                startActivity(goToBorrowerHome);
             }
         });
     }
