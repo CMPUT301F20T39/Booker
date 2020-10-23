@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 
-public class BorrowSearchActivity extends AppCompatActivity {
+public class BorrowerSearchActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
