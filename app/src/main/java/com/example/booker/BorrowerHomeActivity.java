@@ -24,7 +24,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Intent goToSearch = new Intent(getApplicationContext(), BorrowSearchActivity.class);
+                Intent goToSearch = new Intent(getApplicationContext(), BorrowerSearchActivity.class);
                 String searchQuery = searchView.getQuery().toString();
                 goToSearch.putExtra("searchQuery", searchQuery);
                 startActivityForResult(goToSearch, 0);
