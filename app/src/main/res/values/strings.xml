@@ -9,4 +9,9 @@
     <string name="my_requests">My Requests</string>
     <string name="owner">Owner</string>
     <string name="borrower">Borrower</string>
+    <string name="title_activity_owner_home">OwnerHomeActivity</string>
+    <string name="BookDescription">Description</string>
+    <string name="BookAuthor">Author</string>
+    <string name="BookStatus">Status</string>
+
 </resources>

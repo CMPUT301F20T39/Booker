@@ -13,7 +13,17 @@ public class AccountTypeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_type);
-
+    
+        // go to owner home page
+        Button ownerButton = findViewById(R.id.ownerButton);
+        ownerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToOwnerHome = new Intent(getApplicationContext(), OwnerHomeActivity.class);
+                startActivity(goToOwnerHome);
+            }
+        });
+        
         // go to borrower home page
         Button borrowerButton = findViewById(R.id.borrowerButton);
         borrowerButton.setOnClickListener(new View.OnClickListener() {

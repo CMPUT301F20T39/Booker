@@ -9,9 +9,18 @@ public class Book {
 	private String description;
 	private String status; // Change this data type if another is more convenient
 	private String ISBN;
+	private String author;
 	
 	// Constructor for Firestore's .toObject()
 	public Book() {}
+	
+	public Book(String title, String description, String status, String ISBN, String author) {
+		this.title = title;
+		this.description = description;
+		this.status = status;
+		this.ISBN = ISBN;
+		this.author = author;
+	}
 	
 	public String getTitle() {
 		return title;
@@ -43,5 +52,13 @@ public class Book {
 	
 	public void setISBN(String ISBN) {
 		this.ISBN = ISBN;
+	}
+	
+	public String getAuthor() {
+		return author;
+	}
+	
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 }
