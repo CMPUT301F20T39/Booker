@@ -13,7 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+/*
+Most of the code is derived from lab 3
+ */
 public class AddBookFragment extends DialogFragment {
+
+    // EditTexts found in the fragment
     private EditText titleEdit;
     private EditText authorEdit;
     private EditText isbnEdit;
@@ -39,8 +44,11 @@ public class AddBookFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.add_book_fragment_layout, null);
+//        LayoutInflater inflater = requireActivity().getLayoutInflater();
+//        View view = inflater.inflate(R.layout.add_book_fragment_layout, null);
+
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.add_book_fragment_layout, null);
+
 
         // Reference the EditTexts to retrieve their inputs
         titleEdit = view.findViewById(R.id.editTextTitle);
@@ -48,6 +56,8 @@ public class AddBookFragment extends DialogFragment {
         isbnEdit = view.findViewById(R.id.editTextISBN);
         descrpEdit = view.findViewById(R.id.editTextDescr);
 
+        // Build the alert dialog
+        // set the View to the inflated layout
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
