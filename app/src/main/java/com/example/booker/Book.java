@@ -10,7 +10,8 @@ public class Book {
 	private String status; // Change this data type if another is more convenient
 	private String ISBN;
 	private String author;
-	
+	private String ownerUsername;
+
 	// Constructor for Firestore's .toObject()
 	public Book() {}
 
@@ -60,5 +61,13 @@ public class Book {
 	
 	public void setAuthor(String author) {
 		this.author = author;
+	}
+
+	public String getOwnerUsername() {
+		return ownerUsername;
+	}
+
+	public void setOwnerUsername(String ownerUsername) {
+		this.ownerUsername = ownerUsername;
 	}
 }
