@@ -22,6 +22,7 @@ public class user_profile extends AppCompatActivity {
         getSupportActionBar().setTitle("User Profile");
 
 
+
     }
 
 }
