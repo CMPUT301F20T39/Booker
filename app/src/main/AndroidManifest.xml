@@ -16,6 +16,7 @@
         <activity android:name=".BorrowSearchActivity" />
         <activity android:name=".AccountTypeActivity" />
         <activity android:name=".BorrowerHomeActivity" />
+        <activity android:name=".SignUpActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
