@@ -80,7 +80,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     @Override
-    public void onOkPressed(String title, String author, String isbn) {
+    public void onOkPressed(String title, String author, String isbn, String description) {
         final String TAG = "Add Book method";
         HashMap<String, String> data = new HashMap<>();
 
@@ -89,6 +89,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             data.put("ISBN", isbn);
             data.put("title", title);
             data.put("author", author);
+            data.put("status", "Available");
         }
         bookCollection
                 .document(title)

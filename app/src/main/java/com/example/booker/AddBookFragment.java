@@ -17,10 +17,12 @@ public class AddBookFragment extends DialogFragment {
     private EditText titleEdit;
     private EditText authorEdit;
     private EditText isbnEdit;
+    private EditText descrpEdit;
+
     private OnFragmentInteractionListener listener;
 
     public interface OnFragmentInteractionListener {
-        void onOkPressed(String title, String author, String isbn);
+        void onOkPressed(String title, String author, String isbn, String description);
     }
 
     @Override
@@ -44,6 +46,7 @@ public class AddBookFragment extends DialogFragment {
         titleEdit = view.findViewById(R.id.editTextTitle);
         authorEdit = view.findViewById(R.id.editTextAuthor);
         isbnEdit = view.findViewById(R.id.editTextISBN);
+        descrpEdit = view.findViewById(R.id.editTextDescr);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
@@ -56,9 +59,14 @@ public class AddBookFragment extends DialogFragment {
                         String title = titleEdit.getText().toString();
                         String author = authorEdit.getText().toString();
                         String isbn = isbnEdit.getText().toString();
+                        String description = descrpEdit.getText().toString();
 
-                        listener.onOkPressed(title, author, isbn);
+                        listener.onOkPressed(title, author, isbn, description);
                     }
                 }).create();
     }
 }
+
+// TODO
+// 1. EditTexts are not clickable
+// 2. List shows Title as blank
