@@ -21,6 +21,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
@@ -73,7 +74,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         addBookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AddBookFragment().show(getSupportFragmentManager(), "ADD BOOK");
+                new AddBookFragment().show(getSupportFragmentManager(), "ADD_BOOK");
             }
         });
     }
@@ -81,6 +82,14 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     @Override
     public void onOkPressed(String title, String author, String isbn) {
         final String TAG = "Add Book method";
+        HashMap<String, String> data = new HashMap<>();
+
+        if (title.length() > 0 && author.length() > 0 && isbn.length() > 0)
+        {
+            data.put("ISBN", isbn);
+            data.put("title", title);
+            data.put("author", author);
+        }
         bookCollection
                 .document(title)
                 .set(data)

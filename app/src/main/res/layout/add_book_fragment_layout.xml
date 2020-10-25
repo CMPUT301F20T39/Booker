@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints="Book Title"
+        android:hint="@string/title"
         android:ems="10"
         android:inputType="textPersonName"
         android:text="" />
@@ -18,6 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints="Author Name"
+        android:hint="@string/BookAuthor"
         android:ems="10"
         android:inputType="textPersonName"
         android:text="" />
@@ -26,6 +28,7 @@
         android:id="@+id/editTextISBN"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/isbn"
         android:ems="10"
         android:importantForAutofill="no"
         android:inputType="number" />

@@ -24,7 +24,7 @@ public class AddBookFragment extends DialogFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             listener = (OnFragmentInteractionListener) context;
@@ -38,6 +38,8 @@ public class AddBookFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.add_book_fragment_layout, null);
+
+        // Reference the EditTexts to retrieve their inputs
         titleEdit = view.findViewById(R.id.editTextTitle);
         authorEdit = view.findViewById(R.id.editTextAuthor);
         isbnEdit = view.findViewById(R.id.editTextISBN);
@@ -50,11 +52,11 @@ public class AddBookFragment extends DialogFragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                       String title = titleEdit.getText().toString();
-                       String author = authorEdit.getText().toString();
-                       String isbn = isbnEdit.getText().toString();
+                        String title = titleEdit.getText().toString();
+                        String author = authorEdit.getText().toString();
+                        String isbn = isbnEdit.getText().toString();
 
-                       listener.onOkPressed(title, author, isbn);
+                        listener.onOkPressed(title, author, isbn);
                     }
                 }).create();
     }
