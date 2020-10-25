@@ -19,16 +19,16 @@ public class BorrowerListAdapter extends RecyclerView.Adapter<BorrowerListAdapte
     private boolean hideButton;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView descriptionTextView, authorTextView, phoneTextView, ownerTextView, statusTextView;
+        public TextView titleTextView, authorTextView, ISBNTextView, ownerUsernameTextView, statusTextView;
         public Button requestButton;
 
         public MyViewHolder(View v) {
             super(v);
 
-            descriptionTextView = v.findViewById(R.id.descriptionTextView);
+            titleTextView = v.findViewById(R.id.titleTextView);
             authorTextView = v.findViewById(R.id.authorTextView);
-            phoneTextView = v.findViewById(R.id.phoneTextView);
-            ownerTextView = v.findViewById(R.id.ownerTextView);
+            ISBNTextView = v.findViewById(R.id.ISBNTextView);
+            ownerUsernameTextView = v.findViewById(R.id.ownerUsernameTextView);
             statusTextView = v.findViewById(R.id.statusTextView);
 
             requestButton = v.findViewById(R.id.requestButton);
@@ -52,10 +52,10 @@ public class BorrowerListAdapter extends RecyclerView.Adapter<BorrowerListAdapte
     public void onBindViewHolder(@NonNull BorrowerListAdapter.MyViewHolder holder, int position) {
         Book book = bookList.get(position);
 
-        holder.descriptionTextView.setText(book.getDescription());
+        holder.titleTextView.setText(book.getTitle());
         holder.authorTextView.setText(book.getAuthor());
-        holder.phoneTextView.setText("placeholder phone");
-        holder.ownerTextView.setText("placeholder ownerUsername");
+        holder.ISBNTextView.setText(book.getISBN());
+        holder.ownerUsernameTextView.setText(book.getOwnerUsername());
         holder.statusTextView.setText(book.getStatus());
 
         if (hideButton) {

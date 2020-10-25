@@ -61,11 +61,11 @@ public class BorrowerSearchActivity extends AppCompatActivity {
         // TODO query only works on exact match; improve query to partial match
         List<String> filter = Arrays.asList("Available", "Requested"); // whitelist
 
-        Query descriptionQuery = booksCollection
+        Query titleQuery = booksCollection
                 .whereIn("status", filter)
-                .whereEqualTo("description", searchView.getQuery().toString());
+                .whereEqualTo("title", searchView.getQuery().toString());
 
-        descriptionQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -84,11 +84,11 @@ public class BorrowerSearchActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 List<String> filter = Arrays.asList("Available", "Requested"); // whitelist
 
-                Query descriptionQuery = booksCollection
+                Query titleQuery = booksCollection
                         .whereIn("status", filter)
-                        .whereEqualTo("description", searchView.getQuery().toString());
+                        .whereEqualTo("title", searchView.getQuery().toString());
 
-                descriptionQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {

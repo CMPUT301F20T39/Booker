@@ -31,13 +31,13 @@
             android:textSize="10sp" />
 
         <TextView
-            android:id="@+id/descriptionTextView"
+            android:id="@+id/titleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical"
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
-            android:text="Description"
+            android:text="Title"
             android:textColor="@android:color/black"
             android:textSize="18sp" />
 
@@ -53,25 +53,25 @@
             android:textColor="@android:color/black" />
 
         <TextView
-            android:id="@+id/phoneTextView"
+            android:id="@+id/ISBNTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical"
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
             android:layout_marginTop="45dp"
-            android:text="Phone Number"
+            android:text="ISBN"
             android:textColor="@android:color/black" />
 
         <TextView
-            android:id="@+id/ownerTextView"
+            android:id="@+id/ownerUsernameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical"
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
             android:layout_marginTop="65dp"
-            android:text="Owner: Book Owner"
+            android:text="Owner Username"
             android:textColor="@android:color/black" />
 
         <TextView
