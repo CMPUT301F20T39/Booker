@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+/** separate view adapter for borrower's requested books and searches
+ *
+ */
 public class BorrowerListAdapter extends RecyclerView.Adapter<BorrowerListAdapter.MyViewHolder> {
     private List<Book> bookList;
     private boolean hideButton;
@@ -52,7 +55,7 @@ public class BorrowerListAdapter extends RecyclerView.Adapter<BorrowerListAdapte
         holder.descriptionTextView.setText(book.getDescription());
         holder.authorTextView.setText(book.getAuthor());
         holder.phoneTextView.setText("placeholder phone");
-        holder.ownerTextView.setText("placeholder owner");
+        holder.ownerTextView.setText("placeholder ownerUsername");
         holder.statusTextView.setText(book.getStatus());
 
         if (hideButton) {
