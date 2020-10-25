@@ -13,5 +13,6 @@
     <string name="BookDescription">Description</string>
     <string name="BookAuthor">Author</string>
     <string name="BookStatus">Status</string>
+    <string name="add_book_button">Add Book Button</string>
 
 </resources>

@@ -13,7 +13,13 @@ public class Book {
 	
 	// Constructor for Firestore's .toObject()
 	public Book() {}
-	
+
+	public Book(String title, String ISBN, String author) {
+		this.title = title;
+		this.ISBN = ISBN;
+		this.author = author;
+	}
+
 	public Book(String title, String description, String status, String ISBN, String author) {
 		this.title = title;
 		this.description = description;
