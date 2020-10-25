@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <EditText
@@ -9,8 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints="Book Title"
-        android:hint="@string/title"
         android:ems="10"
+        android:hint="@string/title"
         android:inputType="textPersonName"
         android:text="" />
 
@@ -19,8 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints="Author Name"
-        android:hint="@string/BookAuthor"
         android:ems="10"
+        android:hint="@string/BookAuthor"
         android:inputType="textPersonName"
         android:text="" />
 
@@ -28,8 +28,8 @@
         android:id="@+id/editTextISBN"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/isbn"
         android:ems="10"
+        android:hint="@string/isbn"
         android:importantForAutofill="no"
         android:inputType="number" />
 </LinearLayout>

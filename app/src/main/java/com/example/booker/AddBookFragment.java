@@ -37,7 +37,8 @@ public class AddBookFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.add_book_fragment_layout, null);
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.add_book_fragment_layout, null);
 
         // Reference the EditTexts to retrieve their inputs
         titleEdit = view.findViewById(R.id.editTextTitle);
