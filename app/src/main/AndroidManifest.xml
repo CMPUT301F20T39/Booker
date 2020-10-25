@@ -13,7 +13,7 @@
             android:name=".OwnerHomeActivity"
             android:label="@string/title_activity_owner_home"
             android:theme="@style/NoActionBar"></activity>
-        <activity android:name=".BorrowSearchActivity" />
+        <activity android:name=".BorrowerSearchActivity" />
         <activity android:name=".AccountTypeActivity" />
         <activity android:name=".BorrowerHomeActivity" />
         <activity android:name=".SignUpActivity" />

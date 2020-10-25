@@ -1,6 +1,8 @@
 package com.example.booker;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +10,11 @@ import android.widget.SearchView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BorrowerHomeActivity extends AppCompatActivity {
+    private List<Book> bookList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +34,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 String searchQuery = searchView.getQuery().toString();
                 goToSearch.putExtra("searchQuery", searchQuery);
                 startActivityForResult(goToSearch, 0);
-                searchView.setQuery("", true);
+                searchView.setQuery("", false);
                 return false;
             }
 
@@ -37,5 +43,18 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        RecyclerView rvBookList = findViewById(R.id.recyclerView);
+
+        BorrowerListAdapter adapter = new BorrowerListAdapter(bookList, true);
+        rvBookList.setAdapter(adapter);
+        rvBookList.setLayoutManager(new LinearLayoutManager(this));
+
+        bookList.add(new Book("test", "test", "test", "test", "test"));
+        bookList.add(new Book("test2", "test2", "test2", "test2", "test2"));
+        adapter.notifyDataSetChanged();
+
+
+
     }
 }
