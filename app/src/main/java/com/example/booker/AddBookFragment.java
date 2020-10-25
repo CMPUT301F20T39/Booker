@@ -19,14 +19,14 @@ public class AddBookFragment extends DialogFragment {
     private EditText isbnEdit;
     private OnFragmentInteractionListener listener;
 
-    public interface OnFragmentInteractionLister {
-        void onOkPressed(Book newBook);
+    public interface OnFragmentInteractionListener {
+        void onOkPressed(String title, String author, String isbn);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionLister) {
+        if (context instanceof OnFragmentInteractionListener) {
             listener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString() + "must implement OnFragmentInteractionListener");
@@ -54,7 +54,7 @@ public class AddBookFragment extends DialogFragment {
                        String author = authorEdit.getText().toString();
                        String isbn = isbnEdit.getText().toString();
 
-                       listener.onOkPressed(new Book(title, isbn, author));
+                       listener.onOkPressed(title, author, isbn);
                     }
                 }).create();
     }
