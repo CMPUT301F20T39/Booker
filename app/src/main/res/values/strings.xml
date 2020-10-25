@@ -3,6 +3,9 @@
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
     <string name="or">OR</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="phone">Phone</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="search_hint">Search for books</string>
@@ -16,5 +19,6 @@
     <string name="add_book_button">Add Book Button</string>
     <string name="title">Title</string>
     <string name="isbn">ISBN</string>
+
 
 </resources>
