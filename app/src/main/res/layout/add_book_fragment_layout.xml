@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="Book Title"
+        android:ems="10"
+        android:hint="@string/title"
+        android:inputType="textPersonName"
+        android:paddingLeft="24dp"
+        android:text=""
+        android:clickable="true"
+        android:textSize="18sp"
+        android:focusable="true"
+        android:paddingStart="24dp" />
+
+    <EditText
+        android:id="@+id/editTextAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="Author Name"
+        android:ems="10"
+        android:hint="@string/BookAuthor"
+        android:inputType="textPersonName"
+        android:paddingLeft="24dp"
+        android:text=""
+        android:clickable="true"
+        android:textSize="18sp"
+        android:focusable="true"
+        android:paddingStart="24dp" />
+
+    <EditText
+        android:id="@+id/editTextISBN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:clickable="true"
+        android:hint="@string/isbn"
+        android:importantForAutofill="no"
+        android:inputType="number"
+        android:paddingLeft="24dp"
+        android:textSize="18sp"
+        android:focusable="true"
+        android:paddingStart="24dp" />
+
+    <EditText
+        android:id="@+id/editTextDescr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="@string/BookDescription"
+        android:inputType="textMultiLine"
+        android:paddingLeft="24dp"
+        android:textSize="18sp"
+        android:paddingStart="24dp" />
+</LinearLayout>

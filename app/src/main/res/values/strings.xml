@@ -13,5 +13,8 @@
     <string name="BookDescription">Description</string>
     <string name="BookAuthor">Author</string>
     <string name="BookStatus">Status</string>
+    <string name="add_book_button">Add Book Button</string>
+    <string name="title">Title</string>
+    <string name="isbn">ISBN</string>
 
 </resources>
