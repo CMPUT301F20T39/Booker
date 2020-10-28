@@ -9,12 +9,15 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Button signUpButton, signInButton;
     EditText username, password;
-    FirebaseAuth fAuth;
+    FirebaseAuth mAuth;
+    FirebaseFirestore db;
 
 
     @Override
@@ -26,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
         password = findViewById(R.id.passwordEditText);
 
         // database
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        fAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         final String TAG = "Sample";
 
@@ -53,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
-
     }
+
 }
