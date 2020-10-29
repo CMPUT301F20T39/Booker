@@ -7,12 +7,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -27,25 +35,12 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_borrower_home);
 
-        final SearchView searchView = findViewById(R.id.searchView);
+        SearchView searchView = findViewById(R.id.searchView);
 
-        // goes to search activity on query submit
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                Intent goToSearch = new Intent(getApplicationContext(), BorrowerSearchActivity.class);
-                String searchQuery = searchView.getQuery().toString();
-                goToSearch.putExtra("searchQuery", searchQuery);
-                startActivityForResult(goToSearch, 0);
-                searchView.setQuery("", false);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
+        // get internal edittext from search view
+        int id = searchView.getContext().getResources()
+                .getIdentifier("android:id/search_src_text", null, null);
+        final EditText searchViewEditText = (EditText) searchView.findViewById(id);
 
         // initialize recyclerview
         RecyclerView rvBookList = findViewById(R.id.recyclerView);
@@ -60,15 +55,25 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         bookDB.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                List<Book> books = value.toObjects(Book.class);
-                for (int i = 0; i < books.size(); i++) {
-                    bookList.add(books.get(i));
+                for (QueryDocumentSnapshot document: value) {
+                    Book book = document.toObject(Book.class);
+                    bookList.add(book);
                 }
                 adapter.notifyDataSetChanged();
             }
         });
 
-
+        // switch to search activity on click and clear focus
+        searchViewEditText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Intent goToSearch = new Intent(getApplicationContext(), BorrowerSearchActivity.class);
+                goToSearch.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // close all other activities on finish
+                startActivity(goToSearch);
+                searchViewEditText.clearFocus(); // close keyboard
+                return false;
+            }
+        });
 
     }
 }
