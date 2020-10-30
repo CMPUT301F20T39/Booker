@@ -7,7 +7,7 @@ package com.example.booker;
 public class Book {
 	private String title;
 	private String description;
-	private BookStatus status;  //enum mught be more convenient than string type
+	private String status;
 	private String ISBN;
 	private String author;
 	private String ownerUsername;
@@ -15,7 +15,7 @@ public class Book {
 	// Constructor for Firestore's .toObject()
 	public Book() {}
 
-	public Book(String title, String description, BookStatus status, String ISBN, String author) {
+	public Book(String title, String description, String status, String ISBN, String author) {
 		this.title = title;
 		this.description = description;
 		this.status = status;
@@ -39,11 +39,11 @@ public class Book {
 		this.description = description;
 	}
 	
-	public BookStatus getStatus() {
+	public String getStatus() {
 		return status;
 	}
 	
-	public void setStatus(BookStatus status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 	
