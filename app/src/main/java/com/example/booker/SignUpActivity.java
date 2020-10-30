@@ -38,7 +38,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     EditText name, email, phone, username, password;
     Button signUpBtn;
-    FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
     FirebaseFirestore db;
     private boolean validInput;
 
@@ -61,7 +61,7 @@ public class SignUpActivity extends AppCompatActivity {
         myToolbar.setDisplayHomeAsUpEnabled(true);
         myToolbar.setTitle("Sign Up");
 
-        // init database
+        // database
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -73,18 +73,18 @@ public class SignUpActivity extends AppCompatActivity {
                 final String FullName = name.getText().toString().trim();
                 final String Password = password.getText().toString().trim();
                 final String Phone = phone.getText().toString().trim();
-                final String user = username.getText().toString();
+                final String Username = username.getText().toString();
 
                 validInput = true;
 
-                if (TextUtils.isEmpty(user)) {
+                if (TextUtils.isEmpty(Username)) {
                     username.setError("Must choose a valid username");
                     if (validInput)
                         username.requestFocus();
                     validInput = false;
                 }
                 else {
-                    DocumentReference doc = db.collection("Users").document(user);
+                    DocumentReference doc = db.collection("Users").document(Username);
                     doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -143,7 +143,7 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
-                            Toast.makeText(SignUpActivity.this, "Whyyyyy", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignUpActivity.this, "It worked! :D", Toast.LENGTH_SHORT).show();
                             // Add data to database
 
                             FirebaseUser user = mAuth.getCurrentUser();
@@ -162,6 +162,7 @@ public class SignUpActivity extends AppCompatActivity {
                             data.put("Email", Email);
                             data.put("Name", FullName);
                             data.put("Phone", Phone);
+                            data.put("Username", Username);
 
                             db.collection("Users").document(username.getText().toString())
                                     .set(data)
