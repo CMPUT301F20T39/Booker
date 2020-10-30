@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent goToSignUp = new Intent(getApplicationContext(), SignUpActivity.class);
                 startActivity(goToSignUp);
-                finish();
             }
         });
 

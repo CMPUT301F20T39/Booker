@@ -12,7 +12,9 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -23,6 +25,8 @@ import com.google.firebase.auth.FirebaseAuthMultiFactorException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.MultiFactorResolver;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
 
@@ -36,7 +40,7 @@ public class SignUpActivity extends AppCompatActivity {
     Button signUpBtn;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-
+    private boolean validInput;
 
 
     @Override
@@ -51,6 +55,12 @@ public class SignUpActivity extends AppCompatActivity {
         password = findViewById(R.id.editTextPassword);
         signUpBtn = findViewById(R.id.signUpBtn);
 
+        Toolbar toolbar = findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
+        ActionBar myToolbar = getSupportActionBar();
+        myToolbar.setDisplayHomeAsUpEnabled(true);
+        myToolbar.setTitle("Sign Up");
+
         // init database
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -63,8 +73,33 @@ public class SignUpActivity extends AppCompatActivity {
                 final String FullName = name.getText().toString().trim();
                 final String Password = password.getText().toString().trim();
                 final String Phone = phone.getText().toString().trim();
+                final String user = username.getText().toString();
 
-                boolean validInput = true;
+                validInput = true;
+
+                if (TextUtils.isEmpty(user)) {
+                    username.setError("Must choose a valid username");
+                    if (validInput)
+                        username.requestFocus();
+                    validInput = false;
+                }
+                else {
+                    DocumentReference doc = db.collection("Users").document(user);
+                    doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot snapshot = task.getResult();
+                                if (snapshot.exists()) {
+                                    username.setError("Username already exists");
+                                    if (validInput)
+                                        username.requestFocus();
+                                    validInput = false;
+                                }
+                            }
+                        }
+                    });
+                }
 
                 if (TextUtils.isEmpty(FullName)) {
                     name.setError("Name is Required");
@@ -91,7 +126,7 @@ public class SignUpActivity extends AppCompatActivity {
                 }
 
                 if (Password.length() < 5) {
-                    password.setError("Password must at least has 5 characters");
+                    password.setError("Password must at least have 5 characters");
                     if (validInput)
                         password.requestFocus();
                     validInput = false;
@@ -100,7 +135,6 @@ public class SignUpActivity extends AppCompatActivity {
                 if (!validInput) {
                     return;
                 }
-
 
                 /* Create user account and add data to database */
 
@@ -128,9 +162,8 @@ public class SignUpActivity extends AppCompatActivity {
                             data.put("Email", Email);
                             data.put("Name", FullName);
                             data.put("Phone", Phone);
-                            //data.put("Username",Username);
 
-                            db.collection("Users").document("Users")
+                            db.collection("Users").document(username.getText().toString())
                                     .set(data)
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
