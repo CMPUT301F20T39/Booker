@@ -9,6 +9,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.List;
 
 /** separate view adapter for borrower's requested books and searches
@@ -49,8 +54,8 @@ public class BorrowerListAdapter extends RecyclerView.Adapter<BorrowerListAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BorrowerListAdapter.MyViewHolder holder, int position) {
-        Book book = bookList.get(position);
+    public void onBindViewHolder(@NonNull final BorrowerListAdapter.MyViewHolder holder, final int position) {
+        final Book book = bookList.get(position);
 
         holder.titleTextView.setText(book.getTitle());
         holder.authorTextView.setText(book.getAuthor());
@@ -65,10 +70,28 @@ public class BorrowerListAdapter extends RecyclerView.Adapter<BorrowerListAdapte
 
         // grey out button on "Requested" books
         if (book.getStatus().equals("Requested")) {
-            holder.requestButton.setAlpha(0.8f);
+            holder.requestButton.setAlpha(0.9f);
             holder.requestButton.setEnabled(false);
         }
+
+        // change status to "Requested" on request button click
+        holder.requestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                book.setStatus("Requested");
+
+                holder.statusTextView.setText(book.getStatus());
+
+                // grey out button on "Requested" books
+                if (book.getStatus().equals("Requested")) {
+                    holder.requestButton.setAlpha(0.8f);
+                    holder.requestButton.setEnabled(false);
+                }
+            }
+        });
     }
+
+
 
     @Override
     public int getItemCount() {
