@@ -12,7 +12,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -29,6 +31,7 @@ import java.util.List;
 public class BorrowerHomeActivity extends AppCompatActivity {
     private List<Book> bookList = new ArrayList<>();
     private CollectionReference bookDB = FirebaseFirestore.getInstance().collection("Books");
+    private ImageButton profileBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_borrower_home);
 
         SearchView searchView = findViewById(R.id.searchView);
+        profileBtn = findViewById(R.id.profileButton);
 
         // get internal edittext from search view
         int id = searchView.getContext().getResources()
@@ -72,6 +76,15 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 startActivity(goToSearch);
                 searchViewEditText.clearFocus(); // close keyboard
                 return false;
+            }
+        });
+
+        // Button takes user to user_profile.java
+        profileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
+                startActivity(goToProfile);
             }
         });
 

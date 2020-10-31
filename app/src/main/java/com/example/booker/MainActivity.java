@@ -24,8 +24,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class MainActivity extends AppCompatActivity {
 
 
-    /** TODO: CHANGE USERNAME LABELS TO EMAIL LABELS
-     *
+    /** TODO: CHANGE USERNAME LABELS TO EMAIL LABELS?
+     *  I don't know if Firebase's sign in function will work with username. If it does then no need to change.
      */
     // Button signUpButton, signInButton;
     EditText email, password;
