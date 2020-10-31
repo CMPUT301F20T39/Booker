@@ -164,7 +164,7 @@ public class SignUpActivity extends AppCompatActivity {
                             data.put("Phone", Phone);
                             data.put("Username", Username);
 
-                            db.collection("Users").document(username.getText().toString())
+                            db.collection("Users").document(email.getText().toString())
                                     .set(data)
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override

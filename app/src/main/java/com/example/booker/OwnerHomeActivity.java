@@ -22,7 +22,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -38,7 +41,9 @@ import java.util.List;
 
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference bookCollection = db.collection("Users/test-user/Books"); // TODO: Make this access differently depending on the user (by username)
+    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private String userEmail = user.getEmail();
+    private final CollectionReference bookCollection = db.collection("Users").document(userEmail).collection("Books"); // TODO: Make this access differently depending on the user (by username)
 
 
     private List<Book> bookList = new ArrayList<Book>();

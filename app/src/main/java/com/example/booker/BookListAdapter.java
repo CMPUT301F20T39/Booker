@@ -18,12 +18,12 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	private List<Book> bookList;
 	
 	public static class MyViewHolder extends RecyclerView.ViewHolder {
-		public TextView descView, authorView, ISBNView, statusView;
+		public TextView titleView, authorView, ISBNView, statusView;
 		
 		public MyViewHolder(View v) {
 			super(v);
 			
-			descView = v.findViewById(R.id.OwnerBookDesc);
+			titleView = v.findViewById(R.id.OwnerBookTitle);
 			authorView = v.findViewById(R.id.OwnerBookAuthor);
 			ISBNView = v.findViewById(R.id.OwnerBookISBN);
 			statusView = v.findViewById(R.id.OwnerBookStatus);
@@ -46,7 +46,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	public void onBindViewHolder(@NonNull BookListAdapter.MyViewHolder holder, int position) {
 		Book book = bookList.get(position);
 		
-		holder.descView.setText(book.getDescription());
+		holder.titleView.setText(book.getTitle());
 		holder.authorView.setText(book.getAuthor());
 		holder.ISBNView.setText(book.getISBN());
 		holder.statusView.setText(book.getStatus());
