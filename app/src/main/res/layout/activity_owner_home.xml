@@ -23,12 +23,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
             android:scrollbars="none"
             android:singleLine="true"
-            app:chipSpacing="10dp"
             android:theme="@style/Theme.MaterialComponents.Light"
+            app:chipSpacing="10dp"
             app:singleLine="true">
 
             <com.google.android.material.chip.Chip
@@ -68,8 +68,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ownerBookListView"
         android:layout_width="match_parent"
-        android:layout_height="670dp"
-        android:layout_marginTop="55dp">
+        android:layout_height="656dp"
+        android:layout_marginTop="74dp">
 
     </androidx.recyclerview.widget.RecyclerView>
 
@@ -78,6 +78,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
         android:clickable="true"
         android:contentDescription="@string/add_book_button"
         android:focusable="true"
