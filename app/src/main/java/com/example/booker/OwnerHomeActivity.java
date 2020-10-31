@@ -43,7 +43,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
-    private final CollectionReference bookCollection = db.collection("Users").document(userEmail).collection("Books"); // TODO: Make this access differently depending on the user (by username)
+    private final CollectionReference bookCollection = db.collection("Users").document(userEmail).collection("Books");
 
 
     private List<Book> bookList = new ArrayList<Book>();
