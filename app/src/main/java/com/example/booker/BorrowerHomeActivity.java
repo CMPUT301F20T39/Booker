@@ -79,7 +79,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
-        // Button takes user to com.example.booker.user_profile.java
+        // Button takes user to user_profile.java
         profileBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
