@@ -28,6 +28,7 @@
             android:scrollbars="none"
             android:singleLine="true"
             app:chipSpacing="10dp"
+            android:theme="@style/Theme.MaterialComponents.Light"
             app:singleLine="true">
 
             <com.google.android.material.chip.Chip
