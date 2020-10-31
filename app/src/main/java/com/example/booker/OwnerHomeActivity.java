@@ -35,14 +35,14 @@ import java.util.HashMap;
 import java.util.List;
 
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
-	private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference bookCollection = db.collection("Users/test-user/Books"); // TODO: Make this access differently depending on the user (by username)
+
 
     private List<Book> bookList = new ArrayList<Book>();
     private ArrayList<Book> filteredBooks = new ArrayList<>();
     private BookListAdapter adapter;
     private ImageButton profileBtn;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +63,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 bookList.clear();
+                assert queryDocumentSnapshots != null;
                 for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                     Book aBook = doc.toObject(Book.class);
                     bookList.add(aBook);
@@ -89,6 +90,8 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 //			}
 //		});
 
+        // When clicked, the floating action button shows the
+        // AddBook dialog.
         final FloatingActionButton addBookBtn = findViewById(R.id.add_book_btn);
         addBookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,18 +161,34 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     }
 
+    /**
+     * Method associated with the OK button in the Dialog button
+     * Add the book to Firestore
+     * Used in AddBookFragment.java
+     *
+     * @param title       title of the book to be added
+     * @param author      author of the book
+     * @param isbn        isbn of the book
+     * @param description description of the book
+     */
     @Override
     public void onOkPressed(String title, String author, String isbn, String description) {
-        final String TAG = "Add Book method";
-        HashMap<String, String> data = new HashMap<>();
+        final String TAG = "Add Book method";   // just a tag for debugging purposes
 
-        if (title.length() > 0 && author.length() > 0 && isbn.length() > 0)
-        {
+        HashMap<String, String> data = new HashMap<>(); // a data structure for adding info to the db
+
+        // check that those three fields are not empty
+        // TODO Needs to have error checking that inputs are proper (shows red text and enforce input
+        //  where mandatory)
+        if (title.length() > 0 && author.length() > 0 && isbn.length() > 0) {
             data.put("ISBN", isbn);
             data.put("title", title);
             data.put("author", author);
             data.put("status", "Available");
         }
+
+        // Book title is used as the title for the document/collection
+        // then all the book info is put within it
         bookCollection
                 .document(title)
                 .set(data)
