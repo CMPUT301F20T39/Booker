@@ -50,6 +50,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private ArrayList<Book> filteredBooks = new ArrayList<>();
     private BookListAdapter adapter;
     private ImageButton profileBtn;
+    private RecyclerView rvBookList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         setContentView(R.layout.activity_owner_home);
 
 
-        RecyclerView rvBookList = findViewById(R.id.ownerBookListView);
+        rvBookList = findViewById(R.id.ownerBookListView);
 
         final BookListAdapter adapter = new BookListAdapter(bookList);
         rvBookList.setAdapter(adapter);
@@ -214,6 +215,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     public void showAvailableBooks() {
 
+        adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Available"); // whitelist
 
         Query titleQuery = bookCollection
@@ -235,6 +237,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     public void showRequestedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Requested"); // whitelist
 
         Query titleQuery = bookCollection
@@ -256,6 +259,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     public void showAcceptedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Accepted"); // whitelist
 
         Query titleQuery = bookCollection
@@ -277,6 +281,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     public void showBorrowedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Borrowed"); // whitelist
 
         Query titleQuery = bookCollection

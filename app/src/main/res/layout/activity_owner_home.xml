@@ -36,7 +36,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="Available" />
 
             <com.google.android.material.chip.Chip
@@ -44,7 +44,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="requested" />
 
             <com.google.android.material.chip.Chip
@@ -52,7 +52,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="accepted" />
 
             <com.google.android.material.chip.Chip
@@ -60,7 +60,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="borrowed" />
         </com.google.android.material.chip.ChipGroup>
     </android.widget.HorizontalScrollView>
