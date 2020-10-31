@@ -1,9 +1,12 @@
 package com.example.booker;
 
+import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,18 +42,22 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private List<Book> bookList = new ArrayList<Book>();
     private ArrayList<Book> filteredBooks = new ArrayList<>();
     private BookListAdapter adapter;
-    
+    private ImageButton profileBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner_home);
 
+
         RecyclerView rvBookList = findViewById(R.id.ownerBookListView);
 
         final BookListAdapter adapter = new BookListAdapter(bookList);
         rvBookList.setAdapter(adapter);
         rvBookList.setLayoutManager(new LinearLayoutManager(this));
+
+        profileBtn = findViewById(R.id.profileButton);
+
 
         bookCollection.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -64,6 +71,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 adapter.notifyDataSetChanged();
             }
         });
+
 
 
 //
@@ -141,6 +149,14 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         });
 
 
+        // Button takes user to com.example.booker.user_profile.java
+        profileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
+                startActivity(goToProfile);
+            }
+        });
 
 
     }
