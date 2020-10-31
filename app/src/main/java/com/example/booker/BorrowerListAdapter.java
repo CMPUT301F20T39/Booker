@@ -58,8 +58,15 @@ public class BorrowerListAdapter extends RecyclerView.Adapter<BorrowerListAdapte
         holder.ownerUsernameTextView.setText(book.getOwnerUsername());
         holder.statusTextView.setText(book.getStatus());
 
+        // hide button on borrower homer screen
         if (hideButton) {
             holder.requestButton.setVisibility(View.GONE);
+        }
+
+        // grey out button on "Requested" books
+        if (book.getStatus().equals("Requested")) {
+            holder.requestButton.setAlpha(0.8f);
+            holder.requestButton.setEnabled(false);
         }
     }
 
