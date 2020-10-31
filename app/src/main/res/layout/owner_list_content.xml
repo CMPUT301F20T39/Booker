@@ -27,7 +27,7 @@
             android:text="@string/BookAuthor" />
 
         <TextView
-            android:id="@+id/OwnerBookDesc"
+            android:id="@+id/OwnerBookTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical"
