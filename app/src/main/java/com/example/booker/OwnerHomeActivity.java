@@ -3,6 +3,7 @@ package com.example.booker;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,17 +11,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,7 +35,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference bookCollection = db.collection("Users/test-user/Books"); // TODO: Make this access differently depending on the user (by username)
 
-    private final List<Book> bookList = new ArrayList<Book>();
+
+    private List<Book> bookList = new ArrayList<Book>();
+    private ArrayList<Book> filteredBooks = new ArrayList<>();
+    private BookListAdapter adapter;
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +91,58 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 new AddBookFragment().show(getSupportFragmentManager(), "ADD_BOOK");
             }
         });
+
+
+        final Chip availableButton = findViewById(R.id.availableBttn);
+        availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            /**
+             * shows available books
+             */
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                showAvailableBooks();
+            }
+        });
+
+
+        final Chip requestedButton = findViewById(R.id.requestedBttn);
+        requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            /**
+             * shows requested books
+             *
+             */
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                showRequestedBooks();
+            }
+        });
+
+        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
+        acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            /**
+             * shows accepted books
+             */
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                showAcceptedBooks();
+            }
+        });
+
+        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
+        borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                showBorrowedBooks();
+            }
+        });
+
+
+
+
     }
 
     /**
@@ -125,5 +188,90 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                         Log.d(TAG, "Data could not be added!" + e.toString());
                     }
                 });
+    }
+
+    public void showAvailableBooks() {
+
+        List<String> filter = Collections.singletonList("Available"); // whitelist
+
+        Query titleQuery = bookCollection
+                .whereIn("status", filter);
+
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    bookList.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Book book = document.toObject(Book.class);
+                        bookList.add(book);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+    public void showRequestedBooks() {
+        List<String> filter = Collections.singletonList("Requested"); // whitelist
+
+        Query titleQuery = bookCollection
+                .whereIn("status", filter);
+
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    bookList.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Book book = document.toObject(Book.class);
+                        bookList.add(book);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+    public void showAcceptedBooks() {
+        List<String> filter = Collections.singletonList("Accepted"); // whitelist
+
+        Query titleQuery = bookCollection
+                .whereIn("status", filter);
+
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    bookList.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Book book = document.toObject(Book.class);
+                        bookList.add(book);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+    public void showBorrowedBooks() {
+        List<String> filter = Collections.singletonList("Borrowed"); // whitelist
+
+        Query titleQuery = bookCollection
+                .whereIn("status", filter);
+
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    bookList.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Book book = document.toObject(Book.class);
+                        bookList.add(book);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 }
