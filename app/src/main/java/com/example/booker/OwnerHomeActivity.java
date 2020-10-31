@@ -1,6 +1,8 @@
 package com.example.booker;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
@@ -150,14 +152,13 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
 
         // Button takes user to com.example.booker.user_profile.java
-        profileBtn.setOnClickListener(new View.OnClickListener() {
+        /** profileBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
                 startActivity(goToProfile);
             }
-        });
-
+        }); */
 
     }
 

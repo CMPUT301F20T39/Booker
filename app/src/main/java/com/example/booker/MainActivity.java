@@ -24,8 +24,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class MainActivity extends AppCompatActivity {
 
 
-    /** TODO: CHANGE USERNAME LABELS TO EMAIL LABELS?
-     *  I don't know if Firebase's sign in function will work with username. If it does then no need to change.
+    /**
+     * I don't know if Firebase's sign in function will work with username. If it does then no need to change.
      */
     // Button signUpButton, signInButton;
     EditText email, password;
@@ -64,15 +64,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 /** Straight to Account Type Activity */
-                Intent goToAccountType = new Intent(getApplicationContext(), AccountTypeActivity.class);
-                startActivity(goToAccountType);
+                // Intent goToAccountType = new Intent(getApplicationContext(), AccountTypeActivity.class);
+                // startActivity(goToAccountType);
 
 
+                // THIS IS A WORKING LOGIN FUNCTION! Implement whenever ready.
+                // login requires email, not username.
 
-                /** THIS IS A WORKING LOGIN FUNCTION! Implement whenever ready.
-                    login requires email, not username.
-
-                 final String Password = password.getText().toString().trim();
+                final String Password = password.getText().toString().trim();
                 final String Email = email.getText().toString();
 
 
@@ -107,9 +106,9 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                 // sign in function from
-                 // geeks for geeks
-                 // https://www.geeksforgeeks.org/user-authentication-using-firebase-in-android/
+                // sign in function from
+                // geeks for geeks
+                // https://www.geeksforgeeks.org/user-authentication-using-firebase-in-android/
 
                 // sign-in existing user
                 mAuth.signInWithEmailAndPassword(Email, Password)
@@ -117,8 +116,7 @@ public class MainActivity extends AppCompatActivity {
                                 new OnCompleteListener<AuthResult>() {
                                     @Override
                                     public void onComplete(
-                                            @NonNull Task<AuthResult> task)
-                                    {
+                                            @NonNull Task<AuthResult> task) {
                                         if (task.isSuccessful()) {
                                             Toast.makeText(getApplicationContext(),
                                                     "Login successful!!",
@@ -129,9 +127,7 @@ public class MainActivity extends AppCompatActivity {
                                             // intent to home activity
                                             Intent intent = new Intent(MainActivity.this, AccountTypeActivity.class);
                                             startActivity(intent);
-                                        }
-
-                                        else {
+                                        } else {
 
                                             // sign-in failed
                                             Toast.makeText(getApplicationContext(),
@@ -144,15 +140,7 @@ public class MainActivity extends AppCompatActivity {
                                 });
 
 
-
-
-                 */
-
-
             }
         });
-
-
     }
-
 }
