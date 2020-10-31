@@ -7,7 +7,7 @@ package com.example.booker;
 public class Book {
 	private String title;
 	private String description;
-	private String status; // Change this data type if another is more convenient
+	private String status;
 	private String ISBN;
 	private String author;
 	private String ownerUsername;

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,22 +32,32 @@ public class BorrowerSearchActivity extends AppCompatActivity {
     private List<Book> bookList = new ArrayList<>();
     private CollectionReference booksCollection = FirebaseFirestore.getInstance().collection("Books");
     private SearchView searchView;
+    private BorrowerListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_borrower_search);
 
-        // takes query from borrower home and sets to current query
         searchView = findViewById(R.id.searchView);
-        searchView.setQuery(getIntent().getStringExtra("searchQuery"), true);
+        searchView.requestFocus(); // get keyboard
+
+        final TextView displayingTextView = findViewById(R.id.displayingTextView);
 
         RecyclerView rvBookList = findViewById(R.id.recyclerView);
 
         // connect adapter and layout to recyclerview
-        final BorrowerListAdapter adapter = new BorrowerListAdapter(bookList, false);
+        adapter = new BorrowerListAdapter(bookList, false);
         rvBookList.setAdapter(adapter);
         rvBookList.setLayoutManager(new LinearLayoutManager(this));
+
+        // initially display all available books
+        booksCollection.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                showAllAvailableBooks();
+            }
+        });
 
         // return to borrower home on home button click
         ImageButton homeButton = findViewById(R.id.homeButton);
@@ -57,8 +68,33 @@ public class BorrowerSearchActivity extends AppCompatActivity {
             }
         });
 
-        // query on initial submit
-        // TODO query only works on exact match; improve query to partial match
+        // query on submit
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                String displayText = "Displaying available \""
+                        + searchView.getQuery().toString() + "\" books";
+                displayingTextView.setText(displayText);
+
+                showSearchedBooks();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.length() == 0) {
+                    String displayText = "Displaying all available books";
+                    displayingTextView.setText(displayText);
+                    showAllAvailableBooks();
+                }
+                return false;
+            }
+        });
+    }
+
+    // displays searched books
+    public void showSearchedBooks() {
         List<String> filter = Arrays.asList("Available", "Requested"); // whitelist
 
         Query titleQuery = booksCollection
@@ -69,6 +105,7 @@ public class BorrowerSearchActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
@@ -77,36 +114,26 @@ public class BorrowerSearchActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
-        // query on sequential submits
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+    // displays all available books
+    public void showAllAvailableBooks() {
+        List<String> filter = Arrays.asList("Available", "Requested"); // whitelist
+
+        Query titleQuery = booksCollection
+                .whereIn("status", filter);
+
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                List<String> filter = Arrays.asList("Available", "Requested"); // whitelist
-
-                Query titleQuery = booksCollection
-                        .whereIn("status", filter)
-                        .whereEqualTo("title", searchView.getQuery().toString());
-
-                titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            bookList.clear();
-                            for (QueryDocumentSnapshot document: task.getResult()) {
-                                Book book = document.toObject(Book.class);
-                                bookList.add(book);
-                            }
-                            adapter.notifyDataSetChanged();
-                        }
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    bookList.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Book book = document.toObject(Book.class);
+                        bookList.add(book);
                     }
-                });
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
     }
