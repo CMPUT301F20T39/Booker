@@ -11,6 +11,7 @@ public class Book {
 	private String ISBN;
 	private String author;
 	private String ownerUsername;
+	private String UID;
 
 	// Constructor for Firestore's .toObject()
 	public Book() {}
@@ -69,5 +70,13 @@ public class Book {
 
 	public void setOwnerUsername(String ownerUsername) {
 		this.ownerUsername = ownerUsername;
+	}
+
+	public String getUID() {
+		return UID;
+	}
+
+	public void setUID(String UID) {
+		this.UID = UID;
 	}
 }
