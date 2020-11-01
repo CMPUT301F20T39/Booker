@@ -53,9 +53,7 @@ public class BorrowerFirestoreRecyclerAdapter extends FirestoreRecyclerAdapter<B
         holder.requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Book targetBook = getItem(position);
-                targetBook.setStatus("Requested");
-                notifyDataSetChanged();
+                getSnapshots().getSnapshot(position).getReference().update("status", "Requested");
             }
         });
     }
