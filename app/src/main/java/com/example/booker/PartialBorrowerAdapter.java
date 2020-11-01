@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -94,12 +96,11 @@ public class PartialBorrowerAdapter extends RecyclerView.Adapter<PartialBorrower
             @Override
             public void onClick(View v) {
                 Query query = firebaseFirestore.collection("Books").whereEqualTo("UID", bookList.get(position).getUID());
+
                 query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                        for (QueryDocumentSnapshot doc: value) {
-                            value.getDocuments().get(0).getReference().update("status", "Requested");
-                        }
+                        value.getDocuments().get(0).getReference().update("status", "Requested");
                     }
                 });
             }

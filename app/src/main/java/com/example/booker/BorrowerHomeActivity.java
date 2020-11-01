@@ -194,6 +194,12 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                             book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
                         bookList.add(book);
                     }
+                    // when the status of a book goes from "Available" to "Requested"
+                    if (document.getType() == DocumentChange.Type.MODIFIED &&
+                            book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
+                        // take user back to all available book search
+                        searchView.setQuery("", false);
+                    }
                 }
                 partialAdapter.notifyDataSetChanged();
             }
