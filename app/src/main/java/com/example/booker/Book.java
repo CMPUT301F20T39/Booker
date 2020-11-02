@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import java.util.HashMap;
+
 /**
  * Book class for storing data and metadata of books.
  * Firestore can insert the data from a book document directly into one of these.
@@ -78,5 +80,18 @@ public class Book {
 
 	public void setUID(String UID) {
 		this.UID = UID;
+	}
+
+	// update this when adding new attributes
+	public HashMap<String, String> getDataHashMap() {
+		HashMap<String, String> data = new HashMap<>();
+		data.put("title", title);
+		data.put("description", description);
+		data.put("status", status);
+		data.put("ISBN", ISBN);
+		data.put("author", author);
+		data.put("ownerUsername", ownerUsername);
+		data.put("UID", UID);
+		return data;
 	}
 }
