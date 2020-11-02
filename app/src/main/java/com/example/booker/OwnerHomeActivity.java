@@ -47,7 +47,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
 
     private List<Book> bookList = new ArrayList<Book>();
-    private ArrayList<Book> filteredBooks = new ArrayList<>();
     private BookListAdapter adapter;
     private ImageButton profileBtn;
     private RecyclerView rvBookList;
@@ -110,19 +109,28 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
 
         final Chip availableButton = findViewById(R.id.availableBttn);
+        final Chip requestedButton = findViewById(R.id.requestedBttn);
+        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
+        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
+
         availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows available books
              */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                showAvailableBooks();
+                bookList.clear();
+                if (availableButton.isChecked())
+                    showAvailableBooks();
+                if (requestedButton.isChecked())
+                    showRequestedBooks();
+                if (acceptedButton.isChecked())
+                    showAcceptedBooks();
+                if (borrowedButton.isChecked())
+                    showBorrowedBooks();
             }
         });
 
-
-        final Chip requestedButton = findViewById(R.id.requestedBttn);
         requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows requested books
@@ -130,29 +138,49 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
              */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                bookList.clear();
+                if (availableButton.isChecked())
+                    showAvailableBooks();
+                if (requestedButton.isChecked())
+                    showRequestedBooks();
+                if (acceptedButton.isChecked())
+                    showAcceptedBooks();
+                if (borrowedButton.isChecked())
+                    showBorrowedBooks();
 
-                showRequestedBooks();
             }
         });
 
-        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
         acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows accepted books
              */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                showAcceptedBooks();
+                bookList.clear();
+                if (availableButton.isChecked())
+                    showAvailableBooks();
+                if (requestedButton.isChecked())
+                    showRequestedBooks();
+                if (acceptedButton.isChecked())
+                    showAcceptedBooks();
+                if (borrowedButton.isChecked())
+                    showBorrowedBooks();
             }
         });
 
-        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
         borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                showBorrowedBooks();
+                bookList.clear();
+                if (availableButton.isChecked())
+                    showAvailableBooks();
+                if (requestedButton.isChecked())
+                    showRequestedBooks();
+                if (acceptedButton.isChecked())
+                    showAcceptedBooks();
+                if (borrowedButton.isChecked())
+                    showBorrowedBooks();
             }
         });
 
@@ -230,7 +258,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
@@ -252,7 +279,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
@@ -274,7 +300,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
@@ -296,7 +321,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
