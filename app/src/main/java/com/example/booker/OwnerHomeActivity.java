@@ -159,11 +159,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
         // Button takes user to com.example.booker.user_profile.java
         /** profileBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
-                startActivity(goToProfile);
-            }
+        @Override
+        public void onClick(View v) {
+        Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
+        startActivity(goToProfile);
+        }
         }); */
 
     }
@@ -184,6 +184,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
         HashMap<String, String> data = new HashMap<>(); // a data structure for adding info to the db
 
+        // generate a UID; see method at the bottom for details
+        String UID = generateUID();
+
         // check that those three fields are not empty
         // TODO Needs to have error checking that inputs are proper (shows red text and enforce input
         //  where mandatory)
@@ -192,12 +195,14 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             data.put("title", title);
             data.put("author", author);
             data.put("status", "Available");
+            data.put("UID", UID);
+            data.put("ownerUsername", user.getDisplayName());
         }
 
-        // Book title is used as the title for the document/collection
+        // UID is randomly generated for the document/collection
         // then all the book info is put within it
         bookCollection
-                .document(title)
+                .document(UID)
                 .set(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -300,5 +305,39 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 }
             }
         });
+    }
+
+    /**
+     * Generates a random, unique* document ID
+     *
+     * https://github.com/firebase/firebase-android-sdk/issues/408
+     * Firestore itself doesn't actually generate a unique UID. It generates a
+     * statistically rare alphanumeric String sequence.
+     *
+     * @return UID
+     *         A unique* String sequence of random alphanumeric characters.
+     */
+    public String generateUID() {
+        int length = 20;
+        List<String> potentialCharacters = new ArrayList<>();
+
+        for (char chr = '0'; chr <= '9'; chr++) {
+            potentialCharacters.add(String.valueOf(chr));
+        }
+        for (char chr = 'A'; chr <= 'Z'; chr++) {
+            potentialCharacters.add(String.valueOf(chr));
+        }
+        for (char chr = 'a'; chr <= 'z'; chr++) {
+            potentialCharacters.add(String.valueOf(chr));
+        }
+
+        int range = 1000000; // just to be safe
+        String UID = "";
+        for (int chr = 0; chr < length; chr++) {
+            int randomIndex = (int) ((Math.random() * range) % potentialCharacters.size());
+            UID = UID.concat(potentialCharacters.get(randomIndex));
+        }
+
+        return UID;
     }
 }

@@ -14,6 +14,8 @@ import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -28,6 +30,7 @@ import java.util.List;
 
 public class BorrowerHomeActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
+    private FirebaseUser user;
     private RecyclerView recyclerView;
     private BorrowerAdapter borrowerAdapter;
     private SearchView searchView;
@@ -40,6 +43,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_borrower_home);
 
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
         // initialize firestore, recyclerview, and adapter stuff
         firebaseFirestore = FirebaseFirestore.getInstance();
         recyclerView = findViewById(R.id.recyclerView);
@@ -50,8 +55,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(borrowerAdapter);
 
-        // debug: replace with user's personal requests list
-        showAllBooks();
+        // user's personal requests list
+        showMyRequests();
 
         // searchview stuff
         searchView = findViewById(R.id.searchView);
@@ -124,8 +129,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 searchView.clearFocus();
                 searchView.setQuery("", false);
 
-                // debug: replace with user's personal requests list
-                showAllBooks();
+                // user's personal requests list
+                showMyRequests();
 
                 // hide buttons
                 borrowerAdapter.setHideButton(true);
@@ -148,14 +153,15 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     }
 
-    // debug
-    public void showAllBooks() {
+
+    public void showMyRequests() {
         bookList.clear();
 
-        // get Books collection
-        CollectionReference collectionReference = firebaseFirestore.collection("Books");
+        CollectionReference myRequests = firebaseFirestore
+                .collection("Users").document(user.getEmail())
+                .collection("myRequests");
 
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        myRequests.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 for (DocumentChange documentChange: value.getDocumentChanges()) {

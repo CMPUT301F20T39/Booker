@@ -9,14 +9,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookViewHolder> {
     private int layoutResource;
     private List<Book> bookList;
     private FirebaseFirestore firebaseFirestore;
+    private FirebaseUser user;
+    private CollectionReference myRequests;
     private boolean hideButton;
 
     // initialize and store view objects
@@ -46,6 +52,10 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         this.layoutResource = layoutResource;
         this.bookList = bookList;
         this.firebaseFirestore = FirebaseFirestore.getInstance();
+        this.user = FirebaseAuth.getInstance().getCurrentUser();
+        this.myRequests = firebaseFirestore
+                .collection("Users").document(user.getEmail())
+                .collection("myRequests");
         this.hideButton = true;
     }
 
@@ -60,11 +70,13 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     // behaviour for list items
     @Override
     public void onBindViewHolder(@NonNull final BookViewHolder holder, final int position) {
-        holder.titleTextView.setText(bookList.get(position).getTitle());
-        holder.authorTextView.setText(bookList.get(position).getAuthor());
-        holder.ISBNTextView.setText(bookList.get(position).getISBN());
-        holder.ownerUsernameTextView.setText(bookList.get(position).getOwnerUsername());
-        holder.statusTextView.setText(bookList.get(position).getStatus());
+        final Book book = bookList.get(position);
+
+        holder.titleTextView.setText(book.getTitle());
+        holder.authorTextView.setText(book.getAuthor());
+        holder.ISBNTextView.setText(book.getISBN());
+        holder.ownerUsernameTextView.setText(book.getOwnerUsername());
+        holder.statusTextView.setText(book.getStatus());
 
         // hiding button
         if (hideButton) {
@@ -88,7 +100,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         holder.requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                firebaseFirestore.collection("Books").document(bookList.get(position).getUID()).update("status", "Requested");
+                clickRequest(book);
             }
         });
     }
@@ -100,5 +112,20 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
 
     public void setHideButton(boolean hideButton) {
         this.hideButton = hideButton;
+    }
+
+    private void clickRequest(Book book) {
+        String UID = book.getUID();
+
+        book.setStatus("Requested");
+
+        // get books hash map
+        HashMap<String, String> data = book.getDataHashMap();
+
+        // set book's status to requested
+        firebaseFirestore.collection("Books").document(UID).set(data);
+
+        // add book to user's requests
+        myRequests.document(UID).set(data);
     }
 }
