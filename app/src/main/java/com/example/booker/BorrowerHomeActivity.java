@@ -193,7 +193,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         List<String> whitelist = Arrays.asList("Available", "Requested");
 
         // get only available and requested books
-        Query query = firebaseFirestore.collection("Books")
+        Query query = firebaseFirestore.collectionGroup("Books")
                 .whereIn("status", whitelist);
 
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -228,7 +228,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         List<String> whitelist = Arrays.asList("Available", "Requested");
 
         // get only available and requested books
-        Query query = firebaseFirestore.collection("Books")
+        Query query = firebaseFirestore.collectionGroup("Books")
                 .whereIn("status", whitelist);
 
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
