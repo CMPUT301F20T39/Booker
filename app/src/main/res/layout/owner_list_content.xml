@@ -65,14 +65,20 @@
             <Button
                 android:id="@+id/editBook"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="37dp"
                 android:text="Edit" />
 
             <Button
                 android:id="@+id/deleteBook"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="37dp"
                 android:text="Delete" />
+
+            <Button
+                android:id="@+id/requestsBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="37dp"
+                android:text="Requests" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
