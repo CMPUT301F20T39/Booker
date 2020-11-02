@@ -7,23 +7,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PartialBorrowerAdapter extends RecyclerView.Adapter<PartialBorrowerAdapter.BookViewHolder> {
+public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookViewHolder> {
     private int layoutResource;
     private List<Book> bookList;
     private FirebaseFirestore firebaseFirestore;
@@ -31,12 +21,12 @@ public class PartialBorrowerAdapter extends RecyclerView.Adapter<PartialBorrower
 
     // initialize and store view objects
     public class BookViewHolder extends RecyclerView.ViewHolder {
-        protected TextView titleTextView;
-        protected TextView authorTextView;
-        protected TextView ISBNTextView;
-        protected TextView ownerUsernameTextView;
-        protected TextView statusTextView;
-        protected Button requestButton;
+        private TextView titleTextView;
+        private TextView authorTextView;
+        private TextView ISBNTextView;
+        private TextView ownerUsernameTextView;
+        private TextView statusTextView;
+        private Button requestButton;
 
         // constructor initializes view objects
         public BookViewHolder(@NonNull View itemView) {
@@ -52,7 +42,7 @@ public class PartialBorrowerAdapter extends RecyclerView.Adapter<PartialBorrower
     }
 
     // adapter constructor
-    public PartialBorrowerAdapter(int layoutResource, List<Book> bookList) {
+    public BorrowerAdapter(int layoutResource, List<Book> bookList) {
         this.layoutResource = layoutResource;
         this.bookList = bookList;
         this.firebaseFirestore = FirebaseFirestore.getInstance();
@@ -69,13 +59,14 @@ public class PartialBorrowerAdapter extends RecyclerView.Adapter<PartialBorrower
 
     // behaviour for list items
     @Override
-    public void onBindViewHolder(@NonNull BookViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final BookViewHolder holder, final int position) {
         holder.titleTextView.setText(bookList.get(position).getTitle());
         holder.authorTextView.setText(bookList.get(position).getAuthor());
         holder.ISBNTextView.setText(bookList.get(position).getISBN());
         holder.ownerUsernameTextView.setText(bookList.get(position).getOwnerUsername());
         holder.statusTextView.setText(bookList.get(position).getStatus());
 
+        // hiding button
         if (hideButton) {
             holder.requestButton.setVisibility(View.GONE);
         }
@@ -83,6 +74,7 @@ public class PartialBorrowerAdapter extends RecyclerView.Adapter<PartialBorrower
             holder.requestButton.setVisibility(View.VISIBLE);
         }
 
+        // greying out button
         if (bookList.get(position).getStatus().equals("Requested")) {
             holder.requestButton.setAlpha(0.9f);
             holder.requestButton.setEnabled(false);
@@ -92,17 +84,11 @@ public class PartialBorrowerAdapter extends RecyclerView.Adapter<PartialBorrower
             holder.requestButton.setEnabled(true);
         }
 
+        // accessing book and changing its status to "Requested"
         holder.requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Query query = firebaseFirestore.collection("Books").whereEqualTo("UID", bookList.get(position).getUID());
-
-                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                        value.getDocuments().get(0).getReference().update("status", "Requested");
-                    }
-                });
+                firebaseFirestore.collection("Books").document(bookList.get(position).getUID()).update("status", "Requested");
             }
         });
     }
