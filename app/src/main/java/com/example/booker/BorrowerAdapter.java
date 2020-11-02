@@ -7,12 +7,16 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.List;
@@ -123,7 +127,15 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         HashMap<String, String> data = book.getDataHashMap();
 
         // set book's status to requested
-        firebaseFirestore.collection("Books").document(UID).set(data);
+        //firebaseFirestore.collection("Books").document(UID).set(data);
+        firebaseFirestore.collectionGroup("Books")
+                .whereEqualTo("UID", UID)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        value.getDocuments().get(0).getReference().update("status", "Requested");
+                    }
+                });
 
         // add book to user's requests
         myRequests.document(UID).set(data);
