@@ -19,6 +19,7 @@
     <string name="add_book_button">Add Book Button</string>
     <string name="title">Title</string>
     <string name="isbn">ISBN</string>
+    <string name="request">Request</string>
 
 
 </resources>
