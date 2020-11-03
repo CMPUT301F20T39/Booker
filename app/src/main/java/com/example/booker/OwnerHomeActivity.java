@@ -355,10 +355,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             potentialCharacters.add(String.valueOf(chr));
         }
 
-        int range = 1000000; // just to be safe
+        int range = potentialCharacters.size();
         String UID = "";
         for (int chr = 0; chr < length; chr++) {
-            int randomIndex = (int) ((Math.random() * range) % potentialCharacters.size());
+            int randomIndex = (int) (Math.random() * range);
             UID = UID.concat(potentialCharacters.get(randomIndex));
         }
 
