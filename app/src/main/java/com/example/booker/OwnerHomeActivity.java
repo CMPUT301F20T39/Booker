@@ -227,7 +227,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             data.put("status", "Available");
             data.put("UID", UID);
             data.put("ownerUsername", user.getDisplayName());
-            data.put("requesterList", Arrays.asList(""));
+            data.put("requesterList", Arrays.asList());
         }
 
         // UID is randomly generated for the document/collection
