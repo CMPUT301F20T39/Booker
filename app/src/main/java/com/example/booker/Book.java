@@ -111,4 +111,8 @@ public class Book {
 	public void addRequester(String requesterUsername) {
 		requesterList.add(requesterUsername);
 	}
+
+	public boolean containsRequester(String requesterUsername) {
+		return requesterList.contains(requesterUsername);
+	}
 }
