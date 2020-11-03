@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Booker</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="or">OR</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="phone">Phone</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="search_hint">Search for books</string>
+    <string name="my_requests">My Requests</string>
+    <string name="owner">Owner</string>
+    <string name="borrower">Borrower</string>
+    <string name="title_activity_owner_home">OwnerHomeActivity</string>
+    <string name="BookDescription">Description</string>
+    <string name="BookAuthor">Author</string>
+    <string name="BookStatus">Status</string>
+    <string name="add_book_button">Add Book Button</string>
+    <string name="title">Title</string>
+    <string name="isbn">ISBN</string>
+
+
+</resources>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/add_book_lv"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="Book Title"
+        android:ems="10"
+        android:hint="@string/title"
+        android:padding="18dp"
+        android:text=""
+        android:textSize="18sp"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/editTextAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="Author Name"
+        android:ems="10"
+        android:hint="@string/BookAuthor"
+        android:inputType="textPersonName"
+        android:padding="16dp"
+        android:text=""
+
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/editTextISBN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/isbn"
+        android:importantForAutofill="no"
+        android:inputType="number"
+        android:padding="16dp"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/editTextDescr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/BookDescription"
+        android:inputType="textMultiLine"
+        android:padding="16dp"
+        android:textSize="18sp"
+        android:importantForAutofill="no" />
+
+</LinearLayout>

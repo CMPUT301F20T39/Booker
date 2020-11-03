@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/OwnerBookAuthor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_vertical"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="36dp"
+            android:text="@string/BookAuthor" />
+
+        <TextView
+            android:id="@+id/OwnerBookTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_vertical"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:text="Title"
+            android:textColor="#000000"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/OwnerBookStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_vertical"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="76dp"
+            android:paddingBottom="4dp"
+            android:text="@string/BookStatus" />
+
+        <TextView
+            android:id="@+id/OwnerBookISBN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_vertical"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="56dp"
+            android:text="123-123456789" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/editBook"
+                android:layout_width="wrap_content"
+                android:layout_height="37dp"
+                android:text="Edit" />
+
+            <Button
+                android:id="@+id/deleteBook"
+                android:layout_width="wrap_content"
+                android:layout_height="37dp"
+                android:text="Delete" />
+
+            <Button
+                android:id="@+id/requestsBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="37dp"
+                android:text="Requests" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
