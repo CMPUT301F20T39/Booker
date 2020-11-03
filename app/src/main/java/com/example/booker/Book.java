@@ -27,7 +27,7 @@ public class Book {
 		this.status = status;
 		this.ISBN = ISBN;
 		this.author = author;
-		this.requesterList = Arrays.asList("");
+		this.requesterList = Arrays.asList();
 	}
 	
 	public String getTitle() {
@@ -114,5 +114,9 @@ public class Book {
 
 	public boolean containsRequester(String requesterUsername) {
 		return requesterList.contains(requesterUsername);
+	}
+
+	public int numRequesters() {
+		return requesterList.size();
 	}
 }
