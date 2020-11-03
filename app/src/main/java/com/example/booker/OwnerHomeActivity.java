@@ -67,7 +67,8 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         profileBtn = findViewById(R.id.profileButton);
 
 
-        bookCollection.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        bookCollection.whereEqualTo("ownerUsername", user.getDisplayName())
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 bookList.clear();
