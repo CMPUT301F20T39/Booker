@@ -16,8 +16,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -157,29 +157,16 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     public void showMyRequests() {
         bookList.clear();
 
-        CollectionReference myRequests = firebaseFirestore
-                .collection("Users").document(user.getEmail())
-                .collection("myRequests");
+        Query query = firebaseFirestore.collection("Books")
+                .whereArrayContains("requesterList", user.getDisplayName());
 
-        myRequests.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    // convert document to book object
-                    Book book = documentChange.getDocument().toObject(Book.class);
+                for (DocumentSnapshot document: value.getDocuments()) {
+                    Book book = document.toObject(Book.class);
+                    bookList.add(book);
 
-                    // add new books to results
-                    if (documentChange.getType() == DocumentChange.Type.ADDED) {
-                        bookList.add(book);
-                    }
-                    // don't add modified books back to results, instead update their old position
-                    if (documentChange.getType() == DocumentChange.Type.MODIFIED) {
-                        for (int i = 0; i < bookList.size(); i ++) {
-                            if (bookList.get(i).getUID().equals(book.getUID())) {
-                                bookList.set(i, book);
-                            }
-                        }
-                    }
                 }
                 borrowerAdapter.notifyDataSetChanged();
             }
@@ -192,15 +179,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // filter for only available and requested
         List<String> whitelist = Arrays.asList("Available", "Requested");
 
-        // get only available and requested books
-        Query query = firebaseFirestore.collectionGroup("Books")
+        Query query = firebaseFirestore.collection("Books")
                 .whereIn("status", whitelist);
 
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    // convert document to book object
                     Book book = documentChange.getDocument().toObject(Book.class);
 
                     // add new books to results
@@ -227,15 +212,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // filter for only available and requested
         List<String> whitelist = Arrays.asList("Available", "Requested");
 
-        // get only available and requested books
-        Query query = firebaseFirestore.collectionGroup("Books")
+        Query query = firebaseFirestore.collection("Books")
                 .whereIn("status", whitelist);
 
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    // convert document to book object
                     Book book = documentChange.getDocument().toObject(Book.class);
 
                     // add new books to results

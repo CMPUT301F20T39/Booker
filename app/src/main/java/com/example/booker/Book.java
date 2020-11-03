@@ -1,6 +1,8 @@
 package com.example.booker;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Book class for storing data and metadata of books.
@@ -14,6 +16,7 @@ public class Book {
 	private String author;
 	private String ownerUsername;
 	private String UID;
+	private List<String> requesterList;
 
 	// Constructor for Firestore's .toObject()
 	public Book() {}
@@ -24,6 +27,7 @@ public class Book {
 		this.status = status;
 		this.ISBN = ISBN;
 		this.author = author;
+		this.requesterList = Arrays.asList("");
 	}
 	
 	public String getTitle() {
@@ -83,8 +87,8 @@ public class Book {
 	}
 
 	// update this when adding new attributes
-	public HashMap<String, String> getDataHashMap() {
-		HashMap<String, String> data = new HashMap<>();
+	public HashMap<String, Object> getDataHashMap() {
+		HashMap<String, Object> data = new HashMap<>();
 		data.put("title", title);
 		data.put("description", description);
 		data.put("status", status);
@@ -92,6 +96,19 @@ public class Book {
 		data.put("author", author);
 		data.put("ownerUsername", ownerUsername);
 		data.put("UID", UID);
+		data.put("requesterList", requesterList);
 		return data;
+	}
+
+	public List<String> getRequesterList() {
+		return requesterList;
+	}
+
+	public void setRequesterArray(List<String> requesterList) {
+		this.requesterList = requesterList;
+	}
+
+	public void addRequester(String requesterUsername) {
+		requesterList.add(requesterUsername);
 	}
 }

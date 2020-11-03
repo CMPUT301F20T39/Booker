@@ -43,7 +43,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
-    private final CollectionReference bookCollection = db.collection("Users").document(userEmail).collection("Books");
+    private final CollectionReference bookCollection = db.collection("Books");
 
 
     private List<Book> bookList = new ArrayList<Book>();
@@ -210,7 +210,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     public void onOkPressed(String title, String author, String isbn, String description) {
         final String TAG = "Add Book method";   // just a tag for debugging purposes
 
-        HashMap<String, String> data = new HashMap<>(); // a data structure for adding info to the db
+        HashMap<String, Object> data = new HashMap<>(); // a data structure for adding info to the db
 
         // generate a UID; see method at the bottom for details
         String UID = generateUID();
@@ -225,6 +225,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             data.put("status", "Available");
             data.put("UID", UID);
             data.put("ownerUsername", user.getDisplayName());
+            data.put("requesterList", Arrays.asList(""));
         }
 
         // UID is randomly generated for the document/collection
@@ -252,6 +253,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         List<String> filter = Collections.singletonList("Available"); // whitelist
 
         Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -273,6 +275,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         List<String> filter = Collections.singletonList("Requested"); // whitelist
 
         Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -294,6 +297,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         List<String> filter = Collections.singletonList("Accepted"); // whitelist
 
         Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -315,6 +319,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         List<String> filter = Collections.singletonList("Borrowed"); // whitelist
 
         Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
