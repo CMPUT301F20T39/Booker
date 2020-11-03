@@ -26,7 +26,6 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     private List<Book> bookList;
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
-    private CollectionReference myRequests;
     private boolean hideButton;
 
     // initialize and store view objects
@@ -57,9 +56,6 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         this.bookList = bookList;
         this.firebaseFirestore = FirebaseFirestore.getInstance();
         this.user = FirebaseAuth.getInstance().getCurrentUser();
-        this.myRequests = firebaseFirestore
-                .collection("Users").document(user.getEmail())
-                .collection("myRequests");
         this.hideButton = true;
     }
 
@@ -122,22 +118,12 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         String UID = book.getUID();
 
         book.setStatus("Requested");
+        book.addRequester(user.getDisplayName());
 
         // get books hash map
-        HashMap<String, String> data = book.getDataHashMap();
+        HashMap<String, Object> data = book.getDataHashMap();
 
         // set book's status to requested
-        //firebaseFirestore.collection("Books").document(UID).set(data);
-        firebaseFirestore.collectionGroup("Books")
-                .whereEqualTo("UID", UID)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                        value.getDocuments().get(0).getReference().update("status", "Requested");
-                    }
-                });
-
-        // add book to user's requests
-        myRequests.document(UID).set(data);
+        firebaseFirestore.collection("Books").document(UID).set(data);
     }
 }
