@@ -1,6 +1,8 @@
 package com.example.booker;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +22,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -36,13 +42,15 @@ import java.util.List;
 
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference bookCollection = db.collection("Users/test-user/Books"); // TODO: Make this access differently depending on the user (by username)
+    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private String userEmail = user.getEmail();
+    private final CollectionReference bookCollection = db.collection("Books");
 
 
     private List<Book> bookList = new ArrayList<Book>();
-    private ArrayList<Book> filteredBooks = new ArrayList<>();
     private BookListAdapter adapter;
     private ImageButton profileBtn;
+    private RecyclerView rvBookList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +58,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         setContentView(R.layout.activity_owner_home);
 
 
-        RecyclerView rvBookList = findViewById(R.id.ownerBookListView);
+        rvBookList = findViewById(R.id.ownerBookListView);
 
         final BookListAdapter adapter = new BookListAdapter(bookList);
         rvBookList.setAdapter(adapter);
@@ -102,19 +110,28 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
 
         final Chip availableButton = findViewById(R.id.availableBttn);
+        final Chip requestedButton = findViewById(R.id.requestedBttn);
+        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
+        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
+
         availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows available books
              */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                showAvailableBooks();
+                bookList.clear();
+                if (availableButton.isChecked())
+                    showAvailableBooks();
+                if (requestedButton.isChecked())
+                    showRequestedBooks();
+                if (acceptedButton.isChecked())
+                    showAcceptedBooks();
+                if (borrowedButton.isChecked())
+                    showBorrowedBooks();
             }
         });
 
-
-        final Chip requestedButton = findViewById(R.id.requestedBttn);
         requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows requested books
@@ -122,42 +139,61 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
              */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                bookList.clear();
+                if (availableButton.isChecked())
+                    showAvailableBooks();
+                if (requestedButton.isChecked())
+                    showRequestedBooks();
+                if (acceptedButton.isChecked())
+                    showAcceptedBooks();
+                if (borrowedButton.isChecked())
+                    showBorrowedBooks();
 
-                showRequestedBooks();
             }
         });
 
-        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
         acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows accepted books
              */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                showAcceptedBooks();
+                bookList.clear();
+                if (availableButton.isChecked())
+                    showAvailableBooks();
+                if (requestedButton.isChecked())
+                    showRequestedBooks();
+                if (acceptedButton.isChecked())
+                    showAcceptedBooks();
+                if (borrowedButton.isChecked())
+                    showBorrowedBooks();
             }
         });
 
-        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
         borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                showBorrowedBooks();
+                bookList.clear();
+                if (availableButton.isChecked())
+                    showAvailableBooks();
+                if (requestedButton.isChecked())
+                    showRequestedBooks();
+                if (acceptedButton.isChecked())
+                    showAcceptedBooks();
+                if (borrowedButton.isChecked())
+                    showBorrowedBooks();
             }
         });
 
 
         // Button takes user to com.example.booker.user_profile.java
-        profileBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
-                startActivity(goToProfile);
-            }
-        });
-
+        /** profileBtn.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+        Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
+        startActivity(goToProfile);
+        }
+        }); */
 
     }
 
@@ -175,7 +211,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     public void onOkPressed(String title, String author, String isbn, String description) {
         final String TAG = "Add Book method";   // just a tag for debugging purposes
 
-        HashMap<String, String> data = new HashMap<>(); // a data structure for adding info to the db
+        HashMap<String, Object> data = new HashMap<>(); // a data structure for adding info to the db
+
+        // generate a UID; see method at the bottom for details
+        String UID = generateUID();
 
         // check that those three fields are not empty
         // TODO Needs to have error checking that inputs are proper (shows red text and enforce input
@@ -185,12 +224,15 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             data.put("title", title);
             data.put("author", author);
             data.put("status", "Available");
+            data.put("UID", UID);
+            data.put("ownerUsername", user.getDisplayName());
+            data.put("requesterList", Arrays.asList(""));
         }
 
-        // Book title is used as the title for the document/collection
+        // UID is randomly generated for the document/collection
         // then all the book info is put within it
         bookCollection
-                .document(title)
+                .document(UID)
                 .set(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -208,16 +250,17 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     public void showAvailableBooks() {
 
+        adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Available"); // whitelist
 
         Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
@@ -229,16 +272,17 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     public void showRequestedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Requested"); // whitelist
 
         Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
@@ -250,16 +294,17 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     public void showAcceptedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Accepted"); // whitelist
 
         Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
@@ -271,16 +316,17 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     public void showBorrowedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Borrowed"); // whitelist
 
         Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    bookList.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
@@ -289,5 +335,39 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 }
             }
         });
+    }
+
+    /**
+     * Generates a random, unique* document ID
+     *
+     * https://github.com/firebase/firebase-android-sdk/issues/408
+     * Firestore itself doesn't actually generate a unique UID. It generates a
+     * statistically rare alphanumeric String sequence.
+     *
+     * @return UID
+     *         A unique* String sequence of random alphanumeric characters.
+     */
+    public String generateUID() {
+        int length = 20;
+        List<String> potentialCharacters = new ArrayList<>();
+
+        for (char chr = '0'; chr <= '9'; chr++) {
+            potentialCharacters.add(String.valueOf(chr));
+        }
+        for (char chr = 'A'; chr <= 'Z'; chr++) {
+            potentialCharacters.add(String.valueOf(chr));
+        }
+        for (char chr = 'a'; chr <= 'z'; chr++) {
+            potentialCharacters.add(String.valueOf(chr));
+        }
+
+        int range = potentialCharacters.size();
+        String UID = "";
+        for (int chr = 0; chr < length; chr++) {
+            int randomIndex = (int) (Math.random() * range);
+            UID = UID.concat(potentialCharacters.get(randomIndex));
+        }
+
+        return UID;
     }
 }

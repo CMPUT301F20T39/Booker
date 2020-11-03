@@ -19,14 +19,16 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup"
             style="@style/Widget.MaterialComponents.ChipGroup"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
             android:scrollbars="none"
             android:singleLine="true"
+            android:theme="@style/Theme.MaterialComponents.Light"
             app:chipSpacing="10dp"
             app:singleLine="true">
 
@@ -35,7 +37,7 @@
                 style="@style/Theme.AppCompat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="Available" />
 
             <com.google.android.material.chip.Chip
@@ -43,7 +45,7 @@
                 style="@style/Theme.AppCompat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="requested" />
 
             <com.google.android.material.chip.Chip
@@ -51,7 +53,7 @@
                 style="@style/Theme.AppCompat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="accepted" />
 
             <com.google.android.material.chip.Chip
@@ -59,7 +61,7 @@
                 style="@style/Theme.AppCompat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="borrowed" />
         </com.google.android.material.chip.ChipGroup>
     </android.widget.HorizontalScrollView>
@@ -67,8 +69,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ownerBookListView"
         android:layout_width="match_parent"
-        android:layout_height="670dp"
-        android:layout_marginTop="55dp">
+        android:layout_height="656dp"
+        android:layout_marginTop="74dp">
 
     </androidx.recyclerview.widget.RecyclerView>
 
@@ -77,6 +79,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
         android:clickable="true"
         android:contentDescription="@string/add_book_button"
         android:focusable="true"
