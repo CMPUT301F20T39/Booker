@@ -149,8 +149,10 @@ public class SignUpActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
 
                             // Update the DisplayName
+                            // DisplayName is Username instead of Full Name to make querying easier
+                            // Full Name is only for display purposes, but never used for queries
                             UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(FullName)
+                                    .setDisplayName(Username)
                                     .build();
 
                             user.updateProfile(profileChangeRequest);
@@ -159,10 +161,10 @@ public class SignUpActivity extends AppCompatActivity {
                             String ID = user.getUid();
 
                             Map<String, Object> data = new HashMap<>();
-                            data.put("Email", Email);
-                            data.put("Name", FullName);
-                            data.put("Phone", Phone);
-                            data.put("Username", Username);
+                            data.put("email", Email);
+                            data.put("name", FullName);
+                            data.put("phone", Phone);
+                            data.put("username", Username);
 
                             db.collection("Users").document(email.getText().toString())
                                     .set(data)
