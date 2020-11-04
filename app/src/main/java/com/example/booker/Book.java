@@ -130,4 +130,10 @@ public class Book implements Serializable {
 		return requesterList.size();
 	}
 
+	public void removeRequester(String requesterUsername) {
+		if (containsRequester(requesterUsername)) {
+			requesterList.remove(requesterUsername);
+		}
+	}
+
 }

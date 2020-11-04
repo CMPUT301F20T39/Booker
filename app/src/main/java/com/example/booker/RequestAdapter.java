@@ -22,6 +22,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -37,12 +38,14 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView nameView;
         public Button viewProfile;
+        public Button rejectButton;
 
         public MyViewHolder(View v) {
             super(v);
 
             nameView = v.findViewById(R.id.requestsName);
             viewProfile = v.findViewById(R.id.viewProfileBtn);
+            rejectButton = v.findViewById(R.id.rejectBtn);
         }
     }
 
@@ -71,22 +74,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         holder.viewProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Query userQuery = db.collection("Users")
-                        .whereEqualTo("username", username);
-                userQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot document: task.getResult()) {
-                            QueryDocumentSnapshot doc = document;
-                        }
-                    }
-                });
-            }
-        });
-
-        holder.viewProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 Query query = db.collection("Users")
                         .whereEqualTo("username", username);
 
@@ -100,6 +87,20 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
                         ownerRequestsActivityContext.startActivity(goToProfile);
                     }
                 });
+            }
+        });
+
+        holder.rejectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                book.removeRequester(username);
+
+                HashMap<String, Object> data = book.getDataHashMap();
+
+                db.collection("Books").document(book.getUID()).set(data);
+
+                nameList.remove(username);
+                notifyDataSetChanged();
             }
         });
     }
