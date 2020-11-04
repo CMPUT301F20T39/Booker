@@ -2,6 +2,7 @@ package com.example.booker;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +30,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	
 	public static class MyViewHolder extends RecyclerView.ViewHolder {
 		public TextView titleView, authorView, ISBNView, statusView;
-		public Button deleteButton, requestsButton;
+		public Button deleteButton, requestsButton, editButton;
 		
 		public MyViewHolder(View v) {
 			super(v);
@@ -39,6 +41,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 			statusView = v.findViewById(R.id.OwnerBookStatus);
 			deleteButton = v.findViewById(R.id.deleteBook);
 			requestsButton = v.findViewById(R.id.requestsBtn);
+			editButton = v.findViewById(R.id.editBook);
 		}
 	}
 	
@@ -59,7 +62,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	
 	@Override
 	public void onBindViewHolder(@NonNull BookListAdapter.MyViewHolder holder, final int position) {
-		Book book = bookList.get(position);
+		final Book book = bookList.get(position);
 		final String UID = book.getUID();
 		
 		holder.titleView.setText(book.getTitle());
@@ -80,6 +83,20 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 			public void onClick(View v) {
 				Book book = bookList.get(position);
 				instance.createRequestList(book);
+			}
+		});
+
+		holder.editButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AddBookFragment addBookFragment = new AddBookFragment();
+				Bundle bundle = new Bundle();
+				bundle.putString("bookUID", book.getUID());
+				bundle.putString("bookTitle", book.getTitle());
+				bundle.putString("bookAuthor", book.getAuthor());
+				bundle.putString("bookISBN", book.getISBN());
+				addBookFragment.setArguments(bundle);
+				addBookFragment.show(instance.getSupportFragmentManager(), "EDIT_BOOK");
 			}
 		});
 
