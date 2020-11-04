@@ -29,7 +29,7 @@ public class Book implements Serializable {
 		this.status = status;
 		this.ISBN = ISBN;
 		this.author = author;
-		this.requesterList = Arrays.asList("");
+		this.requesterList = Arrays.asList(); // allows a user to be the 0th index instead of an empty string
 	}
 
 	public String getTitle() {
