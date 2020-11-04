@@ -82,7 +82,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         }
 
         // greying out button
-        if (bookList.get(position).getStatus().equals("Requested")) {
+        if (bookList.get(position).containsRequester(user.getDisplayName())) {
             holder.requestButton.setAlpha(0.9f);
             holder.requestButton.setEnabled(false);
         }
