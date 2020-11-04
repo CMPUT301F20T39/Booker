@@ -39,6 +39,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         public TextView nameView;
         public Button viewProfile;
         public Button rejectButton;
+        public Button acceptButton;
 
         public MyViewHolder(View v) {
             super(v);
@@ -46,6 +47,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             nameView = v.findViewById(R.id.requestsName);
             viewProfile = v.findViewById(R.id.viewProfileBtn);
             rejectButton = v.findViewById(R.id.rejectBtn);
+            acceptButton = v.findViewById(R.id.acceptBtn);
         }
     }
 
@@ -100,6 +102,21 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
                 db.collection("Books").document(book.getUID()).set(data);
 
                 nameList.remove(username);
+                notifyDataSetChanged();
+            }
+        });
+
+        holder.acceptButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                book.leaveOneRequester(username);
+
+                book.setStatus("Accepted");
+
+                HashMap<String, Object> data = book.getDataHashMap();
+
+                db.collection("Books").document(book.getUID()).set(data);
+
                 notifyDataSetChanged();
             }
         });

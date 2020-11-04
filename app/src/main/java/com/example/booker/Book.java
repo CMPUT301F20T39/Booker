@@ -136,4 +136,11 @@ public class Book implements Serializable {
 		}
 	}
 
+	public void leaveOneRequester(String requesterUsername) {
+		if (containsRequester(requesterUsername)) {
+			requesterList.clear();
+			requesterList.add(requesterUsername);
+		}
+	}
+
 }
