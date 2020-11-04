@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +32,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
     private List<String> nameList;
     private FirebaseFirestore db;
     private FirebaseUser firebaseUser;
+    private Context ownerRequestsActivityContext;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView nameView;
@@ -43,11 +46,12 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         }
     }
 
-    public RequestAdapter(Book book) {
+    public RequestAdapter(Book book, Context ownerRequestsActivityContext) {
         this.book = book;
         nameList = book.getRequesterList();
         this.db = FirebaseFirestore.getInstance();
         this.firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        this.ownerRequestsActivityContext = ownerRequestsActivityContext;
     }
 
     @NonNull
@@ -59,7 +63,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         final String username = nameList.get(position);
 
         holder.nameView.setText(username);
@@ -75,6 +79,25 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
                         for (QueryDocumentSnapshot document: task.getResult()) {
                             QueryDocumentSnapshot doc = document;
                         }
+                    }
+                });
+            }
+        });
+
+        holder.viewProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Query query = db.collection("Users")
+                        .whereEqualTo("username", username);
+
+                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        String requesterEmail = task.getResult().getDocuments().get(0).getString("email");
+                        Intent goToProfile = new Intent(ownerRequestsActivityContext, user_profile.class);
+                        goToProfile.putExtra("profileType", "READ_ONLY");
+                        goToProfile.putExtra("profileEmail", requesterEmail);
+                        ownerRequestsActivityContext.startActivity(goToProfile);
                     }
                 });
             }

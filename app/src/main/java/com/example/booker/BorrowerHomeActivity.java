@@ -49,7 +49,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         firebaseFirestore = FirebaseFirestore.getInstance();
         recyclerView = findViewById(R.id.recyclerView);
         bookList = new ArrayList<>();
-        borrowerAdapter = new BorrowerAdapter(R.layout.borrower_search_item, bookList);
+        borrowerAdapter = new BorrowerAdapter(R.layout.borrower_search_item, bookList, this);
 
         // connect adapter to recyclerview
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -145,6 +145,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
+                goToProfile.putExtra("profileType", "EDIT");
+                goToProfile.putExtra("profileEmail", user.getEmail());
                 startActivity(goToProfile);
             }
         });
