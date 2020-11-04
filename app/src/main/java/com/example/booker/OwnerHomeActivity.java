@@ -34,6 +34,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +46,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
     private final CollectionReference bookCollection = db.collection("Books");
-
 
     private List<Book> bookList = new ArrayList<Book>();
     private BookListAdapter adapter;
@@ -60,7 +60,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
         rvBookList = findViewById(R.id.ownerBookListView);
 
-        final BookListAdapter adapter = new BookListAdapter(bookList);
+        final BookListAdapter adapter = new BookListAdapter(bookList, this);
         rvBookList.setAdapter(adapter);
         rvBookList.setLayoutManager(new LinearLayoutManager(this));
 
@@ -198,6 +198,12 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     }
 
+    public void createRequestList(Book book) {
+        Intent goToRequests = new Intent(getApplicationContext(), OwnerRequestsActivity.class);
+        goToRequests.putExtra("Book", book);
+        startActivity(goToRequests);
+    }
+
     /**
      * Method associated with the OK button in the Dialog button
      * Add the book to Firestore
@@ -227,6 +233,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             data.put("status", "Available");
             data.put("UID", UID);
             data.put("ownerUsername", user.getDisplayName());
+            data.put("ownerEmail", user.getEmail());
             data.put("requesterList", Arrays.asList(""));
         }
 
