@@ -72,7 +72,8 @@
             android:layout_marginLeft="4dp"
             android:layout_marginTop="65dp"
             android:text="Owner Username"
-            android:textColor="@android:color/black" />
+            android:textColor="#1F53B1"
+            android:textStyle="bold|italic" />
 
         <TextView
             android:id="@+id/statusTextView"
