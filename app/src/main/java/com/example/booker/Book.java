@@ -122,4 +122,12 @@ public class Book implements Serializable {
 	public void addRequester(String requesterUsername) {
 		requesterList.add(requesterUsername);
 	}
+	public boolean containsRequester(String requesterUsername) {
+		return requesterList.contains(requesterUsername);
+	}
+
+	public int numRequesters() {
+		return requesterList.size();
+	}
+
 }
