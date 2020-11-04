@@ -1,5 +1,6 @@
 package com.example.booker;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -8,13 +9,14 @@ import java.util.List;
  * Book class for storing data and metadata of books.
  * Firestore can insert the data from a book document directly into one of these.
  */
-public class Book {
+public class Book implements Serializable {
 	private String title;
 	private String description;
 	private String status;
 	private String ISBN;
 	private String author;
 	private String ownerUsername;
+	private String ownerEmail;
 	private String UID;
 	private List<String> requesterList;
 
@@ -27,45 +29,53 @@ public class Book {
 		this.status = status;
 		this.ISBN = ISBN;
 		this.author = author;
-		this.requesterList = Arrays.asList();
+		this.requesterList = Arrays.asList("");
 	}
-	
+
 	public String getTitle() {
 		return title;
 	}
-	
+
+	public String getOwnerEmail() {
+		return ownerEmail;
+	}
+
+	public void setOwnerEmail(String ownerEmail) {
+		this.ownerEmail = ownerEmail;
+	}
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
-	
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
+
 	public String getStatus() {
 		return status;
 	}
-	
+
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
+
 	public String getISBN() {
 		return ISBN;
 	}
-	
+
 	public void setISBN(String ISBN) {
 		this.ISBN = ISBN;
 	}
-	
+
 	public String getAuthor() {
 		return author;
 	}
-	
+
 	public void setAuthor(String author) {
 		this.author = author;
 	}
@@ -95,6 +105,7 @@ public class Book {
 		data.put("ISBN", ISBN);
 		data.put("author", author);
 		data.put("ownerUsername", ownerUsername);
+		data.put("ownerEmail", ownerEmail);
 		data.put("UID", UID);
 		data.put("requesterList", requesterList);
 		return data;
@@ -111,7 +122,6 @@ public class Book {
 	public void addRequester(String requesterUsername) {
 		requesterList.add(requesterUsername);
 	}
-
 	public boolean containsRequester(String requesterUsername) {
 		return requesterList.contains(requesterUsername);
 	}
@@ -119,4 +129,5 @@ public class Book {
 	public int numRequesters() {
 		return requesterList.size();
 	}
+
 }
