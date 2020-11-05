@@ -48,9 +48,6 @@ public class AddBookFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-//        LayoutInflater inflater = requireActivity().getLayoutInflater();
-//        View view = inflater.inflate(R.layout.add_book_fragment_layout, null);
-
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.add_book_fragment_layout, null);
 
         // Reference the EditTexts to retrieve their inputs
@@ -59,9 +56,12 @@ public class AddBookFragment extends DialogFragment {
         isbnEdit = view.findViewById(R.id.editTextISBN);
         descrpEdit = view.findViewById(R.id.editTextDescr);
 
+        // initialize
         Bundle bundle = getArguments();
         String dialogType = "Add Book";
         String bookUID = generateUID();
+
+        // if passed arguments for editing a book
         if (bundle != null) {
             titleEdit.setText(getArguments().getString("bookTitle"));
             authorEdit.setText(getArguments().getString("bookAuthor"));
