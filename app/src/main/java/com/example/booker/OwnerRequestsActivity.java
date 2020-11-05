@@ -47,4 +47,14 @@ public class OwnerRequestsActivity extends AppCompatActivity {
         });
 
     }
+
+    public void getProfile(String name, String email, String phone, String username) {
+        Intent goToUser = new Intent(getApplicationContext(), ActivityViewUser.class);
+        goToUser.putExtra("name", name);
+        goToUser.putExtra("email", email);
+        goToUser.putExtra("phone", phone);
+        goToUser.putExtra("username", username);
+        startActivity(goToUser);
+
+    }
 }

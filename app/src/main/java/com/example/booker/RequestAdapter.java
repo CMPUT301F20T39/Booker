@@ -30,6 +30,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
     private List<String> nameList;
     private FirebaseFirestore db;
     private FirebaseUser firebaseUser;
+    private OwnerRequestsActivity instance;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView nameView;
@@ -43,8 +44,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         }
     }
 
-    public RequestAdapter(Book book) {
+    public RequestAdapter(Book book, OwnerRequestsActivity instance) {
         this.book = book;
+        this.instance = instance;
         nameList = book.getRequesterList();
         this.db = FirebaseFirestore.getInstance();
         this.firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -70,11 +72,18 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
                 Query userQuery = db.collection("Users")
                         .whereEqualTo("username", username);
                 userQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    QueryDocumentSnapshot doc;
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         for (QueryDocumentSnapshot document: task.getResult()) {
-                            QueryDocumentSnapshot doc = document;
+                            doc = document;
                         }
+                        String fullName = (String) doc.get("name");
+                        String email = (String) doc.get("email");
+                        String phone = (String) doc.get("phone");
+                        String username = (String) doc.get("username");
+                        instance.getProfile(fullName, email, phone, username);
+
                     }
                 });
             }
