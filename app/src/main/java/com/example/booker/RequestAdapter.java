@@ -72,8 +72,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
                 userQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        QueryDocumentSnapshot doc;
                         for (QueryDocumentSnapshot document: task.getResult()) {
-                            QueryDocumentSnapshot doc = document;
+                            doc = document;
                         }
                     }
                 });
