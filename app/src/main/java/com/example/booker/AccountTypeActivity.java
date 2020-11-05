@@ -36,11 +36,13 @@ public class AccountTypeActivity extends AppCompatActivity {
             }
         });
 
+        // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar3);
         setSupportActionBar(toolbar);
         ActionBar myToolbar = getSupportActionBar();
         myToolbar.setTitle("");
         myToolbar.setDisplayHomeAsUpEnabled(true);
+
         // toolbar back button
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

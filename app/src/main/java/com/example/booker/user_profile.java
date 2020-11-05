@@ -43,7 +43,6 @@ public class user_profile extends AppCompatActivity {
     private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth firebaseAuth;
     private TextView name, email, phone;
-    private UserDB userDB;
     private Button saveBtn;
     private List<String> s;
 
