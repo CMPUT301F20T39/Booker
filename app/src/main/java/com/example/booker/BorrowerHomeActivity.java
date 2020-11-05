@@ -3,6 +3,7 @@ package com.example.booker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +18,8 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
@@ -42,16 +45,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private ImageButton profileBtn;
     private TextView listDisplayTextView;
     private List<Book> bookList;
-    private ImageButton historyImageButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_borrower_home);
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        final ChipGroup chipGroup = findViewById(R.id.chipGroup);
+        final Chip requestedButton = findViewById(R.id.requestedBttn);
+        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
+        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
 
-        historyImageButton = findViewById(R.id.historyImageButton);
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
         // initialize firestore, recyclerview, and adapter stuff
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -65,6 +71,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
         // user's personal requests list
         showMyRequests();
+        requestedButton.setChecked(true);
 
         // searchview stuff
         searchView = findViewById(R.id.searchView);
@@ -76,21 +83,22 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         final EditText searchViewEditText = (EditText) searchView.findViewById(id);
 
         // touching search edit text
-        searchViewEditText.setOnTouchListener(new View.OnTouchListener() {
+        searchViewEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // change text display to all available
-                String listDisplay = "Displaying all available books";
-                listDisplayTextView.setText(listDisplay);
-                listDisplayTextView.setTextSize(18);
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    // change text display to all available
+                    String listDisplay = "Displaying all available books";
+                    listDisplayTextView.setText(listDisplay);
+                    listDisplayTextView.setTextSize(18);
 
-                historyImageButton.setVisibility(View.GONE);
+                    chipGroup.setVisibility(View.GONE);
 
-                // show all available books and show request buttons
-                showAllAvailableBooks();
-                borrowerAdapter.setHideButton(false);
+                    // show all available books and show request buttons
+                    showAllAvailableBooks();
+                    borrowerAdapter.setHideButton(false);
+                }
 
-                return false;
             }
         });
 
@@ -104,7 +112,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 listDisplayTextView.setText(listDisplay);
 
                 // show titled available books
-                showTitledAvailableBooks();
+                showSearchedAvailableBooks();
 
                 return false;
             }
@@ -125,6 +133,36 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        requestedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listDisplayTextView.setText("My Requests");
+                acceptedButton.setChecked(false);
+                borrowedButton.setChecked(false);
+                showMyRequests();
+            }
+        });
+
+        acceptedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listDisplayTextView.setText("My Accepts");
+                requestedButton.setChecked(false);
+                borrowedButton.setChecked(false);
+                showMyAccepts();
+            }
+        });
+
+        borrowedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listDisplayTextView.setText("My Borrows");
+                acceptedButton.setChecked(false);
+                requestedButton.setChecked(false);
+                showMyBorrows();
+            }
+        });
+
         // home button stuff
         ImageButton homeButton = findViewById(R.id.homeButton);
         homeButton.setOnClickListener(new View.OnClickListener() {
@@ -135,14 +173,15 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 listDisplayTextView.setTextSize(24);
                 listDisplayTextView.setText(myRequestsDisplay);
 
-                historyImageButton.setVisibility(View.VISIBLE);
+                chipGroup.setVisibility(View.VISIBLE);
 
                 // close keyboard and reset search text
                 searchView.clearFocus();
                 searchView.setQuery("", false);
 
                 // user's personal requests list
-                showMyRequests();
+                requestedButton.performClick();
+                requestedButton.setChecked(true);
 
                 // hide buttons
                 borrowerAdapter.setHideButton(true);
@@ -163,21 +202,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
-
-        historyImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // change text display to request history
-                String myRequestsDisplay = "Request History";
-                listDisplayTextView.setTextSize(24);
-                listDisplayTextView.setText(myRequestsDisplay);
-
-                historyImageButton.setVisibility(View.GONE);
-
-                showRequestHistory();
-            }
-        });
-
     }
 
 
@@ -185,6 +209,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         bookList.clear();
 
         Query query = firebaseFirestore.collection("Books")
+                .whereEqualTo("status", "Requested")
                 .whereArrayContains("requesterList", user.getDisplayName());
 
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -200,37 +225,42 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
-    public void showRequestHistory() {
+    public void showMyAccepts() {
         bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
 
-        Query query = firebaseFirestore.collection("Users")
-                .whereEqualTo("email", user.getEmail());
+        Query query = firebaseFirestore.collection("Books")
+                .whereEqualTo("status", "Accepted")
+                .whereArrayContains("requesterList", user.getDisplayName());
 
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 for (DocumentSnapshot document: value.getDocuments()) {
-                    Map<String, Object> userData = document.getData();
-                    List<String> requestHistory = (List<String>) userData.get("requestHistory");
+                    Book book = document.toObject(Book.class);
+                    bookList.add(book);
 
-                    if (requestHistory.isEmpty()) {
-                        return;
-                    }
-
-                    Query query1 = firebaseFirestore.collection("Books")
-                            .whereIn("UID", requestHistory);
-                    query1.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            for (DocumentSnapshot documentSnapshot: task.getResult()) {
-                                Book book = documentSnapshot.toObject(Book.class);
-                                bookList.add(book);
-                                borrowerAdapter.notifyDataSetChanged();
-                            }
-                        }
-                    });
                 }
+                borrowerAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    public void showMyBorrows() {
+        bookList.clear();
+
+        Query query = firebaseFirestore.collection("Books")
+                .whereEqualTo("status", "Borrowed")
+                .whereArrayContains("requesterList", user.getDisplayName());
+
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                for (DocumentSnapshot document: value.getDocuments()) {
+                    Book book = document.toObject(Book.class);
+                    bookList.add(book);
+
+                }
+                borrowerAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -268,7 +298,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
-    public void showTitledAvailableBooks() {
+    public void showSearchedAvailableBooks() {
         bookList.clear();
 
         // filter for only available and requested
@@ -286,6 +316,10 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                     // add new books to results
                     if (documentChange.getType() == DocumentChange.Type.ADDED &&
                             book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
+                        bookList.add(book);
+                    }
+                    else if (documentChange.getType() == DocumentChange.Type.ADDED &&
+                            book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
                         bookList.add(book);
                     }
                     // don't add modified books back to results, instead update their old position

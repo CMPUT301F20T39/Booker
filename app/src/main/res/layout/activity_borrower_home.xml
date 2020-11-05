@@ -6,6 +6,45 @@
     android:layout_height="match_parent"
     tools:context=".BorrowerHomeActivity">
 
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroup"
+        style="@style/Widget.MaterialComponents.ChipGroup"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:scrollbars="none"
+        android:singleLine="true"
+        android:theme="@style/Theme.MaterialComponents.Light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listDisplayTextView"
+        app:singleLine="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/requestedBttn"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="requested" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/acceptedBttn"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="accepted" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/borrowedBttn"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="borrowed" />
+    </com.google.android.material.chip.ChipGroup>
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
@@ -80,17 +119,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listDisplayTextView" />
-
-    <ImageButton
-        android:id="@+id/historyImageButton"
-        android:layout_width="35dp"
-        android:layout_height="32dp"
-        android:backgroundTint="#00FFFFFF"
-        android:tint="#000000"
-        app:layout_constraintBottom_toBottomOf="@+id/listDisplayTextView"
-        app:layout_constraintStart_toEndOf="@+id/listDisplayTextView"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:srcCompat="@android:drawable/ic_menu_recent_history" />
+        app:layout_constraintTop_toBottomOf="@+id/chipGroup" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
