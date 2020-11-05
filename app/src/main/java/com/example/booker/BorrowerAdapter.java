@@ -101,6 +101,10 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
             holder.requestButton.setEnabled(true);
         }
 
+        if (!book.containsRequester(user.getDisplayName())) {
+            holder.statusTextView.setText("Available");
+        }
+
         // accessing book and changing its status to "Requested"
         holder.requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,23 +145,5 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
 
         // set book's status to requested
         firebaseFirestore.collection("Books").document(UID).set(data);
-
-        Query query = firebaseFirestore.collection("Users")
-                .whereEqualTo("email", user.getEmail());
-
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                for (DocumentSnapshot document: task.getResult()) {
-                    Map<String, Object> userData = document.getData();
-                    List<String> requestHistory = (List<String>) userData.get("requestHistory");
-                    requestHistory.add(UID);
-
-                    firebaseFirestore.collection("Users")
-                            .document(user.getEmail())
-                            .set(userData);
-                }
-            }
-        });
     }
 }
