@@ -9,11 +9,22 @@
     tools:context=".BorrowerHomeActivity">
 
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1C54E3"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <android.widget.HorizontalScrollView
         android:id="@+id/BorrowerFilters"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="56dp"
         android:layout_marginBottom="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -71,7 +82,7 @@
         android:id="@+id/ownerBookListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="74dp">
+        android:layout_marginTop="114dp">
 
     </androidx.recyclerview.widget.RecyclerView>
 

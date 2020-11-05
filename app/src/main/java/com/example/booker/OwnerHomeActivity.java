@@ -12,7 +12,9 @@ import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -82,6 +84,18 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         });
 
 
+        Toolbar toolbar = findViewById(R.id.toolbar4);
+        setSupportActionBar(toolbar);
+        ActionBar myToolbar = getSupportActionBar();
+        myToolbar.setTitle("Owner Home");
+        myToolbar.setDisplayHomeAsUpEnabled(true);
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
 //
 //		db.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {

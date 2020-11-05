@@ -2,7 +2,9 @@ package com.example.booker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -121,7 +123,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 // when search is blank and not on home screen
                 if (newText.length() == 0 &&
-                !listDisplayTextView.getText().toString().equals("My Requests")) {
+                !listDisplayTextView.getText().toString().equals("Borrower Home")) {
                     // change text display to titled available
                     String listDisplay = "Displaying all available books";
                     listDisplayTextView.setText(listDisplay);
@@ -136,7 +138,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         requestedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listDisplayTextView.setText("My Requests");
                 acceptedButton.setChecked(false);
                 borrowedButton.setChecked(false);
                 showMyRequests();
@@ -146,7 +147,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         acceptedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listDisplayTextView.setText("My Accepts");
                 requestedButton.setChecked(false);
                 borrowedButton.setChecked(false);
                 showMyAccepts();
@@ -156,7 +156,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         borrowedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listDisplayTextView.setText("My Borrows");
                 acceptedButton.setChecked(false);
                 requestedButton.setChecked(false);
                 showMyBorrows();
@@ -164,12 +163,12 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
 
         // home button stuff
-        ImageButton homeButton = findViewById(R.id.homeButton);
+        final ImageButton homeButton = findViewById(R.id.homeButton);
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // change text display to my requests
-                String myRequestsDisplay = "My Requests";
+                String myRequestsDisplay = "Borrower Home";
                 listDisplayTextView.setTextSize(24);
                 listDisplayTextView.setText(myRequestsDisplay);
 
@@ -199,6 +198,24 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 goToProfile.putExtra("profileType", "EDIT");
                 goToProfile.putExtra("profileEmail", user.getEmail());
                 startActivity(goToProfile);
+            }
+        });
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar myToolbar = getSupportActionBar();
+        myToolbar.setTitle("");
+        myToolbar.setDisplayHomeAsUpEnabled(true);
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listDisplayTextView.getText().toString().startsWith("Displaying")) {
+                    homeButton.performClick();
+                }
+                else {
+                    finish();
+                }
             }
         });
 
