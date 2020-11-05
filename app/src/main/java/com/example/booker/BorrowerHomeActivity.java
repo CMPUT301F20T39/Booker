@@ -339,6 +339,10 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                             book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
                         bookList.add(book);
                     }
+                    else if (documentChange.getType() == DocumentChange.Type.ADDED &&
+                            book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
+                        bookList.add(book);
+                    }
                     // don't add modified books back to results, instead update their old position
                     if (documentChange.getType() == DocumentChange.Type.MODIFIED) {
                         for (int i = 0; i < bookList.size(); i ++) {
