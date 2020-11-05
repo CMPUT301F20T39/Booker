@@ -11,12 +11,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookViewHolder> {
     private int layoutResource;
@@ -124,7 +130,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     }
 
     private void clickRequest(Book book) {
-        String UID = book.getUID();
+        final String UID = book.getUID();
 
         book.addRequester(user.getDisplayName());
 
@@ -135,5 +141,23 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
 
         // set book's status to requested
         firebaseFirestore.collection("Books").document(UID).set(data);
+
+        Query query = firebaseFirestore.collection("Users")
+                .whereEqualTo("email", user.getEmail());
+
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot document: task.getResult()) {
+                    Map<String, Object> userData = document.getData();
+                    List<String> requestHistory = (List<String>) userData.get("requestHistory");
+                    requestHistory.add(UID);
+
+                    firebaseFirestore.collection("Users")
+                            .document(user.getEmail())
+                            .set(userData);
+                }
+            }
+        });
     }
 }

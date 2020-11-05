@@ -1,5 +1,6 @@
 package com.example.booker;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -14,6 +15,8 @@ import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
@@ -26,7 +29,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BorrowerHomeActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
@@ -37,6 +42,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private ImageButton profileBtn;
     private TextView listDisplayTextView;
     private List<Book> bookList;
+    private ImageButton historyImageButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_borrower_home);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
+
+        historyImageButton = findViewById(R.id.historyImageButton);
 
         // initialize firestore, recyclerview, and adapter stuff
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -75,6 +83,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 String listDisplay = "Displaying all available books";
                 listDisplayTextView.setText(listDisplay);
                 listDisplayTextView.setTextSize(18);
+
+                historyImageButton.setVisibility(View.GONE);
 
                 // show all available books and show request buttons
                 showAllAvailableBooks();
@@ -125,6 +135,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 listDisplayTextView.setTextSize(24);
                 listDisplayTextView.setText(myRequestsDisplay);
 
+                historyImageButton.setVisibility(View.VISIBLE);
+
                 // close keyboard and reset search text
                 searchView.clearFocus();
                 searchView.setQuery("", false);
@@ -152,6 +164,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
 
 
+        historyImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // change text display to request history
+                String myRequestsDisplay = "Request History";
+                listDisplayTextView.setTextSize(24);
+                listDisplayTextView.setText(myRequestsDisplay);
+
+                historyImageButton.setVisibility(View.GONE);
+
+                showRequestHistory();
+            }
+        });
 
     }
 
@@ -171,6 +196,41 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
                 }
                 borrowerAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    public void showRequestHistory() {
+        bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
+
+        Query query = firebaseFirestore.collection("Users")
+                .whereEqualTo("email", user.getEmail());
+
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                for (DocumentSnapshot document: value.getDocuments()) {
+                    Map<String, Object> userData = document.getData();
+                    List<String> requestHistory = (List<String>) userData.get("requestHistory");
+
+                    if (requestHistory.isEmpty()) {
+                        return;
+                    }
+
+                    Query query1 = firebaseFirestore.collection("Books")
+                            .whereIn("UID", requestHistory);
+                    query1.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            for (DocumentSnapshot documentSnapshot: task.getResult()) {
+                                Book book = documentSnapshot.toObject(Book.class);
+                                bookList.add(book);
+                                borrowerAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
             }
         });
     }

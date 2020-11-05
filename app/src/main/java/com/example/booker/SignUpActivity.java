@@ -30,6 +30,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -165,6 +166,7 @@ public class SignUpActivity extends AppCompatActivity {
                             data.put("name", FullName);
                             data.put("phone", Phone);
                             data.put("username", Username);
+                            data.put("requestHistory", Arrays.asList()); // empty list with no empty strings
 
                             db.collection("Users").document(email.getText().toString())
                                     .set(data)
