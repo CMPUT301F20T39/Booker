@@ -1,7 +1,5 @@
 package com.example.booker;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +20,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -37,26 +34,20 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView nameView;
-        public Button viewProfile;
-        public Button rejectButton;
-        public Button acceptButton;
 
         public MyViewHolder(View v) {
             super(v);
 
             nameView = v.findViewById(R.id.requestsName);
-            viewProfile = v.findViewById(R.id.viewProfileBtn);
-            rejectButton = v.findViewById(R.id.rejectBtn);
-            acceptButton = v.findViewById(R.id.acceptBtn);
         }
     }
 
-    public RequestAdapter(Book book, OwnerRequestsActivity instance)  {
+    public RequestAdapter(Book book, OwnerRequestsActivity instance) {
         this.book = book;
+        this.instance = instance;
         nameList = book.getRequesterList();
         this.db = FirebaseFirestore.getInstance();
         this.firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        this.instance = instance;
     }
 
     @NonNull
@@ -73,55 +64,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
 
         holder.nameView.setText(username);
 
-        holder.viewProfile.setOnClickListener(new View.OnClickListener() {
+        holder.nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Query query = db.collection("Users")
-                        .whereEqualTo("username", username);
+                instance.getProfile(holder.nameView.getText().toString());
 
-                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    QueryDocumentSnapshot doc;
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot document: task.getResult()) {
-                            doc = document;
-                        }
-                        String fullName = (String) doc.get("name");
-                        String email = (String) doc.get("email");
-                        String phone = (String) doc.get("phone");
-                        String username = (String) doc.get("username");
-                        instance.getProfile(fullName, email, phone, username);
-                    }
-                });
-            }
-        });
-
-        holder.rejectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                book.removeRequester(username);
-
-                HashMap<String, Object> data = book.getDataHashMap();
-
-                db.collection("Books").document(book.getUID()).set(data);
-
-                nameList.remove(username);
-                notifyDataSetChanged();
-            }
-        });
-
-        holder.acceptButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                book.leaveOneRequester(username);
-
-                book.setStatus("Accepted");
-
-                HashMap<String, Object> data = book.getDataHashMap();
-
-                db.collection("Books").document(book.getUID()).set(data);
-
-                notifyDataSetChanged();
             }
         });
     }

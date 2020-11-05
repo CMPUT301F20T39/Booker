@@ -30,22 +30,17 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:text="Name"
-                android:textColor="#000000"
-                android:textSize="24sp" />
+                android:textColor="#1F53B1"
+                android:textSize="24sp"
+                android:textStyle="bold|italic" />
 
-            <Button
-                android:id="@+id/viewProfileBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="View Profile"
-                android:textSize="14sp" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:orientation="vertical">
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/acceptBtn"
