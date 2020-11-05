@@ -1,6 +1,9 @@
 package com.example.booker;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
@@ -31,9 +34,17 @@ public class OwnerRequestsActivity extends AppCompatActivity {
         myToolbar.setTitle("Requests for " + book.getTitle());
 
         rvNameList = findViewById(R.id.requestsListView);
-        adapter = new RequestAdapter(book);
+        adapter = new RequestAdapter(book, this);
         rvNameList.setAdapter(adapter);
         rvNameList.setLayoutManager(new LinearLayoutManager(this));
+
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
     }
 }

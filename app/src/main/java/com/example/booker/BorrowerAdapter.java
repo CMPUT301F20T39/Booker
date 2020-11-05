@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
     private boolean hideButton;
+    private Context borrowerHomeContext;
 
     // initialize and store view objects
     public class BookViewHolder extends RecyclerView.ViewHolder {
@@ -46,12 +49,13 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     }
 
     // adapter constructor
-    public BorrowerAdapter(int layoutResource, List<Book> bookList) {
+    public BorrowerAdapter(int layoutResource, List<Book> bookList, Context borrowerHomeContext) {
         this.layoutResource = layoutResource;
         this.bookList = bookList;
         this.firebaseFirestore = FirebaseFirestore.getInstance();
         this.user = FirebaseAuth.getInstance().getCurrentUser();
         this.hideButton = true;
+        this.borrowerHomeContext = borrowerHomeContext;
     }
 
     // behaviour on creation
@@ -96,6 +100,16 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
             @Override
             public void onClick(View v) {
                 clickRequest(book);
+            }
+        });
+
+        holder.ownerUsernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfile = new Intent(borrowerHomeContext, user_profile.class);
+                goToProfile.putExtra("profileType", "READ_ONLY");
+                goToProfile.putExtra("profileEmail", book.getOwnerEmail());
+                borrowerHomeContext.startActivity(goToProfile);
             }
         });
     }

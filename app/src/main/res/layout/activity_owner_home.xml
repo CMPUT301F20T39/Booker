@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/AppTheme"
@@ -69,7 +70,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ownerBookListView"
         android:layout_width="match_parent"
-        android:layout_height="656dp"
+        android:layout_height="match_parent"
         android:layout_marginTop="74dp">
 
     </androidx.recyclerview.widget.RecyclerView>

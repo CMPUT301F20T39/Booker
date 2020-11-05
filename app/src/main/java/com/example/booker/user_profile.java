@@ -64,9 +64,23 @@ public class user_profile extends AppCompatActivity {
         final EditText phoneEditText = findViewById(R.id.editTextPhone);
         final EditText usernameEditText = findViewById(R.id.editTextUsername);
 
+        String profileType = getIntent().getStringExtra("profileType");
+        String profileEmail = getIntent().getStringExtra("profileEmail");
+        if (profileType.equals("READ_ONLY")) {
+            saveBtn.setVisibility(View.GONE);
+            nameEditText.setEnabled(false);
+            nameEditText.setClickable(false);
+            emailEditText.setEnabled(false);
+            emailEditText.setClickable(false);
+            phoneEditText.setEnabled(false);
+            phoneEditText.setClickable(false);
+            usernameEditText.setEnabled(false);
+            usernameEditText.setClickable(false);
+        }
+
         // access user's document
         Query query = db.collection("Users")
-                .whereEqualTo("email", firebaseUser.getEmail());
+                .whereEqualTo("email", profileEmail);
 
         // set edit text to current values
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -104,6 +118,14 @@ public class user_profile extends AppCompatActivity {
 
                 firebaseUser.updateProfile(profileChangeRequest);
 
+                finish();
+            }
+        });
+
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 finish();
             }
         });
