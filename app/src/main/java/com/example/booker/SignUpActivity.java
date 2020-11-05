@@ -166,7 +166,6 @@ public class SignUpActivity extends AppCompatActivity {
                             data.put("name", FullName);
                             data.put("phone", Phone);
                             data.put("username", Username);
-                            data.put("requestHistory", Arrays.asList()); // empty list with no empty strings
 
                             db.collection("Users").document(email.getText().toString())
                                     .set(data)

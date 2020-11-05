@@ -82,6 +82,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             @Override
             public void onClick(View v) {
                 book.removeRequester(username);
+
+                if (book.numRequesters() == 0) {
+                    book.setStatus("Available");
+                }
+
                 HashMap<String, Object> data = book.getDataHashMap();
                 db.collection("Books").document(book.getUID()).set(data);
                 nameList.remove(username);
@@ -108,6 +113,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             holder.rejectButton.setVisibility(View.GONE);
             holder.acceptButton.setVisibility(View.GONE);
         }
+
+
     }
 
 
