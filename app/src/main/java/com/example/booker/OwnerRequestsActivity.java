@@ -67,13 +67,14 @@ public class OwnerRequestsActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (QueryDocumentSnapshot doc: task.getResult()) {
                     userEmail = doc.getString("email");
+                    Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
+                    goToProfile.putExtra("profileType", "READ_ONLY");
+                    goToProfile.putExtra("profileEmail", userEmail);
+                    startActivity(goToProfile);
                 }
             }
         });
-        Intent goToProfile = new Intent(this, user_profile.class);
-        goToProfile.putExtra("profileType", "READ_ONLY");
-        goToProfile.putExtra("profileEmail", userEmail);
-        this.startActivity(goToProfile);
+
 
     }
 }
