@@ -1,6 +1,8 @@
 package com.example.booker;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,6 +33,19 @@ public class AccountTypeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent goToBorrowerHome = new Intent(getApplicationContext(), BorrowerHomeActivity.class);
                 startActivity(goToBorrowerHome);
+            }
+        });
+
+        Toolbar toolbar = findViewById(R.id.toolbar3);
+        setSupportActionBar(toolbar);
+        ActionBar myToolbar = getSupportActionBar();
+        myToolbar.setTitle("");
+        myToolbar.setDisplayHomeAsUpEnabled(true);
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
