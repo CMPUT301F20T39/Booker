@@ -20,6 +20,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -34,11 +35,16 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView nameView;
+        public Button rejectButton;
+        public Button acceptButton;
+
 
         public MyViewHolder(View v) {
             super(v);
 
             nameView = v.findViewById(R.id.requestsName);
+            rejectButton = v.findViewById(R.id.rejectBtn);
+            acceptButton = v.findViewById(R.id.acceptBtn);
         }
     }
 
@@ -71,6 +77,37 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
 
             }
         });
+
+        holder.rejectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                book.removeRequester(username);
+                HashMap<String, Object> data = book.getDataHashMap();
+                db.collection("Books").document(book.getUID()).set(data);
+                nameList.remove(username);
+                notifyDataSetChanged();
+            }
+        });
+
+        holder.acceptButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                book.leaveOneRequester(username);
+
+                book.setStatus("Accepted");
+
+                HashMap<String, Object> data = book.getDataHashMap();
+
+                db.collection("Books").document(book.getUID()).set(data);
+
+                notifyDataSetChanged();
+            }
+        });
+
+        if (book.getStatus().equals("Accepted")) {
+            holder.rejectButton.setVisibility(View.GONE);
+            holder.acceptButton.setVisibility(View.GONE);
+        }
     }
 
 
