@@ -34,13 +34,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView nameView;
-        public Button viewProfile;
 
         public MyViewHolder(View v) {
             super(v);
 
             nameView = v.findViewById(R.id.requestsName);
-            viewProfile = v.findViewById(R.id.viewProfileBtn);
         }
     }
 
@@ -61,31 +59,16 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         final String username = nameList.get(position);
 
         holder.nameView.setText(username);
 
-        holder.viewProfile.setOnClickListener(new View.OnClickListener() {
+        holder.nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Query userQuery = db.collection("Users")
-                        .whereEqualTo("username", username);
-                userQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    QueryDocumentSnapshot doc;
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot document: task.getResult()) {
-                            doc = document;
-                        }
-                        String fullName = (String) doc.get("name");
-                        String email = (String) doc.get("email");
-                        String phone = (String) doc.get("phone");
-                        String username = (String) doc.get("username");
-                        instance.getProfile(fullName, email, phone, username);
+                instance.getProfile(holder.nameView.getText().toString());
 
-                    }
-                });
             }
         });
     }

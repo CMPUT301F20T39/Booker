@@ -19,9 +19,6 @@
             android:parentActivityName=".MainActivity">
         </activity>
         <activity android:name=".user_profile"/>
-        <activity android:name=".ActivityViewUser"
-            android:parentActivityName=".OwnerRequestsActivity">
-        </activity>
         <activity android:name=".OwnerRequestsActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".OwnerHomeActivity">

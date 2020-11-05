@@ -6,11 +6,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 
@@ -19,6 +27,8 @@ public class OwnerRequestsActivity extends AppCompatActivity {
     private Book book;
     private RequestAdapter adapter;
     private RecyclerView rvNameList;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +58,22 @@ public class OwnerRequestsActivity extends AppCompatActivity {
 
     }
 
-    public void getProfile(String name, String email, String phone, String username) {
-        Intent goToUser = new Intent(getApplicationContext(), ActivityViewUser.class);
-        goToUser.putExtra("name", name);
-        goToUser.putExtra("email", email);
-        goToUser.putExtra("phone", phone);
-        goToUser.putExtra("username", username);
-        startActivity(goToUser);
+    public void getProfile(String username) {
+        Query query = db.collection("Users")
+                .whereEqualTo("username", username);
+
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (QueryDocumentSnapshot doc: task.getResult()) {
+                    userEmail = doc.getString("email");
+                }
+            }
+        });
+        Intent goToProfile = new Intent(this, user_profile.class);
+        goToProfile.putExtra("profileType", "READ_ONLY");
+        goToProfile.putExtra("profileEmail", userEmail);
+        this.startActivity(goToProfile);
 
     }
 }
