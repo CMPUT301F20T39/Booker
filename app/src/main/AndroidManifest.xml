@@ -9,19 +9,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".ActivityViewUser">
+            android:parentActivityName=".OwnerRequestsActivity">
+        </activity>
         <activity
             android:name=".OwnerHomeActivity"
             android:label="@string/title_activity_owner_home"
-            android:theme="@style/NoActionBar"></activity>
+            android:theme="@style/NoActionBar" />
         <activity android:name=".AccountTypeActivity" />
         <activity android:name=".BorrowerHomeActivity" />
-        <activity android:name=".SignUpActivity"
-            android:parentActivityName=".MainActivity">
-        </activity>
-        <activity android:name=".user_profile"/>
+        <activity
+            android:name=".SignUpActivity"
+            android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".user_profile" />
         <activity android:name=".OwnerRequestsActivity"
-            android:parentActivityName=".OwnerHomeActivity">
-        </activity>
+            android:launchMode="singleTask"
+            android:parentActivityName=".OwnerHomeActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

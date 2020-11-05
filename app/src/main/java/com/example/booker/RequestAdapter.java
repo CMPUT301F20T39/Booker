@@ -33,7 +33,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
     private List<String> nameList;
     private FirebaseFirestore db;
     private FirebaseUser firebaseUser;
-    private Context ownerRequestsActivityContext;
+    private OwnerRequestsActivity instance;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView nameView;
@@ -51,12 +51,12 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         }
     }
 
-    public RequestAdapter(Book book, Context ownerRequestsActivityContext) {
+    public RequestAdapter(Book book, OwnerRequestsActivity instance)  {
         this.book = book;
         nameList = book.getRequesterList();
         this.db = FirebaseFirestore.getInstance();
         this.firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        this.ownerRequestsActivityContext = ownerRequestsActivityContext;
+        this.instance = instance;
     }
 
     @NonNull
@@ -80,13 +80,17 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
                         .whereEqualTo("username", username);
 
                 query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    QueryDocumentSnapshot doc;
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        String requesterEmail = task.getResult().getDocuments().get(0).getString("email");
-                        Intent goToProfile = new Intent(ownerRequestsActivityContext, user_profile.class);
-                        goToProfile.putExtra("profileType", "READ_ONLY");
-                        goToProfile.putExtra("profileEmail", requesterEmail);
-                        ownerRequestsActivityContext.startActivity(goToProfile);
+                        for (QueryDocumentSnapshot document: task.getResult()) {
+                            doc = document;
+                        }
+                        String fullName = (String) doc.get("name");
+                        String email = (String) doc.get("email");
+                        String phone = (String) doc.get("phone");
+                        String username = (String) doc.get("username");
+                        instance.getProfile(fullName, email, phone, username);
                     }
                 });
             }
