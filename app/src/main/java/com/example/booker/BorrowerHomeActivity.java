@@ -54,6 +54,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_borrower_home);
 
+        // initialize chips
         final ChipGroup chipGroup = findViewById(R.id.chipGroup);
         final Chip requestedButton = findViewById(R.id.requestedBttn);
         final Chip acceptedButton = findViewById(R.id.acceptedBttn);
@@ -70,10 +71,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // connect adapter to recyclerview
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(borrowerAdapter);
-
-        // user's personal requests list
-        showMyRequests();
-        requestedButton.setChecked(true);
 
         // searchview stuff
         searchView = findViewById(R.id.searchView);
@@ -94,6 +91,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                     listDisplayTextView.setText(listDisplay);
                     listDisplayTextView.setTextSize(18);
 
+                    // hide chips
                     chipGroup.setVisibility(View.GONE);
 
                     // show all available books and show request buttons
@@ -135,6 +133,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // show requests on request chip click
         requestedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,6 +143,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // show accepts on accept chip click
         acceptedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,6 +153,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // show borrows on borrow chip click
         borrowedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,6 +173,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 listDisplayTextView.setTextSize(24);
                 listDisplayTextView.setText(myRequestsDisplay);
 
+                // show chips
                 chipGroup.setVisibility(View.VISIBLE);
 
                 // close keyboard and reset search text
@@ -201,11 +203,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar myToolbar = getSupportActionBar();
         myToolbar.setTitle("");
         myToolbar.setDisplayHomeAsUpEnabled(true);
+
         // toolbar back button
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,9 +225,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     }
 
-
     public void showMyRequests() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Requested")
@@ -244,6 +248,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     public void showMyAccepts() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Accepted")
@@ -264,6 +269,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     public void showMyBorrows() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Borrowed")
@@ -284,6 +290,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     public void showAllAvailableBooks() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
         // filter for only available and requested
         List<String> whitelist = Arrays.asList("Available", "Requested");
@@ -301,14 +308,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                     if (documentChange.getType() == DocumentChange.Type.ADDED) {
                         bookList.add(book);
                     }
-                    // don't add modified books back to results, instead update their old position
-                    if (documentChange.getType() == DocumentChange.Type.MODIFIED) {
-                        for (int i = 0; i < bookList.size(); i ++) {
-                            if (bookList.get(i).getUID().equals(book.getUID())) {
-                                bookList.set(i, book);
-                            }
-                        }
-                    }
                 }
                 borrowerAdapter.notifyDataSetChanged();
             }
@@ -317,6 +316,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     public void showSearchedAvailableBooks() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
         // filter for only available and requested
         List<String> whitelist = Arrays.asList("Available", "Requested");
@@ -342,14 +342,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                     else if (documentChange.getType() == DocumentChange.Type.ADDED &&
                             book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
                         bookList.add(book);
-                    }
-                    // don't add modified books back to results, instead update their old position
-                    if (documentChange.getType() == DocumentChange.Type.MODIFIED) {
-                        for (int i = 0; i < bookList.size(); i ++) {
-                            if (bookList.get(i).getUID().equals(book.getUID())) {
-                                bookList.set(i, book);
-                            }
-                        }
                     }
                 }
                 borrowerAdapter.notifyDataSetChanged();

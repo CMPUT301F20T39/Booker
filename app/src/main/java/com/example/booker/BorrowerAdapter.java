@@ -45,6 +45,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            // initialize views
             titleTextView = itemView.findViewById(R.id.titleTextView);
             authorTextView = itemView.findViewById(R.id.authorTextView);
             ISBNTextView = itemView.findViewById(R.id.ISBNTextView);
@@ -77,6 +78,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     public void onBindViewHolder(@NonNull final BookViewHolder holder, final int position) {
         final Book book = bookList.get(position);
 
+        // set texts to their values
         holder.titleTextView.setText(book.getTitle());
         holder.authorTextView.setText(book.getAuthor());
         holder.ISBNTextView.setText(book.getISBN());
@@ -91,18 +93,15 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
             holder.requestButton.setVisibility(View.VISIBLE);
         }
 
-        // greying out button
-        if (bookList.get(position).containsRequester(user.getDisplayName())) {
+        // greying out button if user in requester list
+        if (book.containsRequester(user.getDisplayName())) {
             holder.requestButton.setAlpha(0.9f);
             holder.requestButton.setEnabled(false);
         }
         else {
             holder.requestButton.setAlpha(1.0f);
             holder.requestButton.setEnabled(true);
-        }
-
-        if (!book.containsRequester(user.getDisplayName())) {
-            holder.statusTextView.setText("Available");
+            holder.statusTextView.setText("Available"); // available to users not in requester list
         }
 
         // accessing book and changing its status to "Requested"
@@ -113,6 +112,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
             }
         });
 
+        // click owner username to view profile
         holder.ownerUsernameTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,8 +136,10 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     private void clickRequest(Book book) {
         final String UID = book.getUID();
 
+        // add user to requester list
         book.addRequester(user.getDisplayName());
 
+        // set status to requested
         book.setStatus("Requested");
 
         // get books hash map
