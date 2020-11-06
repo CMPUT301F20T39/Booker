@@ -38,6 +38,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Main hub for Borrow's activities
+ */
 public class BorrowerHomeActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
@@ -54,6 +57,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_borrower_home);
 
+        // initialize chips
         final ChipGroup chipGroup = findViewById(R.id.chipGroup);
         final Chip requestedButton = findViewById(R.id.requestedBttn);
         final Chip acceptedButton = findViewById(R.id.acceptedBttn);
@@ -70,10 +74,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // connect adapter to recyclerview
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(borrowerAdapter);
-
-        // user's personal requests list
-        showMyRequests();
-        requestedButton.setChecked(true);
 
         // searchview stuff
         searchView = findViewById(R.id.searchView);
@@ -94,6 +94,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                     listDisplayTextView.setText(listDisplay);
                     listDisplayTextView.setTextSize(18);
 
+                    // hide chips
                     chipGroup.setVisibility(View.GONE);
 
                     // show all available books and show request buttons
@@ -135,6 +136,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // show requests on request chip click
         requestedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,6 +146,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // show accepts on accept chip click
         acceptedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,6 +156,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // show borrows on borrow chip click
         borrowedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,6 +176,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 listDisplayTextView.setTextSize(24);
                 listDisplayTextView.setText(myRequestsDisplay);
 
+                // show chips
                 chipGroup.setVisibility(View.VISIBLE);
 
                 // close keyboard and reset search text
@@ -201,11 +206,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar myToolbar = getSupportActionBar();
         myToolbar.setTitle("");
         myToolbar.setDisplayHomeAsUpEnabled(true);
+
         // toolbar back button
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,14 +228,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     }
 
-
+    /**
+     * show user's requested books
+     */
     public void showMyRequests() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
+        // query user's requests
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Requested")
                 .whereArrayContains("requesterList", user.getDisplayName());
 
+        // show user's requests
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -242,13 +254,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * show user's accepted books
+     */
     public void showMyAccepts() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
+        // query user's accepts
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Accepted")
                 .whereArrayContains("requesterList", user.getDisplayName());
 
+        // show user's accepts
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -262,13 +280,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * show user's borrowed books
+     */
     public void showMyBorrows() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
+        // query user's borrows
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Borrowed")
                 .whereArrayContains("requesterList", user.getDisplayName());
 
+        // show user's borrows
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -282,15 +306,21 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * show user's available books
+     */
     public void showAllAvailableBooks() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
         // filter for only available and requested
         List<String> whitelist = Arrays.asList("Available", "Requested");
 
+        // query all available (available + requested) books
         Query query = firebaseFirestore.collection("Books")
                 .whereIn("status", whitelist);
 
+        // show all available (available + requested) books
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -301,55 +331,48 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                     if (documentChange.getType() == DocumentChange.Type.ADDED) {
                         bookList.add(book);
                     }
-                    // don't add modified books back to results, instead update their old position
-                    if (documentChange.getType() == DocumentChange.Type.MODIFIED) {
-                        for (int i = 0; i < bookList.size(); i ++) {
-                            if (bookList.get(i).getUID().equals(book.getUID())) {
-                                bookList.set(i, book);
-                            }
-                        }
-                    }
                 }
                 borrowerAdapter.notifyDataSetChanged();
             }
         });
     }
 
+    /**
+     * show user's requested books using a keyword
+     * Bugs: duplicate search results after requesting a book
+     */
     public void showSearchedAvailableBooks() {
         bookList.clear();
+        borrowerAdapter.notifyDataSetChanged();
 
         // filter for only available and requested
         List<String> whitelist = Arrays.asList("Available", "Requested");
 
+        // query partial matched titles/authors/ISBNs
         Query query = firebaseFirestore.collection("Books")
                 .whereIn("status", whitelist);
 
+        // show partial matched titles/authors/ISBNs
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 for (DocumentChange documentChange: value.getDocumentChanges()) {
                     Book book = documentChange.getDocument().toObject(Book.class);
 
-                    // add new books to results
+                    // partial titles
                     if (documentChange.getType() == DocumentChange.Type.ADDED &&
                             book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
                         bookList.add(book);
                     }
+                    // partial authors
                     else if (documentChange.getType() == DocumentChange.Type.ADDED &&
                             book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
                         bookList.add(book);
                     }
+                    // partial ISBNs
                     else if (documentChange.getType() == DocumentChange.Type.ADDED &&
                             book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
                         bookList.add(book);
-                    }
-                    // don't add modified books back to results, instead update their old position
-                    if (documentChange.getType() == DocumentChange.Type.MODIFIED) {
-                        for (int i = 0; i < bookList.size(); i ++) {
-                            if (bookList.get(i).getUID().equals(book.getUID())) {
-                                bookList.set(i, book);
-                            }
-                        }
                     }
                 }
                 borrowerAdapter.notifyDataSetChanged();

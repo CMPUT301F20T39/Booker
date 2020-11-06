@@ -48,6 +48,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         }
     }
 
+    /**
+     * adapter for book's requester list
+     * @param book
+     * @param instance
+     */
     public RequestAdapter(Book book, OwnerRequestsActivity instance) {
         this.book = book;
         this.instance = instance;
@@ -68,8 +73,10 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
     public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         final String username = nameList.get(position);
 
+        // set username text for user
         holder.nameView.setText(username);
 
+        // go to user's profile on username click
         holder.nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,6 +85,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             }
         });
 
+        // reject user's request
         holder.rejectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,6 +102,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             }
         });
 
+        // accept user's request
         holder.acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,6 +118,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             }
         });
 
+        // hide buttons on requested
         if (book.getStatus().equals("Accepted")) {
             holder.rejectButton.setVisibility(View.GONE);
             holder.acceptButton.setVisibility(View.GONE);

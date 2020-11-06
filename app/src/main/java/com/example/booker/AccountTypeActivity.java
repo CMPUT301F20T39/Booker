@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ *  Allows user to switch between Owner activities or Borrower activities
+ */
 public class AccountTypeActivity extends AppCompatActivity {
 
     @Override
