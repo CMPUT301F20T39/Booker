@@ -49,10 +49,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private String userEmail = user.getEmail();
     private final CollectionReference bookCollection = db.collection("Books");
 
-    private List<Book> bookList = new ArrayList<Book>();
+    public List<Book> bookList = new ArrayList<Book>();
     private BookListAdapter adapter;
     private ImageButton profileBtn;
-    private RecyclerView rvBookList;
+    public RecyclerView rvBookList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -251,7 +251,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 data.put("author", author);
                 data.put("status", "Available");
                 data.put("UID", bookUID);
-                data.put("ownerUsername", user.getDisplayName());
+                data.put("ownerUsername", user.getDisplayName()); // TODO: (from Matthew) There seems to be a problem with assigning an owner username to a book
                 data.put("ownerEmail", user.getEmail());
                 data.put("requesterList", Arrays.asList()); // allows a user to be the 0th index instead of an empty string
 
