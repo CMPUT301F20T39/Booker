@@ -38,6 +38,7 @@ import java.util.List;
 
 /**
  * Screen for viewing a user profile. Has edit or view only modes
+ * Bugs: editing username and email can cause the database to lose references
  */
 public class user_profile extends AppCompatActivity {
 

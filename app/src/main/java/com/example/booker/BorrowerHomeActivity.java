@@ -339,6 +339,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     /**
      * show user's requested books using a keyword
+     * Bugs: duplicate search results after requesting a book
      */
     public void showSearchedAvailableBooks() {
         bookList.clear();
