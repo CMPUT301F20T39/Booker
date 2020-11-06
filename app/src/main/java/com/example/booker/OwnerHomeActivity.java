@@ -12,7 +12,9 @@ import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,6 +36,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +48,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
     private final CollectionReference bookCollection = db.collection("Books");
-
 
     private List<Book> bookList = new ArrayList<Book>();
     private BookListAdapter adapter;
@@ -60,7 +62,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
         rvBookList = findViewById(R.id.ownerBookListView);
 
-        final BookListAdapter adapter = new BookListAdapter(bookList);
+        final BookListAdapter adapter = new BookListAdapter(bookList, this);
         rvBookList.setAdapter(adapter);
         rvBookList.setLayoutManager(new LinearLayoutManager(this));
 
@@ -82,6 +84,18 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         });
 
 
+        Toolbar toolbar = findViewById(R.id.toolbar4);
+        setSupportActionBar(toolbar);
+        ActionBar myToolbar = getSupportActionBar();
+        myToolbar.setTitle("Owner Home");
+        myToolbar.setDisplayHomeAsUpEnabled(true);
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
 //
 //		db.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -198,55 +212,86 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     }
 
+    public void createRequestList(Book book) {
+        Intent goToRequests = new Intent(getApplicationContext(), OwnerRequestsActivity.class);
+        goToRequests.putExtra("Book", book);
+        startActivity(goToRequests);
+    }
+
     /**
      * Method associated with the OK button in the Dialog button
      * Add the book to Firestore
      * Used in AddBookFragment.java
      *
+     * @param dialogType  determines behavior of dialog
+     * @param bookUID     for editing a specific book
      * @param title       title of the book to be added
      * @param author      author of the book
      * @param isbn        isbn of the book
      * @param description description of the book
      */
     @Override
-    public void onOkPressed(String title, String author, String isbn, String description) {
+    public void onOkPressed(String dialogType, final String bookUID, final String title, final String author, final String isbn, String description) {
         final String TAG = "Add Book method";   // just a tag for debugging purposes
 
         HashMap<String, Object> data = new HashMap<>(); // a data structure for adding info to the db
 
         // generate a UID; see method at the bottom for details
-        String UID = generateUID();
+        //String UID = generateUID();
 
         // check that those three fields are not empty
         // TODO Needs to have error checking that inputs are proper (shows red text and enforce input
         //  where mandatory)
-        if (title.length() > 0 && author.length() > 0 && isbn.length() > 0) {
-            data.put("ISBN", isbn);
-            data.put("title", title);
-            data.put("author", author);
-            data.put("status", "Available");
-            data.put("UID", UID);
-            data.put("ownerUsername", user.getDisplayName());
-            data.put("requesterList", Arrays.asList(""));
-        }
 
-        // UID is randomly generated for the document/collection
-        // then all the book info is put within it
-        bookCollection
-                .document(UID)
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+        if ((title.length() > 0 && author.length() > 0 && isbn.length() > 0)) {
+            // adding book
+            if (dialogType.equals("Add Book")) {
+                data.put("ISBN", isbn);
+                data.put("title", title);
+                data.put("author", author);
+                data.put("status", "Available");
+                data.put("UID", bookUID);
+                data.put("ownerUsername", user.getDisplayName());
+                data.put("ownerEmail", user.getEmail());
+                data.put("requesterList", Arrays.asList()); // allows a user to be the 0th index instead of an empty string
+
+                // UID is randomly generated for the document/collection
+                // then all the book info is put within it
+                bookCollection
+                        .document(bookUID)
+                        .set(data)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "Data has been added successfully");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "Data could not be added!" + e.toString());
+                            }
+                        });
+            }
+            // editing book
+            else {
+                Query query = bookCollection.whereEqualTo("UID", bookUID);
+                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Data has been added successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Data could not be added!" + e.toString());
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Book book = task.getResult().getDocuments().get(0).toObject(Book.class);
+                        book.setISBN(isbn);
+                        book.setTitle(title);
+                        book.setAuthor(author);
+                        bookCollection.document(bookUID)
+                                .set(book.getDataHashMap());
                     }
                 });
+            }
+
+        }
+
+
     }
 
     public void showAvailableBooks() {

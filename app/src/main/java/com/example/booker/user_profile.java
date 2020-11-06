@@ -3,6 +3,7 @@ package com.example.booker;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,7 +43,6 @@ public class user_profile extends AppCompatActivity {
     private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private FirebaseAuth firebaseAuth;
     private TextView name, email, phone;
-    private UserDB userDB;
     private Button saveBtn;
     private List<String> s;
 
@@ -64,9 +64,19 @@ public class user_profile extends AppCompatActivity {
         final EditText phoneEditText = findViewById(R.id.editTextPhone);
         final EditText usernameEditText = findViewById(R.id.editTextUsername);
 
+        String profileType = getIntent().getStringExtra("profileType");
+        String profileEmail = getIntent().getStringExtra("profileEmail");
+        if (profileType.equals("READ_ONLY")) {
+            saveBtn.setVisibility(View.GONE);
+            nameEditText.setInputType(InputType.TYPE_NULL);
+            emailEditText.setInputType(InputType.TYPE_NULL);
+            phoneEditText.setInputType(InputType.TYPE_NULL);
+            usernameEditText.setInputType(InputType.TYPE_NULL);
+        }
+
         // access user's document
         Query query = db.collection("Users")
-                .whereEqualTo("email", firebaseUser.getEmail());
+                .whereEqualTo("email", profileEmail);
 
         // set edit text to current values
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -104,6 +114,14 @@ public class user_profile extends AppCompatActivity {
 
                 firebaseUser.updateProfile(profileChangeRequest);
 
+                finish();
+            }
+        });
+
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 finish();
             }
         });

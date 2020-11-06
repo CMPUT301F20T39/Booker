@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,12 +11,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookViewHolder> {
     private int layoutResource;
@@ -22,6 +30,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
     private boolean hideButton;
+    private Context borrowerHomeContext;
 
     // initialize and store view objects
     public class BookViewHolder extends RecyclerView.ViewHolder {
@@ -46,12 +55,13 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     }
 
     // adapter constructor
-    public BorrowerAdapter(int layoutResource, List<Book> bookList) {
+    public BorrowerAdapter(int layoutResource, List<Book> bookList, Context borrowerHomeContext) {
         this.layoutResource = layoutResource;
         this.bookList = bookList;
         this.firebaseFirestore = FirebaseFirestore.getInstance();
         this.user = FirebaseAuth.getInstance().getCurrentUser();
         this.hideButton = true;
+        this.borrowerHomeContext = borrowerHomeContext;
     }
 
     // behaviour on creation
@@ -82,7 +92,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         }
 
         // greying out button
-        if (bookList.get(position).getStatus().equals("Requested")) {
+        if (bookList.get(position).containsRequester(user.getDisplayName())) {
             holder.requestButton.setAlpha(0.9f);
             holder.requestButton.setEnabled(false);
         }
@@ -91,11 +101,25 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
             holder.requestButton.setEnabled(true);
         }
 
+        if (!book.containsRequester(user.getDisplayName())) {
+            holder.statusTextView.setText("Available");
+        }
+
         // accessing book and changing its status to "Requested"
         holder.requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 clickRequest(book);
+            }
+        });
+
+        holder.ownerUsernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfile = new Intent(borrowerHomeContext, user_profile.class);
+                goToProfile.putExtra("profileType", "READ_ONLY");
+                goToProfile.putExtra("profileEmail", book.getOwnerEmail());
+                borrowerHomeContext.startActivity(goToProfile);
             }
         });
     }
@@ -110,7 +134,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     }
 
     private void clickRequest(Book book) {
-        String UID = book.getUID();
+        final String UID = book.getUID();
 
         book.addRequester(user.getDisplayName());
 
