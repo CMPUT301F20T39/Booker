@@ -8,6 +8,9 @@ env:
 
 android:
   components:
+    - build-tools-30.0.4
+    - android-29
+    - sys-img-x86-android-29    
 
     # Additional components
     - extra-google-google_play_services
