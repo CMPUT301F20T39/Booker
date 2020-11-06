@@ -104,7 +104,7 @@ public class AddBookFragment extends DialogFragment {
      * @return UID
      *         A unique* String sequence of random alphanumeric characters.
      */
-    public String generateUID() {
+    public static String generateUID() {
         int length = 20;
         List<String> potentialCharacters = new ArrayList<>();
 
