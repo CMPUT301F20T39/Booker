@@ -22,6 +22,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 
+/**
+ * Screen for checking a book's requests
+ */
 public class OwnerRequestsActivity extends AppCompatActivity {
 
     private Book book;
@@ -37,12 +40,14 @@ public class OwnerRequestsActivity extends AppCompatActivity {
 
         book = (Book) getIntent().getSerializableExtra("Book");
 
+        // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbarRequests);
         setSupportActionBar(toolbar);
         ActionBar myToolbar = getSupportActionBar();
         myToolbar.setDisplayHomeAsUpEnabled(true);
         myToolbar.setTitle("Requests for " + book.getTitle());
 
+        // connect adapter
         rvNameList = findViewById(R.id.requestsListView);
         adapter = new RequestAdapter(book, this);
         rvNameList.setAdapter(adapter);
@@ -58,10 +63,16 @@ public class OwnerRequestsActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * goes to a user's profile in read only mode
+     * @param username
+     */
     public void getProfile(String username) {
+        // query user
         Query query = db.collection("Users")
                 .whereEqualTo("username", username);
 
+        // go to user's profile
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

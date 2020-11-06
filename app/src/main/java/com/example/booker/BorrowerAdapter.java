@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controls behavior for each recyclerview item in BorrowerHomeActivity
+ */
 public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookViewHolder> {
     private int layoutResource;
     private List<Book> bookList;
@@ -129,10 +132,18 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         return bookList.size();
     }
 
+    /**
+     * hides request button
+     * @param hideButton
+     */
     public void setHideButton(boolean hideButton) {
         this.hideButton = hideButton;
     }
 
+    /**
+     * request button click, set book to requested and add user as requester
+     * @param book
+     */
     private void clickRequest(Book book) {
         final String UID = book.getUID();
 

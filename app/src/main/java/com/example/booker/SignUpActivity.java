@@ -34,7 +34,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Responsible for handling sign up activities
+ */
 public class SignUpActivity extends AppCompatActivity {
 
     EditText name, email, phone, username, password;
@@ -49,6 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
+        // initialize view objects
         name = findViewById(R.id.editTextName);
         email = findViewById(R.id.editTextEmail);
         phone = findViewById(R.id.editTextPhone);
@@ -56,6 +59,7 @@ public class SignUpActivity extends AppCompatActivity {
         password = findViewById(R.id.editTextPassword);
         signUpBtn = findViewById(R.id.signUpBtn);
 
+        // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         ActionBar myToolbar = getSupportActionBar();
@@ -66,7 +70,7 @@ public class SignUpActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-
+        // clicked sign up
         signUpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,12 +82,14 @@ public class SignUpActivity extends AppCompatActivity {
 
                 validInput = true;
 
+                // username can't be empty
                 if (TextUtils.isEmpty(Username)) {
                     username.setError("Must choose a valid username");
                     if (validInput)
                         username.requestFocus();
                     validInput = false;
                 }
+                // add username to database if unique
                 else {
                     DocumentReference doc = db.collection("Users").document(Username);
                     doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -102,6 +108,7 @@ public class SignUpActivity extends AppCompatActivity {
                     });
                 }
 
+                // name can't be empty
                 if (TextUtils.isEmpty(FullName)) {
                     name.setError("Name is Required");
                     if (validInput)
@@ -109,6 +116,7 @@ public class SignUpActivity extends AppCompatActivity {
                     validInput = false;
                 }
 
+                // email must match email pattern
                 if (TextUtils.isEmpty(Email) || !(Patterns.EMAIL_ADDRESS.matcher(Email).matches())) {
                     if (TextUtils.isEmpty(Email))
                         email.setError("Please enter the Email address");
@@ -119,6 +127,7 @@ public class SignUpActivity extends AppCompatActivity {
                     validInput = false;
                 }
 
+                // phone number should be exactly 10 digits
                 if (TextUtils.isEmpty(Phone) || Phone.length() != 10) {
                     phone.setError("A 10-digit phone number is required");
                     if (validInput)
@@ -126,8 +135,9 @@ public class SignUpActivity extends AppCompatActivity {
                     validInput = false;
                 }
 
+                // password should be >= 6
                 if (Password.length() < 5) {
-                    password.setError("Password must at least have 5 characters");
+                    password.setError("Password must at least have 6 characters");
                     if (validInput)
                         password.requestFocus();
                     validInput = false;
@@ -161,12 +171,14 @@ public class SignUpActivity extends AppCompatActivity {
                             // get user ID
                             String ID = user.getUid();
 
+                            // put data into a map
                             Map<String, Object> data = new HashMap<>();
                             data.put("email", Email);
                             data.put("name", FullName);
                             data.put("phone", Phone);
                             data.put("username", Username);
 
+                            // set user's data in database
                             db.collection("Users").document(email.getText().toString())
                                     .set(data)
                                     .addOnFailureListener(new OnFailureListener() {

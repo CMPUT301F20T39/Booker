@@ -36,6 +36,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Screen for viewing a user profile. Has edit or view only modes
+ */
 public class user_profile extends AppCompatActivity {
 
     private String userID, userEmail;
@@ -52,6 +55,7 @@ public class user_profile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
 
+        // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         ActionBar myToolbar = getSupportActionBar();
@@ -59,13 +63,17 @@ public class user_profile extends AppCompatActivity {
         myToolbar.setTitle("User Profile");
         saveBtn = findViewById(R.id.saveButton);
 
+        // initialize edittexts
         final EditText nameEditText = findViewById(R.id.editTextName);
         final EditText emailEditText = findViewById(R.id.editTextEmail);
         final EditText phoneEditText = findViewById(R.id.editTextPhone);
         final EditText usernameEditText = findViewById(R.id.editTextUsername);
 
+        // get passed access type and email
         String profileType = getIntent().getStringExtra("profileType");
         String profileEmail = getIntent().getStringExtra("profileEmail");
+
+        // disable editing if read only
         if (profileType.equals("READ_ONLY")) {
             saveBtn.setVisibility(View.GONE);
             nameEditText.setInputType(InputType.TYPE_NULL);
