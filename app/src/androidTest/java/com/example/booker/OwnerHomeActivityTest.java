@@ -58,7 +58,9 @@ public class OwnerHomeActivityTest {
 	}
 	
 	/**
-	 *
+	 * Adds a book to the user's owned books and checks the information is correct
+	 * Deletes the book and checks the book is no longer displayed
+	 * This is all done while the app communicates with the firestore cloud so that functionality is tested as well
 	 */
 	@Test
 	public void checkBookDisplayAndDelete(){
