@@ -38,6 +38,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Main hub for Borrow's activities
+ */
 public class BorrowerHomeActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
@@ -225,14 +228,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * show user's requested books
+     */
     public void showMyRequests() {
         bookList.clear();
         borrowerAdapter.notifyDataSetChanged();
 
+        // query user's requests
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Requested")
                 .whereArrayContains("requesterList", user.getDisplayName());
 
+        // show user's requests
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -246,14 +254,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * show user's accepted books
+     */
     public void showMyAccepts() {
         bookList.clear();
         borrowerAdapter.notifyDataSetChanged();
 
+        // query user's accepts
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Accepted")
                 .whereArrayContains("requesterList", user.getDisplayName());
 
+        // show user's accepts
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -267,14 +280,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * show user's borrowed books
+     */
     public void showMyBorrows() {
         bookList.clear();
         borrowerAdapter.notifyDataSetChanged();
 
+        // query user's borrows
         Query query = firebaseFirestore.collection("Books")
                 .whereEqualTo("status", "Borrowed")
                 .whereArrayContains("requesterList", user.getDisplayName());
 
+        // show user's borrows
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -288,6 +306,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * show user's available books
+     */
     public void showAllAvailableBooks() {
         bookList.clear();
         borrowerAdapter.notifyDataSetChanged();
@@ -295,9 +316,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // filter for only available and requested
         List<String> whitelist = Arrays.asList("Available", "Requested");
 
+        // query all available (available + requested) books
         Query query = firebaseFirestore.collection("Books")
                 .whereIn("status", whitelist);
 
+        // show all available (available + requested) books
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -314,6 +337,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * show user's requested books using a keyword
+     */
     public void showSearchedAvailableBooks() {
         bookList.clear();
         borrowerAdapter.notifyDataSetChanged();
@@ -321,24 +347,28 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // filter for only available and requested
         List<String> whitelist = Arrays.asList("Available", "Requested");
 
+        // query partial matched titles/authors/ISBNs
         Query query = firebaseFirestore.collection("Books")
                 .whereIn("status", whitelist);
 
+        // show partial matched titles/authors/ISBNs
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 for (DocumentChange documentChange: value.getDocumentChanges()) {
                     Book book = documentChange.getDocument().toObject(Book.class);
 
-                    // add new books to results
+                    // partial titles
                     if (documentChange.getType() == DocumentChange.Type.ADDED &&
                             book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
                         bookList.add(book);
                     }
+                    // partial authors
                     else if (documentChange.getType() == DocumentChange.Type.ADDED &&
                             book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
                         bookList.add(book);
                     }
+                    // partial ISBNs
                     else if (documentChange.getType() == DocumentChange.Type.ADDED &&
                             book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
                         bookList.add(book);

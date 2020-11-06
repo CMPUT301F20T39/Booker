@@ -17,8 +17,8 @@ import androidx.fragment.app.DialogFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-Most of the code is derived from lab 3
+/**
+ * Fragment for adding a new book to the database
  */
 public class AddBookFragment extends DialogFragment {
 
@@ -108,6 +108,7 @@ public class AddBookFragment extends DialogFragment {
         int length = 20;
         List<String> potentialCharacters = new ArrayList<>();
 
+        // fill list with all potential characters
         for (char chr = '0'; chr <= '9'; chr++) {
             potentialCharacters.add(String.valueOf(chr));
         }
@@ -118,6 +119,7 @@ public class AddBookFragment extends DialogFragment {
             potentialCharacters.add(String.valueOf(chr));
         }
 
+        // generate randomize string
         int range = potentialCharacters.size();
         String UID = "";
         for (int chr = 0; chr < length; chr++) {
@@ -128,7 +130,3 @@ public class AddBookFragment extends DialogFragment {
         return UID;
     }
 }
-
-// TODO
-// 1. EditTexts are not clickable
-// 2. List shows Title as blank
