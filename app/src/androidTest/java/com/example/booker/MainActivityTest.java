@@ -47,7 +47,7 @@ public class MainActivityTest {
 	public void checkSignIn(){
 		solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
 		
-		solo.enterText((EditText) solo.getView(R.id.usernameEditText), "mattshoc@example.com");
+		solo.enterText((EditText) solo.getView(R.id.usernameEditText), "intent@test.com");
 		solo.enterText((EditText) solo.getView(R.id.passwordEditText), "123456");
 		solo.clickOnButton("Sign In");
 		

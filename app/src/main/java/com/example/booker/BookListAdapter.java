@@ -110,4 +110,6 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	public int getItemCount() {
 		return bookList.size();
 	}
+	
+	// TODO: implement a method to get a book from a position in the list
 }
