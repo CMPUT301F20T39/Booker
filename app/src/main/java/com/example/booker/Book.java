@@ -23,6 +23,7 @@ public class Book implements Serializable {
 	// Constructor for Firestore's .toObject()
 	public Book() {}
 
+	// constructor for set parameters
 	public Book(String title, String description, String status, String ISBN, String author) {
 		this.title = title;
 		this.description = description;

@@ -34,7 +34,8 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 		
 		public MyViewHolder(View v) {
 			super(v);
-			
+
+			// initialize views
 			titleView = v.findViewById(R.id.OwnerBookTitle);
 			authorView = v.findViewById(R.id.OwnerBookAuthor);
 			ISBNView = v.findViewById(R.id.OwnerBookISBN);
@@ -64,7 +65,8 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	public void onBindViewHolder(@NonNull BookListAdapter.MyViewHolder holder, final int position) {
 		final Book book = bookList.get(position);
 		final String UID = book.getUID();
-		
+
+		// set texts to their values
 		holder.titleView.setText(book.getTitle());
 		holder.authorView.setText(book.getAuthor());
 		holder.ISBNView.setText(book.getISBN());
@@ -78,6 +80,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 			}
 		});
 
+		// open request screen on click
 		holder.requestsButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -86,6 +89,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 			}
 		});
 
+		// open edit fragment on click
 		holder.editButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
