@@ -2,11 +2,13 @@ package com.example.booker;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,6 +33,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	public static class MyViewHolder extends RecyclerView.ViewHolder {
 		public TextView titleView, authorView, ISBNView, statusView;
 		public Button deleteButton, requestsButton, editButton;
+		public ImageView imageView;
 		
 		public MyViewHolder(View v) {
 			super(v);
@@ -43,6 +46,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 			deleteButton = v.findViewById(R.id.deleteBook);
 			requestsButton = v.findViewById(R.id.requestsBtn);
 			editButton = v.findViewById(R.id.editBook);
+			imageView = v.findViewById(R.id.bookImage);
 		}
 	}
 	
@@ -62,7 +66,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	}
 	
 	@Override
-	public void onBindViewHolder(@NonNull BookListAdapter.MyViewHolder holder, final int position) {
+	public void onBindViewHolder(@NonNull final BookListAdapter.MyViewHolder holder, final int position) {
 		final Book book = bookList.get(position);
 		final String UID = book.getUID();
 
@@ -104,8 +108,18 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 			}
 		});
 
+		holder.imageView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent photoIntent = new Intent();
+				photoIntent.setType("image/*");
+				photoIntent.setAction(Intent.ACTION_GET_CONTENT);
+				instance.selectImage(photoIntent, holder.imageView, book);
+			}
+		});
+
 	}
-	
+
 	@Override
 	public int getItemCount() {
 		return bookList.size();

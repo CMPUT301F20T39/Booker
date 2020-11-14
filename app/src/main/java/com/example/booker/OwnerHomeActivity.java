@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Main hub for Owner's activity
@@ -56,12 +59,16 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private BookListAdapter adapter;
     private ImageButton profileBtn;
     public RecyclerView rvBookList;
+    Uri image;
+    private ImageView imageView;
+    private Book book;
+    private final static int REQUEST_CODE = 111;
+    HashMap<String, Object> imgString = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner_home);
-
 
         rvBookList = findViewById(R.id.ownerBookListView);
 
@@ -205,6 +212,31 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     /**
+     * Get selected imageView from adapter and go to image gallery
+     * @param intent intent to open image gallery
+     * @param view the selected imageView
+     */
+    public void selectImage(Intent intent, ImageView view, Book book) {
+        imageView = view;
+        this.book = book;
+        startActivityForResult(Intent.createChooser(intent, "Choose a photo"), REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null)
+            image = data.getData();
+            imageView.setImageURI(image);
+            imgString.put("imageURI", image.toString());
+            updateFirestore();
+    }
+
+    public void updateFirestore() {
+        bookCollection.document(book.getUID()).update(imgString);
+    }
+
+    /**
      * Method associated with the OK button in the Dialog button
      * Add the book to Firestore
      * Used in AddBookFragment.java
@@ -237,6 +269,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 data.put("ownerUsername", user.getDisplayName()); // TODO: (from Matthew) There seems to be a problem with assigning an owner username to a book
                 data.put("ownerEmail", user.getEmail());
                 data.put("requesterList", Arrays.asList()); // allows a user to be the 0th index instead of an empty string
+                data.put("imageURI", "content://com.android.externalstorage.documents/document/primary%3ADownload%2Fdefaultphoto.png");
 
                 // UID is randomly generated for the document/collection
                 // then all the book info is put within it

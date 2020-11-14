@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import android.net.Uri;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ public class Book implements Serializable {
 	private String ownerEmail;
 	private String UID;
 	private List<String> requesterList;
+	private String imageURI;
 
 	/**
 	 * Constructor for Firestore's .toObject()
@@ -64,6 +67,14 @@ public class Book implements Serializable {
 	 */
 	public void setOwnerEmail(String ownerEmail) {
 		this.ownerEmail = ownerEmail;
+	}
+
+	public String getImageURI() {
+		return imageURI;
+	}
+
+	public void setImageURI(String imageURI) {
+		this.imageURI = imageURI;
 	}
 
 	/**
@@ -185,6 +196,7 @@ public class Book implements Serializable {
 		data.put("ownerEmail", ownerEmail);
 		data.put("UID", UID);
 		data.put("requesterList", requesterList);
+		data.put("imageURI", imageURI);
 		return data;
 	}
 
