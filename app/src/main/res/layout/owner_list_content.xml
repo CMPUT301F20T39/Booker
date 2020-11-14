@@ -72,30 +72,45 @@
             android:text="Borrower: " />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:gravity="right"
-            android:orientation="vertical">
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/editBook"
-                android:layout_width="wrap_content"
-                android:layout_height="37dp"
-                android:layout_marginTop="4dp"
-                android:text="Edit" />
+            <ImageView
+                android:id="@+id/bookImage"
+                android:layout_width="93dp"
+                android:layout_height="82dp"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/defaultphoto" />
 
-            <Button
-                android:id="@+id/deleteBook"
-                android:layout_width="wrap_content"
-                android:layout_height="37dp"
-                android:text="Delete" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="right"
+                android:orientation="vertical">
 
-            <Button
-                android:id="@+id/requestsBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="37dp"
-                android:text="Requests"
-                android:textSize="12sp" />
+                <Button
+                    android:id="@+id/editBook"
+                    android:layout_width="wrap_content"
+                    android:layout_height="37dp"
+                    android:layout_marginTop="4dp"
+                    android:text="Edit" />
+
+                <Button
+                    android:id="@+id/deleteBook"
+                    android:layout_width="wrap_content"
+                    android:layout_height="37dp"
+                    android:text="Delete" />
+
+                <Button
+                    android:id="@+id/requestsBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="37dp"
+                    android:text="Requests"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
