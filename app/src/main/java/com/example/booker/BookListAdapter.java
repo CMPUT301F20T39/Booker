@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	private List<Book> bookList;
 	private FirebaseFirestore firebaseFirestore;
 	private FirebaseUser firebaseUser;
+	private FirebaseStorage storage = FirebaseStorage.getInstance();
 	private OwnerHomeActivity instance;
 	
 	public static class MyViewHolder extends RecyclerView.ViewHolder {
@@ -75,6 +78,8 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 		holder.authorView.setText(book.getAuthor());
 		holder.ISBNView.setText(book.getISBN());
 		holder.statusView.setText(book.getStatus());
+		if (!book.getImageURI().isEmpty())
+			instance.setBookPhoto(book, holder.imageView);
 
 		// delete a book on click
 		holder.deleteButton.setOnClickListener(new View.OnClickListener() {

@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,6 +38,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -54,7 +57,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
     private final CollectionReference bookCollection = db.collection("Books");
-
+    FirebaseStorage storage = FirebaseStorage.getInstance();
     public List<Book> bookList = new ArrayList<Book>();
     private BookListAdapter adapter;
     private ImageButton profileBtn;
@@ -224,16 +227,20 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null)
             image = data.getData();
-            imageView.setImageURI(image);
+            storageRef.putFile(image);
             imgString.put("imageURI", image.toString());
-            updateFirestore();
+            bookCollection.document(book.getUID()).update(imgString);
+            setBookPhoto(book, imageView);
     }
-
-    public void updateFirestore() {
-        bookCollection.document(book.getUID()).update(imgString);
+    public void setBookPhoto(Book book, ImageView imageView) {
+        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
+        Glide.with(this /* context */)
+                .load(storageRef)
+                .into(imageView);
     }
 
     /**
@@ -269,7 +276,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 data.put("ownerUsername", user.getDisplayName()); // TODO: (from Matthew) There seems to be a problem with assigning an owner username to a book
                 data.put("ownerEmail", user.getEmail());
                 data.put("requesterList", Arrays.asList()); // allows a user to be the 0th index instead of an empty string
-                data.put("imageURI", "content://com.android.externalstorage.documents/document/primary%3ADownload%2Fdefaultphoto.png");
+                data.put("imageURI", "");
 
                 // UID is randomly generated for the document/collection
                 // then all the book info is put within it
