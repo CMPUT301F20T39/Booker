@@ -21,12 +21,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Screen for signing in or signing up as a user
+ */
 public class MainActivity extends AppCompatActivity {
 
-
-    /**
-     * I don't know if Firebase's sign in function will work with username. If it does then no need to change.
-     */
     // Button signUpButton, signInButton;
     EditText email, password;
     private FirebaseAuth mAuth;
@@ -63,10 +62,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                /** Straight to Account Type Activity */
-                // Intent goToAccountType = new Intent(getApplicationContext(), AccountTypeActivity.class);
-                // startActivity(goToAccountType);
-
 
                 // THIS IS A WORKING LOGIN FUNCTION! Implement whenever ready.
                 // login requires email, not username.
@@ -74,22 +69,25 @@ public class MainActivity extends AppCompatActivity {
                 final String Password = password.getText().toString().trim();
                 final String Email = email.getText().toString();
 
-
+                // validate email
                 if (TextUtils.isEmpty(Email) || !(Patterns.EMAIL_ADDRESS.matcher(Email).matches())) {
                     email.setError("Please enter the correct email format");
                     return;
                 }
 
+                // validate password not empty
                 if (TextUtils.isEmpty(Password)) {
                     password.setError("Password is Required");
                     return;
                 }
 
+                // validate password length
                 if (Password.length() < 5) {
-                    password.setError("Password Must Be >= 5 Characters");
+                    password.setError("Password Must Be >= 6 Characters");
                     return;
                 }
 
+                // validate email
                 if (TextUtils.isEmpty(Email)) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter email!!",
@@ -98,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
+                // password empty toast
                 if (TextUtils.isEmpty(Password)) {
                     Toast.makeText(getApplicationContext(),
                             "Please enter password!!",

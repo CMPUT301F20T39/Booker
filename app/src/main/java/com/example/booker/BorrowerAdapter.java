@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,26 +9,31 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Controls behavior for each recyclerview item in BorrowerHomeActivity
+ */
 public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookViewHolder> {
     private int layoutResource;
     private List<Book> bookList;
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
     private boolean hideButton;
+    private Context borrowerHomeContext;
 
     // initialize and store view objects
     public class BookViewHolder extends RecyclerView.ViewHolder {
@@ -41,6 +48,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            // initialize views
             titleTextView = itemView.findViewById(R.id.titleTextView);
             authorTextView = itemView.findViewById(R.id.authorTextView);
             ISBNTextView = itemView.findViewById(R.id.ISBNTextView);
@@ -51,12 +59,13 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     }
 
     // adapter constructor
-    public BorrowerAdapter(int layoutResource, List<Book> bookList) {
+    public BorrowerAdapter(int layoutResource, List<Book> bookList, Context borrowerHomeContext) {
         this.layoutResource = layoutResource;
         this.bookList = bookList;
         this.firebaseFirestore = FirebaseFirestore.getInstance();
         this.user = FirebaseAuth.getInstance().getCurrentUser();
         this.hideButton = true;
+        this.borrowerHomeContext = borrowerHomeContext;
     }
 
     // behaviour on creation
@@ -72,6 +81,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
     public void onBindViewHolder(@NonNull final BookViewHolder holder, final int position) {
         final Book book = bookList.get(position);
 
+        // set texts to their values
         holder.titleTextView.setText(book.getTitle());
         holder.authorTextView.setText(book.getAuthor());
         holder.ISBNTextView.setText(book.getISBN());
@@ -86,14 +96,15 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
             holder.requestButton.setVisibility(View.VISIBLE);
         }
 
-        // greying out button
-        if (bookList.get(position).getStatus().equals("Requested")) {
+        // greying out button if user in requester list
+        if (book.containsRequester(user.getDisplayName())) {
             holder.requestButton.setAlpha(0.9f);
             holder.requestButton.setEnabled(false);
         }
         else {
             holder.requestButton.setAlpha(1.0f);
             holder.requestButton.setEnabled(true);
+            holder.statusTextView.setText("Available"); // available to users not in requester list
         }
 
         // accessing book and changing its status to "Requested"
@@ -103,6 +114,17 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
                 clickRequest(book);
             }
         });
+
+        // click owner username to view profile
+        holder.ownerUsernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfile = new Intent(borrowerHomeContext, user_profile.class);
+                goToProfile.putExtra("profileType", "READ_ONLY");
+                goToProfile.putExtra("profileEmail", book.getOwnerEmail());
+                borrowerHomeContext.startActivity(goToProfile);
+            }
+        });
     }
 
     @Override
@@ -110,15 +132,26 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         return bookList.size();
     }
 
+    /**
+     * hides request button
+     * @param hideButton
+     */
     public void setHideButton(boolean hideButton) {
         this.hideButton = hideButton;
     }
 
+    /**
+     * request button click, set book to requested and add user as requester
+     * @param book
+     */
     private void clickRequest(Book book) {
-        String UID = book.getUID();
+        final String UID = book.getUID();
 
-        book.setStatus("Requested");
+        // add user to requester list
         book.addRequester(user.getDisplayName());
+
+        // set status to requested
+        book.setStatus("Requested");
 
         // get books hash map
         HashMap<String, Object> data = book.getDataHashMap();
