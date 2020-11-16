@@ -24,7 +24,7 @@
             android:layout_gravity="bottom|right"
             android:layout_marginEnd="4dp"
             android:layout_marginRight="4dp"
-            android:text="Request"
+            android:text="@string/request"
             android:textIsSelectable="false"
             android:textSize="10sp" />
 
