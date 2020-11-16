@@ -5,7 +5,7 @@ dist: trusty
 
 env:
   global:
-    - ANDROID_TARGET=android-22
+    - ANDROID_TARGET=android-28
     - ANDROID_ABI=armeabi-v7a
 
 android:
@@ -13,8 +13,8 @@ android:
     - tools
     - platform-tools
     
-    - build-tools-23.0.3
-    - android-23
+    - build-tools-30.0.2
+    - android-28
 
     # Additional components
     - extra-google-google_play_services
@@ -34,15 +34,15 @@ android:
 before_install:
   - yes | sdkmanager "platforms;android-29"
   - chmod +x gradlew
-  - wget https://services.gradle.org/distributions/gradle-5.3-bin.zip
-  - unzip -qq gradle-5.3-bin.zip
-  - export GRADLE_HOME=$PWD/gradle-5.3
+  - wget https://services.gradle.org/distributions/gradle-6.5-bin.zip
+  - unzip -qq gradle-6.5-bin.zip
+  - export GRADLE_HOME=$PWD/gradle-6.5
   - export PATH=$GRADLE_HOME/bin:$PATH
   
   - gradle -v
   
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
+  #- echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+  #- emulator -avd test -no-skin -no-audio -no-window &
+  #- android-wait-for-emulator
+  #- adb shell input keyevent 82 &
  
