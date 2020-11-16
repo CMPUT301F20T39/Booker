@@ -30,16 +30,17 @@ android:
       - 'android-sdk-preview-license-52d11cd2'
       - 'android-sdk-license-.+'
       - 'google-gdk-license-.+'
+      - intel-android-extra-license.+
 
 before_install:
   - yes | sdkmanager "platforms;android-29"
   - chmod +x gradlew
-  - wget https://services.gradle.org/distributions/gradle-6.5-bin.zip
-  - unzip -qq gradle-6.5-bin.zip
-  - export GRADLE_HOME=$PWD/gradle-6.5
-  - export PATH=$GRADLE_HOME/bin:$PATH
+  #- wget https://services.gradle.org/distributions/gradle-6.5-bin.zip
+  #- unzip -qq gradle-6.5-bin.zip
+  #- export GRADLE_HOME=$PWD/gradle-6.5
+  #- export PATH=$GRADLE_HOME/bin:$PATH
   
-  - gradle -v
+  #- gradle -v
   
   #- echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   #- emulator -avd test -no-skin -no-audio -no-window &
