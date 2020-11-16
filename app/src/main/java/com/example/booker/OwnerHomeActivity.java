@@ -4,18 +4,23 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,41 +38,53 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Main hub for Owner's activity
+ */
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
     private final CollectionReference bookCollection = db.collection("Books");
-
-
-    private List<Book> bookList = new ArrayList<Book>();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    public List<Book> bookList = new ArrayList<Book>();
     private BookListAdapter adapter;
     private ImageButton profileBtn;
-    private RecyclerView rvBookList;
+    public RecyclerView rvBookList;
+    Uri image;
+    private ImageView imageView;
+    private Book book;
+    private final static int REQUEST_CODE = 111;
+    HashMap<String, Object> imgString = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner_home);
 
-
         rvBookList = findViewById(R.id.ownerBookListView);
 
-        final BookListAdapter adapter = new BookListAdapter(bookList);
+        // connect adapter
+        final BookListAdapter adapter = new BookListAdapter(bookList, this);
         rvBookList.setAdapter(adapter);
         rvBookList.setLayoutManager(new LinearLayoutManager(this));
 
         profileBtn = findViewById(R.id.profileButton);
 
-
-        bookCollection.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        // get owner's books
+        bookCollection.whereEqualTo("ownerUsername", user.getDisplayName())
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 bookList.clear();
@@ -80,23 +97,19 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
-
-
-//
-//		db.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//			@Override
-//			public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-//				if (queryDocumentSnapshots.isEmpty()) {
-//					Log.d("FIRESTORE","no documents found");
-//				} else {
-//					for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//						Book aBook = doc.toObject(Book.class);
-//						bookList.add(aBook);
-//					}
-//
-//				}
-//			}
-//		});
+        // set up toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar4);
+        setSupportActionBar(toolbar);
+        ActionBar myToolbar = getSupportActionBar();
+        myToolbar.setTitle("Owner Home");
+        myToolbar.setDisplayHomeAsUpEnabled(true);
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         // When clicked, the floating action button shows the
         // AddBook dialog.
@@ -108,12 +121,13 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
-
+        // initialize chips
         final Chip availableButton = findViewById(R.id.availableBttn);
         final Chip requestedButton = findViewById(R.id.requestedBttn);
         final Chip acceptedButton = findViewById(R.id.acceptedBttn);
         final Chip borrowedButton = findViewById(R.id.borrowedBttn);
 
+        // toggled available chip
         availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows available books
@@ -132,6 +146,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
+        // toggled requested chip
         requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows requested books
@@ -152,6 +167,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
+        // toggled accepted chip
         acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * shows accepted books
@@ -170,6 +186,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
+        // toggled borrowed chip
         borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -185,16 +202,45 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
+    }
 
-        // Button takes user to com.example.booker.user_profile.java
-        /** profileBtn.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-        Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
-        startActivity(goToProfile);
-        }
-        }); */
+    /**
+     * opens book requester intent
+     * @param book
+     */
+    public void createRequestList(Book book) {
+        Intent goToRequests = new Intent(getApplicationContext(), OwnerRequestsActivity.class);
+        goToRequests.putExtra("Book", book);
+        startActivity(goToRequests);
+    }
 
+    /**
+     * Get selected imageView from adapter and go to image gallery
+     * @param intent intent to open image gallery
+     * @param view the selected imageView
+     */
+    public void selectImage(Intent intent, ImageView view, Book book) {
+        imageView = view;
+        this.book = book;
+        startActivityForResult(Intent.createChooser(intent, "Choose a photo"), REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null)
+            image = data.getData();
+            storageRef.putFile(image);
+            imgString.put("imageURI", image.toString());
+            bookCollection.document(book.getUID()).update(imgString);
+            setBookPhoto(book, imageView);
+    }
+    public void setBookPhoto(Book book, ImageView imageView) {
+        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
+        Glide.with(this /* context */)
+                .load(storageRef)
+                .into(imageView);
     }
 
     /**
@@ -202,127 +248,88 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
      * Add the book to Firestore
      * Used in AddBookFragment.java
      *
+     * @param dialogType  determines behavior of dialog
+     * @param bookUID     for editing a specific book
      * @param title       title of the book to be added
      * @param author      author of the book
      * @param isbn        isbn of the book
      * @param description description of the book
      */
     @Override
-    public void onOkPressed(String title, String author, String isbn, String description) {
+    public void onOkPressed(String dialogType, final String bookUID, final String title, final String author, final String isbn, String description) {
         final String TAG = "Add Book method";   // just a tag for debugging purposes
 
         HashMap<String, Object> data = new HashMap<>(); // a data structure for adding info to the db
 
-        // generate a UID; see method at the bottom for details
-        String UID = generateUID();
-
         // check that those three fields are not empty
         // TODO Needs to have error checking that inputs are proper (shows red text and enforce input
         //  where mandatory)
-        if (title.length() > 0 && author.length() > 0 && isbn.length() > 0) {
-            data.put("ISBN", isbn);
-            data.put("title", title);
-            data.put("author", author);
-            data.put("status", "Available");
-            data.put("UID", UID);
-            data.put("ownerUsername", user.getDisplayName());
-            data.put("requesterList", Arrays.asList(""));
-        }
 
-        // UID is randomly generated for the document/collection
-        // then all the book info is put within it
-        bookCollection
-                .document(UID)
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+        if ((title.length() > 0 && author.length() > 0 && isbn.length() > 0)) {
+            // adding book
+            if (dialogType.equals("Add Book")) {
+                data.put("ISBN", isbn);
+                data.put("title", title);
+                data.put("author", author);
+                data.put("status", "Available");
+                data.put("UID", bookUID);
+                data.put("ownerUsername", user.getDisplayName()); // TODO: (from Matthew) There seems to be a problem with assigning an owner username to a book
+                data.put("ownerEmail", user.getEmail());
+                data.put("requesterList", Arrays.asList()); // allows a user to be the 0th index instead of an empty string
+                data.put("imageURI", "");
+
+                // UID is randomly generated for the document/collection
+                // then all the book info is put within it
+                bookCollection
+                        .document(bookUID)
+                        .set(data)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "Data has been added successfully");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "Data could not be added!" + e.toString());
+                            }
+                        });
+            }
+            // editing book
+            else {
+                Query query = bookCollection.whereEqualTo("UID", bookUID);
+                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Data has been added successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Data could not be added!" + e.toString());
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Book book = task.getResult().getDocuments().get(0).toObject(Book.class);
+                        book.setISBN(isbn);
+                        book.setTitle(title);
+                        book.setAuthor(author);
+                        bookCollection.document(bookUID)
+                                .set(book.getDataHashMap());
                     }
                 });
+            }
+
+        }
+
+
     }
 
+    /**
+     * shows all owner's available books
+     */
     public void showAvailableBooks() {
-
         adapter = (BookListAdapter) rvBookList.getAdapter();
         List<String> filter = Collections.singletonList("Available"); // whitelist
 
+        // query available books
         Query titleQuery = bookCollection
                 .whereEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", filter);
 
-        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document: task.getResult()) {
-                        Book book = document.toObject(Book.class);
-                        bookList.add(book);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
-    public void showRequestedBooks() {
-        adapter = (BookListAdapter) rvBookList.getAdapter();
-        List<String> filter = Collections.singletonList("Requested"); // whitelist
-
-        Query titleQuery = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereIn("status", filter);
-
-        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document: task.getResult()) {
-                        Book book = document.toObject(Book.class);
-                        bookList.add(book);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
-    public void showAcceptedBooks() {
-        adapter = (BookListAdapter) rvBookList.getAdapter();
-        List<String> filter = Collections.singletonList("Accepted"); // whitelist
-
-        Query titleQuery = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereIn("status", filter);
-
-        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document: task.getResult()) {
-                        Book book = document.toObject(Book.class);
-                        bookList.add(book);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
-    public void showBorrowedBooks() {
-        adapter = (BookListAdapter) rvBookList.getAdapter();
-        List<String> filter = Collections.singletonList("Borrowed"); // whitelist
-
-        Query titleQuery = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereIn("status", filter);
-
+        // show available books
         titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -338,36 +345,83 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     /**
-     * Generates a random, unique* document ID
-     *
-     * https://github.com/firebase/firebase-android-sdk/issues/408
-     * Firestore itself doesn't actually generate a unique UID. It generates a
-     * statistically rare alphanumeric String sequence.
-     *
-     * @return UID
-     *         A unique* String sequence of random alphanumeric characters.
+     * shows all owner's requested books
      */
-    public String generateUID() {
-        int length = 20;
-        List<String> potentialCharacters = new ArrayList<>();
+    public void showRequestedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
+        List<String> filter = Collections.singletonList("Requested"); // whitelist
 
-        for (char chr = '0'; chr <= '9'; chr++) {
-            potentialCharacters.add(String.valueOf(chr));
-        }
-        for (char chr = 'A'; chr <= 'Z'; chr++) {
-            potentialCharacters.add(String.valueOf(chr));
-        }
-        for (char chr = 'a'; chr <= 'z'; chr++) {
-            potentialCharacters.add(String.valueOf(chr));
-        }
+        // query requested books
+        Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
+                .whereIn("status", filter);
 
-        int range = potentialCharacters.size();
-        String UID = "";
-        for (int chr = 0; chr < length; chr++) {
-            int randomIndex = (int) (Math.random() * range);
-            UID = UID.concat(potentialCharacters.get(randomIndex));
-        }
+        // show requested books
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Book book = document.toObject(Book.class);
+                        bookList.add(book);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
 
-        return UID;
+    /**
+     * shows all owner's accepted books
+     */
+    public void showAcceptedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
+        List<String> filter = Collections.singletonList("Accepted"); // whitelist
+
+        // query available books
+        Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
+                .whereIn("status", filter);
+
+        // show available books
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Book book = document.toObject(Book.class);
+                        bookList.add(book);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+    /**
+     * shows all owner's borrowed books
+     */
+    public void showBorrowedBooks() {
+        adapter = (BookListAdapter) rvBookList.getAdapter();
+        List<String> filter = Collections.singletonList("Borrowed"); // whitelist
+
+        // query borrowed books
+        Query titleQuery = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
+                .whereIn("status", filter);
+
+        // show borrowed books
+        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Book book = document.toObject(Book.class);
+                        bookList.add(book);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 }
