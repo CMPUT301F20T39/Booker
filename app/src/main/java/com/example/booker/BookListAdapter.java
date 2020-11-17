@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -72,14 +73,20 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	public void onBindViewHolder(@NonNull final BookListAdapter.MyViewHolder holder, final int position) {
 		final Book book = bookList.get(position);
 		final String UID = book.getUID();
+		StorageReference storageRef = storage.getReference(firebaseUser.getDisplayName() + "/" + book.getTitle());
 
 		// set texts to their values
 		holder.titleView.setText(book.getTitle());
 		holder.authorView.setText(book.getAuthor());
 		holder.ISBNView.setText(book.getISBN());
 		holder.statusView.setText(book.getStatus());
+		if (book.getImageURI() == null)
+			book.setImageURI("");
 		if (!book.getImageURI().isEmpty())
-			instance.setBookPhoto(book, holder.imageView);
+			Glide.with(holder.imageView.getContext() /* context */)
+				.load(storageRef)
+				.placeholder(R.drawable.defaultphoto)
+				.into(holder.imageView);
 
 		// delete a book on click
 		holder.deleteButton.setOnClickListener(new View.OnClickListener() {
