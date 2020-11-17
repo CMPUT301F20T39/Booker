@@ -34,6 +34,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-storage:6.4.0'
 
     implementation "com.github.bumptech.glide:glide:4.11.0"
+    annotationProcessor "com.github.bumptech.glide:compiler:4.11.0"
 
     // Declare the dependency for the Cloud Storage library
     // When using the BoM, you don't specify versions in Firebase library dependencies
