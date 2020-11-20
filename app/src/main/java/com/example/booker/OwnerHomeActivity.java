@@ -1,9 +1,6 @@
 package com.example.booker;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,8 +17,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,7 +27,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -42,18 +36,17 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Main hub for Owner's activity
  */
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
+    private static final String TAG = "DEBUG";
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
@@ -86,17 +79,17 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // get owner's books
         bookCollection.whereEqualTo("ownerUsername", user.getDisplayName())
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
-                bookList.clear();
-                assert queryDocumentSnapshots != null;
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    Book aBook = doc.toObject(Book.class);
-                    bookList.add(aBook);
-                }
-                adapter.notifyDataSetChanged();
-            }
-        });
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                        bookList.clear();
+                        assert queryDocumentSnapshots != null;
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            Book aBook = doc.toObject(Book.class);
+                            bookList.add(aBook);
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+                });
 
         // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar4);
@@ -203,10 +196,43 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
+        // Check if there is any change in the status of the books
+        bookCollection
+                .whereEqualTo("ownerEmail", userEmail)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        // Checking that query works as expected; Can be removed later
+                        List<String> books = new ArrayList<>();
+                        for (QueryDocumentSnapshot doc : snapshots) {
+                            if (doc.get("title") != null) {
+                                books.add(doc.getString("title"));
+                            }
+                        }
+                        Log.d(TAG, "Current books owned by " + user.getDisplayName() + " : " + books);
+
+                        // See changes since the last snapshot
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            if (dc.getType() == DocumentChange.Type.MODIFIED)
+                            {
+                                Log.d(TAG, "Modified book status:" + dc.getDocument().get("status"));
+                            }
+                        }
+                    }
+                });
+
+
     }
 
     /**
      * opens book requester intent
+     *
      * @param book
      */
     public void createRequestList(Book book) {
@@ -217,8 +243,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     /**
      * Get selected imageView from adapter and go to image gallery
+     *
      * @param intent intent to open image gallery
-     * @param view the selected imageView
+     * @param view   the selected imageView
      */
     public void selectImage(Intent intent, ImageView view, Book book) {
         imageView = view;
@@ -230,6 +257,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
      * Retrieves chosen photo from image gallery and sets as book photo in Owner menu.
      * Adds image details to book document in firestore and adds image to firebase storage
      * in a folder titled <username> of the owner.
+     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -240,10 +268,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null)
             image = data.getData();
-            storageRef.putFile(image);
-            imgString.put("imageURI", image.toString());
-            bookCollection.document(book.getUID()).update(imgString);
-            imageView.setImageURI(image);
+        storageRef.putFile(image);
+        imgString.put("imageURI", image.toString());
+        bookCollection.document(book.getUID()).update(imgString);
+        imageView.setImageURI(image);
     }
 
     /**
@@ -337,7 +365,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document: task.getResult()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
                     }
@@ -364,7 +392,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document: task.getResult()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
                     }
@@ -391,7 +419,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document: task.getResult()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
                     }
@@ -418,7 +446,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document: task.getResult()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         Book book = document.toObject(Book.class);
                         bookList.add(book);
                     }
