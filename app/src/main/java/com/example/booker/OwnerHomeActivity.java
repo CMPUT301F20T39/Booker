@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -68,6 +69,8 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private Book book;
     private final static int REQUEST_CODE = 111;
     HashMap<String, Object> imgString = new HashMap<>();
+    private ImageButton scanBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,6 +203,19 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                     showAcceptedBooks();
                 if (borrowedButton.isChecked())
                     showBorrowedBooks();
+            }
+        });
+
+
+        // profile button stuff
+        scanBtn = findViewById(R.id.scanButton);
+
+        // Button takes user to user_profile.java
+        scanBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToScanner = new Intent(getApplicationContext(), barcodeScanner.class);
+                startActivity(goToScanner);
             }
         });
 
