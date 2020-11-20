@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -225,6 +226,14 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         startActivityForResult(Intent.createChooser(intent, "Choose a photo"), REQUEST_CODE);
     }
 
+    /**
+     * Retrieves chosen photo from image gallery and sets as book photo in Owner menu.
+     * Adds image details to book document in firestore and adds image to firebase storage
+     * in a folder titled <username> of the owner.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
@@ -234,17 +243,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             storageRef.putFile(image);
             imgString.put("imageURI", image.toString());
             bookCollection.document(book.getUID()).update(imgString);
-            setBookPhoto(book, imageView);
-    }
-    public void setBookPhoto(Book book, ImageView imageView) {
-        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
-        Glide.with(this /* context */)
-                .load(storageRef)
-                .into(imageView);
+            imageView.setImageURI(image);
     }
 
     /**
-     * Method associated with the OK button in the Dialog button
+     * Method associated with the OK button in the Dialog fragment
      * Add the book to Firestore
      * Used in AddBookFragment.java
      *
