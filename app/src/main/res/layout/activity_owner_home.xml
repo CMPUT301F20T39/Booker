@@ -20,6 +20,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/scanButton"
+        android:layout_width="42dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="370dp"
+        android:background="#00FFFFFF"
+        app:srcCompat="@drawable/ic_baseline_qr_code_scanner_24" />
+
     <android.widget.HorizontalScrollView
         android:id="@+id/BorrowerFilters"
         android:layout_width="match_parent"
