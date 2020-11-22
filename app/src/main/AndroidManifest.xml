@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <!-- required for barcode scanner -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,6 +20,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="barcode" />
+        <activity android:name=".barcodeScanner"/>
         <activity android:name=".OwnerHomeActivity"/>
         <activity android:name=".AccountTypeActivity" />
         <activity android:name=".BorrowerHomeActivity" />

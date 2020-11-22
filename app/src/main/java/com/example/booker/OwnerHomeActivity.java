@@ -1,7 +1,11 @@
 package com.example.booker;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +41,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,6 +67,8 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private Book book;
     private final static int REQUEST_CODE = 111;
     HashMap<String, Object> imgString = new HashMap<>();
+    private ImageButton scanBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,19 +223,31 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                                 books.add(doc.getString("title"));
                             }
                         }
+
                         Log.d(TAG, "Current books owned by " + user.getDisplayName() + " : " + books);
 
                         // See changes since the last snapshot
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            if (dc.getType() == DocumentChange.Type.MODIFIED)
-                            {
+                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
+                                Log.d(TAG, "Book data" + dc.getDocument().getData());
                                 Log.d(TAG, "Modified book status:" + dc.getDocument().get("status"));
+
                             }
                         }
                     }
                 });
 
+        // profile button stuff
+        scanBtn = findViewById(R.id.scanButton);
 
+        // Button takes user to user_profile.java
+        scanBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToScanner = new Intent(getApplicationContext(), barcodeScanner.class);
+                startActivity(goToScanner);
+            }
+        });
     }
 
     /**
@@ -455,4 +475,38 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
     }
+
+    public void createNotification(String requester, String book, String bookAuthor) {
+        // Create the intent for the notification tap action
+        Intent intent = new Intent(this, OwnerRequestsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        String textTitle = getString(R.string.app_name);
+        String textContent = MessageFormat.format("{0} has requested the book {1} by {2}", requester, book, bookAuthor);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationChannel.DEFAULT_CHANNEL_ID)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle(textTitle)
+                .setContentText(textContent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                // automatically remove the notification when a user tap on it
+                .setAutoCancel(true);
+    }
+
+    // Create a Notification Channel for the notification to go through
+//    private void createNotificationChannel() {
+//        // Create the NotificationChannel, but only on API 26+ because
+//        // the NotificationChannel class is new and not in the support library
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            CharSequence name = getString(R.string.channel_name);
+//            String description = getString(R.string.channel_description);
+//            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+//            NotificationChannel channel = new NotificationChannel(NotificationChannel.DEFAULT_CHANNEL_ID, name, importance);
+//            channel.setDescription(description);
+//            // Register the channel with the system; you can't change the importance
+//            // or  other notification behaviours after this
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//            notificationManager.createNotificationChannel(channel);
+//        }
+//    }
 }
