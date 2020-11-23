@@ -17,3 +17,4 @@ https://stackoverflow.com/questions/18436524/launch-a-dialog-fragment-on-button-
 https://stackoverflow.com/questions/35810229/how-to-display-and-set-click-event-on-back-arrow-on-toolbar
 https://stackoverflow.com/questions/41735059/how-to-make-an-edittext-not-clickable
 https://stackoverflow.com/questions/3144940/set-imageview-width-and-height-programmatically
+https://stackoverflow.com/questions/13692398/remove-a-marker-from-a-googlemap

@@ -143,8 +143,8 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
             @Override
             public void onClick(View v) {
                 Intent goToMaps = new Intent(borrowerHomeContext, MapsActivity.class);
-                goToMaps.putExtra("latitude", book.getLatitude());
-                goToMaps.putExtra("longitude", book.getLongitude());
+                goToMaps.putExtra("accessType", "READ_ONLY");
+                goToMaps.putExtra("book", book);
                 borrowerHomeContext.startActivity(goToMaps);
             }
         });
