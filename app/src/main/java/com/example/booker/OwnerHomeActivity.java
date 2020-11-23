@@ -296,6 +296,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 data.put("ownerEmail", user.getEmail());
                 data.put("requesterList", Arrays.asList()); // allows a user to be the 0th index instead of an empty string
                 data.put("imageURI", "");
+                data.put("coordinates", Arrays.asList()); // no location set
 
                 // UID is randomly generated for the document/collection
                 // then all the book info is put within it

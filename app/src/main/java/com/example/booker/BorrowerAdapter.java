@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
         private TextView ownerUsernameTextView;
         private TextView statusTextView;
         private Button requestButton;
+        private ImageButton imageButtonLocation;
 
         // constructor initializes view objects
         public BookViewHolder(@NonNull View itemView) {
@@ -55,6 +58,7 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
             ownerUsernameTextView = itemView.findViewById(R.id.ownerUsernameTextView);
             statusTextView = itemView.findViewById(R.id.statusTextView);
             requestButton = itemView.findViewById(R.id.requestButton);
+            imageButtonLocation = itemView.findViewById(R.id.imageButtonLocation);
         }
     }
 
@@ -123,6 +127,25 @@ public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookVi
                 goToProfile.putExtra("profileType", "READ_ONLY");
                 goToProfile.putExtra("profileEmail", book.getOwnerEmail());
                 borrowerHomeContext.startActivity(goToProfile);
+            }
+        });
+
+        // hide location button if not set
+        if (!book.hasCoordinates()) {
+            holder.imageButtonLocation.setVisibility(View.GONE);
+        }
+        else {
+            holder.imageButtonLocation.setVisibility(View.VISIBLE);
+        }
+
+        // location button click listener
+        holder.imageButtonLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToMaps = new Intent(borrowerHomeContext, MapsActivity.class);
+                goToMaps.putExtra("latitude", book.getLatitude());
+                goToMaps.putExtra("longitude", book.getLongitude());
+                borrowerHomeContext.startActivity(goToMaps);
             }
         });
     }
