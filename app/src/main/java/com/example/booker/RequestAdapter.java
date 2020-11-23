@@ -125,7 +125,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         });
 
         // hide buttons on requested
-        if (book.getStatus().equals("Accepted")) {
+        if (book.getStatus().equals("Accepted") || book.getStatus().equals("Borrowed")) {
             holder.rejectButton.setVisibility(View.GONE);
             holder.acceptButton.setVisibility(View.GONE);
             holder.imageButtonLocation.setVisibility(View.VISIBLE);
