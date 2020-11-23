@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SearchView;
@@ -48,8 +49,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private BorrowerAdapter borrowerAdapter;
     private SearchView searchView;
     private ImageButton profileBtn;
-    private TextView listDisplayTextView;
     private List<Book> bookList;
+    private Chip requestedButton;
+    private Chip acceptedButton;
+    private Chip borrowedButton;
+    private EditText searchViewEditText;
 
 
     @Override
@@ -58,10 +62,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_borrower_home);
 
         // initialize chips
-        final ChipGroup chipGroup = findViewById(R.id.chipGroup);
-        final Chip requestedButton = findViewById(R.id.requestedBttn);
-        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
-        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
+        requestedButton = findViewById(R.id.requestedBttn);
+        acceptedButton = findViewById(R.id.acceptedBttn);
+        borrowedButton = findViewById(R.id.borrowedBttn);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -77,118 +80,69 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
         // searchview stuff
         searchView = findViewById(R.id.searchView);
-        listDisplayTextView = findViewById(R.id.listDisplayTextView);
 
         // get internal edittext from search view (behaves strangely without)
         int id = searchView.getContext().getResources()
                 .getIdentifier("android:id/search_src_text", null, null);
-        final EditText searchViewEditText = (EditText) searchView.findViewById(id);
+        searchViewEditText = (EditText) searchView.findViewById(id);
 
         // touching search edit text
         searchViewEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    // change text display to all available
-                    String listDisplay = "Displaying all available books";
-                    listDisplayTextView.setText(listDisplay);
-                    listDisplayTextView.setTextSize(18);
-
-                    // hide chips
-                    chipGroup.setVisibility(View.GONE);
-
-                    // show all available books and show request buttons
-                    showAllAvailableBooks();
-                    borrowerAdapter.setHideButton(false);
+                    Intent gotoSearch = new Intent(getApplicationContext(), BorrowerSearchActivity.class);
+                    startActivity(gotoSearch);
                 }
 
             }
         });
 
-        // query on submit
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        // show requests on request chip toggle
+        requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                // change text display to titled available
-                String listDisplay = "Displaying available \""
-                        + searchView.getQuery().toString() + "\" books";
-                listDisplayTextView.setText(listDisplay);
-
-                // show titled available books
-                showSearchedAvailableBooks();
-
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                // when search is blank and not on home screen
-                if (newText.length() == 0 &&
-                !listDisplayTextView.getText().toString().equals("Borrower Home")) {
-                    // change text display to titled available
-                    String listDisplay = "Displaying all available books";
-                    listDisplayTextView.setText(listDisplay);
-
-                    // show all available books
-                    showAllAvailableBooks();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    acceptedButton.setChecked(false);
+                    borrowedButton.setChecked(false);
+                    showMyRequests();
                 }
-                return false;
-            }
-        });
-
-        // show requests on request chip click
-        requestedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                acceptedButton.setChecked(false);
-                borrowedButton.setChecked(false);
-                showMyRequests();
+                else {
+                    bookList.clear();
+                    borrowerAdapter.notifyDataSetChanged();
+                }
             }
         });
 
         // show accepts on accept chip click
-        acceptedButton.setOnClickListener(new View.OnClickListener() {
+        acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                requestedButton.setChecked(false);
-                borrowedButton.setChecked(false);
-                showMyAccepts();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    requestedButton.setChecked(false);
+                    borrowedButton.setChecked(false);
+                    showMyAccepts();
+                }
+                else {
+                    bookList.clear();
+                    borrowerAdapter.notifyDataSetChanged();
+                }
             }
         });
 
         // show borrows on borrow chip click
-        borrowedButton.setOnClickListener(new View.OnClickListener() {
+        borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                acceptedButton.setChecked(false);
-                requestedButton.setChecked(false);
-                showMyBorrows();
-            }
-        });
-
-        // home button stuff
-        final ImageButton homeButton = findViewById(R.id.homeButton);
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // change text display to my requests
-                String myRequestsDisplay = "Borrower Home";
-                listDisplayTextView.setTextSize(24);
-                listDisplayTextView.setText(myRequestsDisplay);
-
-                // show chips
-                chipGroup.setVisibility(View.VISIBLE);
-
-                // close keyboard and reset search text
-                searchView.clearFocus();
-                searchView.setQuery("", false);
-
-                // user's personal requests list
-                requestedButton.performClick();
-                requestedButton.setChecked(true);
-
-                // hide buttons
-                borrowerAdapter.setHideButton(true);
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    acceptedButton.setChecked(false);
+                    requestedButton.setChecked(false);
+                    showMyBorrows();
+                }
+                else {
+                    bookList.clear();
+                    borrowerAdapter.notifyDataSetChanged();
+                }
             }
         });
 
@@ -217,12 +171,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (listDisplayTextView.getText().toString().startsWith("Displaying")) {
-                    homeButton.performClick();
-                }
-                else {
-                    finish();
-                }
+                finish();
             }
         });
 
@@ -306,77 +255,15 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * show user's available books
-     */
-    public void showAllAvailableBooks() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // reset to initial home state
+        searchViewEditText.clearFocus();
+        acceptedButton.setChecked(false);
+        requestedButton.setChecked(false);
+        borrowedButton.setChecked(false);
         bookList.clear();
         borrowerAdapter.notifyDataSetChanged();
-
-        // filter for only available and requested
-        List<String> whitelist = Arrays.asList("Available", "Requested");
-
-        // query all available (available + requested) books
-        Query query = firebaseFirestore.collection("Books")
-                .whereIn("status", whitelist);
-
-        // show all available (available + requested) books
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    Book book = documentChange.getDocument().toObject(Book.class);
-
-                    // add new books to results
-                    if (documentChange.getType() == DocumentChange.Type.ADDED) {
-                        bookList.add(book);
-                    }
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    /**
-     * show user's requested books using a keyword
-     * Bugs: duplicate search results after requesting a book
-     */
-    public void showSearchedAvailableBooks() {
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
-
-        // filter for only available and requested
-        List<String> whitelist = Arrays.asList("Available", "Requested");
-
-        // query partial matched titles/authors/ISBNs
-        Query query = firebaseFirestore.collection("Books")
-                .whereIn("status", whitelist);
-
-        // show partial matched titles/authors/ISBNs
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    Book book = documentChange.getDocument().toObject(Book.class);
-
-                    // partial titles
-                    if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                        bookList.add(book);
-                    }
-                    // partial authors
-                    else if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                        bookList.add(book);
-                    }
-                    // partial ISBNs
-                    else if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
-                        bookList.add(book);
-                    }
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
     }
 }
