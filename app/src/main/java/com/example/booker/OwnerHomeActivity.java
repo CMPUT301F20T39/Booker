@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import android.app.NotificationChannel;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,9 +13,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,6 +28,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -36,9 +38,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,8 +48,10 @@ import java.util.List;
  * Main hub for Owner's activity
  */
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+    private static final String TAG = "DEBUG";
+    private FirebaseFirestore db;
+    private FirebaseUser user;
     private String userEmail = user.getEmail();
     private final CollectionReference bookCollection = db.collection("Books");
     FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -136,6 +140,39 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
+        // Check if there is any change in the status of the books
+        bookCollection
+                .whereEqualTo("ownerEmail", userEmail)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        // Checking that query works as expected; Can be removed later
+                        List<String> books = new ArrayList<>();
+                        for (QueryDocumentSnapshot doc : snapshots) {
+                            if (doc.get("title") != null) {
+                                books.add(doc.getString("title"));
+                            }
+                        }
+
+                        Log.d(TAG, "Current books owned by " + user.getDisplayName() + " : " + books);
+
+                        // See changes since the last snapshot
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
+                                Log.d(TAG, "Book data" + dc.getDocument().getData());
+                                Log.d(TAG, "Modified book status:" + dc.getDocument().get("status"));
+
+                            }
+                        }
+                    }
+                });
+
         // When clicked, the floating action button shows the
         // AddBook dialog.
         final FloatingActionButton addBookBtn = findViewById(R.id.add_book_btn);
@@ -158,11 +195,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 startActivity(goToScanner);
             }
         });
-
     }
 
     /**
      * opens book requester intent
+     *
      * @param book
      */
     public void createRequestList(Book book) {
@@ -173,8 +210,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     /**
      * Get selected imageView from adapter and go to image gallery
+     *
      * @param intent intent to open image gallery
-     * @param view the selected imageView
+     * @param view   the selected imageView
      */
     public void selectImage(Intent intent, ImageView view, Book book) {
         imageView = view;
@@ -186,6 +224,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
      * Retrieves chosen photo from image gallery and sets as book photo in Owner menu.
      * Adds image details to book document in firestore and adds image to firebase storage
      * in a folder titled <username> of the owner.
+     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -196,10 +235,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null)
             image = data.getData();
-            storageRef.putFile(image);
-            imgString.put("imageURI", image.toString());
-            bookCollection.document(book.getUID()).update(imgString);
-            imageView.setImageURI(image);
+        storageRef.putFile(image);
+        imgString.put("imageURI", image.toString());
+        bookCollection.document(book.getUID()).update(imgString);
+        imageView.setImageURI(image);
     }
 
     /**
@@ -296,8 +335,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build()
-                ;
+                .build();
 
         // initialize adapter and connect to recyclerview
         bookListAdapter2 = new BookListAdapter2(options,
@@ -314,8 +352,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build()
-                ;
+                .build();
 
         // update existing query
         bookListAdapter2.updateOptions(options);
@@ -330,8 +367,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build()
-                ;
+                .build();
 
         // update existing query
         bookListAdapter2.updateOptions(options);
@@ -346,8 +382,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build()
-                ;
+                .build();
 
         // update existing query
         bookListAdapter2.updateOptions(options);
@@ -362,11 +397,43 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build()
-                ;
+                .build();
 
         // update existing query
         bookListAdapter2.updateOptions(options);
     }
 
+    // Create a Notification Channel for the notification to go through
+//    private void createNotificationChannel() {
+//        // Create the NotificationChannel, but only on API 26+ because
+//        // the NotificationChannel class is new and not in the support library
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            CharSequence name = getString(R.string.channel_name);
+//            String description = getString(R.string.channel_description);
+//            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+//            NotificationChannel channel = new NotificationChannel(NotificationChannel.DEFAULT_CHANNEL_ID, name, importance);
+//            channel.setDescription(description);
+//            // Register the channel with the system; you can't change the importance
+//            // or  other notification behaviours after this
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//            notificationManager.createNotificationChannel(channel);
+//        }
+//    }
+
+    public void createNotification(String requester, String book, String bookAuthor) {
+        // Create the intent for the notification tap action
+        Intent intent = new Intent(this, OwnerRequestsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        String textTitle = getString(R.string.app_name);
+        String textContent = MessageFormat.format("{0} has requested the book {1} by {2}", requester, book, bookAuthor);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationChannel.DEFAULT_CHANNEL_ID)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle(textTitle)
+                .setContentText(textContent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                // automatically remove the notification when a user tap on it
+                .setAutoCancel(true);
+    }
 }
