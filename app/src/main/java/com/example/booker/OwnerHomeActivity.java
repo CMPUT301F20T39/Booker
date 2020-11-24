@@ -168,6 +168,19 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                                 Log.d(TAG, "Book data" + dc.getDocument().getData());
                                 Log.d(TAG, "Modified book status:" + dc.getDocument().get("status"));
 
+                                final String status = dc.getDocument().getString("status");
+                                final String bookTitle = dc.getDocument().getString("title");
+                                final String bookAuthor = dc.getDocument().getString("author");
+
+                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
+                                String recentRequester = requesterList.get(requesterList.size() - 1);
+
+                                assert status != null;
+                                if (status.equals("requested"))
+                                {
+                                    createNotification(recentRequester, bookTitle, bookAuthor);
+                                }
+
                             }
                         }
                     }
