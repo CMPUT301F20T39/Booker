@@ -20,15 +20,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/scanButton"
-        android:layout_width="42dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="370dp"
-        android:background="#00FFFFFF"
-        app:srcCompat="@drawable/ic_baseline_qr_code_scanner_24" />
-
     <android.widget.HorizontalScrollView
         android:id="@+id/BorrowerFilters"
         android:layout_width="match_parent"
@@ -50,8 +41,10 @@
             android:scrollbars="none"
             android:singleLine="true"
             android:theme="@style/Theme.MaterialComponents.Light"
+            app:checkedChip="@id/availableBttn"
             app:chipSpacing="10dp"
-            app:singleLine="true">
+            app:singleLine="true"
+            app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/availableBttn"
@@ -107,6 +100,16 @@
         android:focusable="true"
         android:src="@android:drawable/ic_input_add"
         app:backgroundTint="#009688" />
+
+    <ImageButton
+        android:id="@+id/scanButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="4dp"
+        android:backgroundTint="#00FFFFFF"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ic_baseline_qr_code_scanner_24" />
 
 
 </FrameLayout>

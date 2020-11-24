@@ -94,6 +94,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 			@Override
 			public void onClick(View v) {
 				firebaseFirestore.collection("Books").document(UID).delete();
+				instance.refreshList();
 			}
 		});
 

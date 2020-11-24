@@ -1,14 +1,10 @@
 package com.example.booker;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -21,8 +17,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,24 +26,18 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Main hub for Owner's activity
@@ -70,6 +58,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private final static int REQUEST_CODE = 111;
     HashMap<String, Object> imgString = new HashMap<>();
     private ImageButton scanBtn;
+    Chip availableButton;
+    Chip requestedButton;
+    Chip acceptedButton;
+    Chip borrowedButton;
 
 
     @Override
@@ -85,21 +77,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         rvBookList.setLayoutManager(new LinearLayoutManager(this));
 
         profileBtn = findViewById(R.id.profileButton);
-
-        // get owner's books
-        bookCollection.whereEqualTo("ownerUsername", user.getDisplayName())
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
-                bookList.clear();
-                assert queryDocumentSnapshots != null;
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    Book aBook = doc.toObject(Book.class);
-                    bookList.add(aBook);
-                }
-                adapter.notifyDataSetChanged();
-            }
-        });
 
         // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar4);
@@ -121,72 +98,62 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         addBookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                toggleAvailable();
                 new AddBookFragment().show(getSupportFragmentManager(), "ADD_BOOK");
             }
         });
 
         // initialize chips
-        final Chip availableButton = findViewById(R.id.availableBttn);
-        final Chip requestedButton = findViewById(R.id.requestedBttn);
-        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
-        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
+        availableButton = findViewById(R.id.availableBttn);
+        requestedButton = findViewById(R.id.requestedBttn);
+        acceptedButton = findViewById(R.id.acceptedBttn);
+        borrowedButton = findViewById(R.id.borrowedBttn);
 
         // toggled available chip
         availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            /**
-             * shows available books
-             */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                bookList.clear();
-                if (availableButton.isChecked())
+                if (b) {
                     showAvailableBooks();
-                if (requestedButton.isChecked())
-                    showRequestedBooks();
-                if (acceptedButton.isChecked())
-                    showAcceptedBooks();
-                if (borrowedButton.isChecked())
-                    showBorrowedBooks();
+                }
+                else {
+                    availableButton.setSelected(false);
+                    availableButton.setChecked(false);
+                    bookList.clear();
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
 
         // toggled requested chip
         requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            /**
-             * shows requested books
-             *
-             */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                bookList.clear();
-                if (availableButton.isChecked())
-                    showAvailableBooks();
-                if (requestedButton.isChecked())
+                if (b) {
                     showRequestedBooks();
-                if (acceptedButton.isChecked())
-                    showAcceptedBooks();
-                if (borrowedButton.isChecked())
-                    showBorrowedBooks();
-
+                }
+                else {
+                    requestedButton.setSelected(false);
+                    requestedButton.setChecked(false);
+                    bookList.clear();
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
 
         // toggled accepted chip
         acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            /**
-             * shows accepted books
-             */
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                bookList.clear();
-                if (availableButton.isChecked())
-                    showAvailableBooks();
-                if (requestedButton.isChecked())
-                    showRequestedBooks();
-                if (acceptedButton.isChecked())
+                if (b) {
                     showAcceptedBooks();
-                if (borrowedButton.isChecked())
-                    showBorrowedBooks();
+                }
+                else {
+                    acceptedButton.setSelected(false);
+                    acceptedButton.setChecked(false);
+                    bookList.clear();
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
 
@@ -194,15 +161,15 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                bookList.clear();
-                if (availableButton.isChecked())
-                    showAvailableBooks();
-                if (requestedButton.isChecked())
-                    showRequestedBooks();
-                if (acceptedButton.isChecked())
-                    showAcceptedBooks();
-                if (borrowedButton.isChecked())
+                if (b) {
                     showBorrowedBooks();
+                }
+                else {
+                    borrowedButton.setSelected(false);
+                    borrowedButton.setChecked(false);
+                    bookList.clear();
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
 
@@ -331,7 +298,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                     }
                 });
             }
-
+            refreshList();
         }
 
 
@@ -443,5 +410,55 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 }
             }
         });
+    }
+
+    // toggles available button
+    public void toggleAvailable() {
+        availableButton.setChecked(false);
+        availableButton.setSelected(false);
+        availableButton.setChecked(true);
+        availableButton.setSelected(true);
+    }
+
+    // toggles accepted button
+    public void toggleAccepted() {
+        acceptedButton.setChecked(false);
+        acceptedButton.setSelected(false);
+        acceptedButton.setChecked(true);
+        acceptedButton.setSelected(true);
+    }
+
+    // call after modifying a book to refresh the book list display
+    public void refreshList() {
+        if (availableButton.isChecked()) {
+            availableButton.setChecked(false);
+            availableButton.setSelected(false);
+            availableButton.setChecked(true);
+            availableButton.setSelected(true);
+        }
+        else if (requestedButton.isChecked()) {
+            requestedButton.setChecked(false);
+            requestedButton.setSelected(false);
+            requestedButton.setChecked(true);
+            requestedButton.setSelected(true);
+        }
+        else if (acceptedButton.isChecked()) {
+            acceptedButton.setChecked(false);
+            acceptedButton.setSelected(false);
+            acceptedButton.setChecked(true);
+            acceptedButton.setSelected(true);
+        }
+        else if (borrowedButton.isChecked()) {
+            borrowedButton.setChecked(false);
+            borrowedButton.setSelected(false);
+            borrowedButton.setChecked(true);
+            borrowedButton.setSelected(true);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshList();
     }
 }

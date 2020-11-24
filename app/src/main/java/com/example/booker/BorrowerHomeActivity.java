@@ -259,12 +259,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // reset to initial home state
-        searchViewEditText.clearFocus();
-
+    public void refreshList() {
         if (requestedButton.isChecked()) {
             requestedButton.setChecked(false);
             requestedButton.setSelected(false);
@@ -283,6 +278,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             borrowedButton.setChecked(true);
             borrowedButton.setSelected(true);
         }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // reset to initial home state
+        searchViewEditText.clearFocus();
+        refreshList();
     }
 }
