@@ -35,7 +35,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 	private OwnerHomeActivity instance;
 	
 	public static class MyViewHolder extends RecyclerView.ViewHolder {
-		public TextView titleView, authorView, ISBNView, statusView;
+		public TextView titleView, authorView, ISBNView, statusView, ownerBookBorrowerName;
 		public Button deleteButton, requestsButton, editButton;
 		public ImageView imageView;
 		
@@ -51,6 +51,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 			requestsButton = v.findViewById(R.id.requestsBtn);
 			editButton = v.findViewById(R.id.editBook);
 			imageView = v.findViewById(R.id.bookImage);
+			ownerBookBorrowerName = v.findViewById(R.id.ownerBookBorrowerName);
 		}
 	}
 	
@@ -129,6 +130,13 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.MyView
 				instance.selectImage(photoIntent, holder.imageView, book);
 			}
 		});
+
+		if (book.getStatus().equals("Borrowed")) {
+			holder.ownerBookBorrowerName.setText(book.getRequesterList().get(0));
+		}
+		else {
+			holder.ownerBookBorrowerName.setText("None");
+		}
 
 	}
 
