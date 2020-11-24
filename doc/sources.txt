@@ -21,3 +21,4 @@ https://stackoverflow.com/questions/13692398/remove-a-marker-from-a-googlemap
 https://www.youtube.com/watch?v=lAGI6jGS4vs
 https://stackoverflow.com/questions/51859652/how-to-exclude-an-element-from-a-firestore-query
 https://stackoverflow.com/questions/13646147/hide-row-from-listview-without-taking-up-space
+https://www.pngfind.com/mpng/Toiioo_location-clipart-location-pin-office-location-icon-png/

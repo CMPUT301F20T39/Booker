@@ -16,6 +16,8 @@
         android:background="#1C54E3"
         android:minHeight="?attr/actionBarSize"
         android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
+        app:navigationIcon="@drawable/abc_vector_test"
+        app:title="Owner Home"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -41,8 +43,11 @@
             android:scrollbars="none"
             android:singleLine="true"
             android:theme="@style/Theme.MaterialComponents.Light"
+            app:checkedChip="@id/availableBttn"
             app:chipSpacing="10dp"
-            app:singleLine="true">
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/availableBttn"
