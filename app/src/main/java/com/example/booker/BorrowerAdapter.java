@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * DEPRECATED
  * Controls behavior for each recyclerview item in BorrowerHomeActivity
  */
 public class BorrowerAdapter extends RecyclerView.Adapter<BorrowerAdapter.BookViewHolder> {

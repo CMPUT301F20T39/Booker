@@ -3,31 +3,25 @@ package com.example.booker;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.ObservableSnapshotArray;
+import com.firebase.ui.firestore.SnapshotParser;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,11 +32,12 @@ public class BorrowerSearchActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
     private RecyclerView recyclerView;
-    private BorrowerAdapter borrowerAdapter;
+    private BorrowerAdapter2 borrowerAdapter2;
     private SearchView searchView;
     private ImageButton profileBtn;
+    private ImageButton homeButton;
     private TextView listDisplayTextView;
-    private List<Book> bookList;
+    private androidx.appcompat.widget.Toolbar toolbar;
 
 
     @Override
@@ -50,30 +45,21 @@ public class BorrowerSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_borrower_search);
 
+        // firestore db and user set up
+        firebaseFirestore = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-        // initialize firestore, recyclerview, and adapter stuff
-        firebaseFirestore = FirebaseFirestore.getInstance();
+        // recyclerview set up
         recyclerView = findViewById(R.id.recyclerView);
-        bookList = new ArrayList<>();
-        borrowerAdapter = new BorrowerAdapter(R.layout.borrower_search_item, bookList, this);
-
-        // connect adapter to recyclerview
+        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(borrowerAdapter);
 
-        // searchview stuff
-        searchView = findViewById(R.id.searchView);
+        setUpAdapter();
+
+        showAllAvailable();
+
         listDisplayTextView = findViewById(R.id.listDisplayTextView);
-
-        // get internal edittext from search view (behaves strangely without)
-        int id = searchView.getContext().getResources()
-                .getIdentifier("android:id/search_src_text", null, null);
-        final EditText searchViewEditText = (EditText) searchView.findViewById(id);
-
-        searchViewEditText.requestFocus();
-        showAllAvailableBooks();
-        borrowerAdapter.setHideButton(false);
+        searchView = findViewById(R.id.searchView);
 
         // query on submit
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -84,8 +70,8 @@ public class BorrowerSearchActivity extends AppCompatActivity {
                         + searchView.getQuery().toString() + "\" books";
                 listDisplayTextView.setText(listDisplay);
 
-                // show titled available books
-                showSearchedAvailableBooks();
+                // show searched available books
+                showSearchedAvailable();
 
                 return false;
             }
@@ -99,14 +85,15 @@ public class BorrowerSearchActivity extends AppCompatActivity {
                     listDisplayTextView.setText(listDisplay);
 
                     // show all available books
-                    showAllAvailableBooks();
+                    showAllAvailable();
                 }
                 return false;
             }
         });
 
         // home button stuff
-        final ImageButton homeButton = findViewById(R.id.homeButton);
+        homeButton = findViewById(R.id.homeButton);
+
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,11 +116,7 @@ public class BorrowerSearchActivity extends AppCompatActivity {
         });
 
         // set up toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar myToolbar = getSupportActionBar();
-        myToolbar.setTitle("");
-        myToolbar.setDisplayHomeAsUpEnabled(true);
+        toolbar = findViewById(R.id.toolbar);
 
         // toolbar back button
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -145,77 +128,87 @@ public class BorrowerSearchActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * show user's available books
-     */
-    public void showAllAvailableBooks() {
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
-
-        // filter for only available and requested
-        List<String> whitelist = Arrays.asList("Available", "Requested");
-
-        // query all available (available + requested) books
-        Query query = firebaseFirestore.collection("Books")
-                .whereIn("status", whitelist);
-
-        // show all available (available + requested) books
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    Book book = documentChange.getDocument().toObject(Book.class);
-
-                    // add new books to results
-                    if (documentChange.getType() == DocumentChange.Type.ADDED) {
-                        bookList.add(book);
-                    }
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
+    @Override
+    protected void onStart() {
+        super.onStart();
+        borrowerAdapter2.startListening();
     }
 
-    /**
-     * show user's requested books using a keyword
-     * Bugs: duplicate search results after requesting a book
-     */
-    public void showSearchedAvailableBooks() {
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
+    @Override
+    protected void onStop() {
+        super.onStop();
+        borrowerAdapter2.stopListening();
+    }
 
-        // filter for only available and requested
-        List<String> whitelist = Arrays.asList("Available", "Requested");
+    @Override
+    protected void onResume() {
+        super.onResume();
+        searchView.requestFocus();
+    }
 
-        // query partial matched titles/authors/ISBNs
+    private void setUpAdapter() {
+        // used as a dummy query for initial set up
+        Query query = firebaseFirestore.collection("doesNotExist").limit(1);
+
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build()
+                ;
+
+        // initialize adapter and connect to recyclerview
+        borrowerAdapter2 = new BorrowerAdapter2(options,
+                R.layout.borrower_search_item, this, false);
+        recyclerView.setAdapter(borrowerAdapter2);
+    }
+
+    private void showAllAvailable() {
+        // query user's requested books
         Query query = firebaseFirestore.collection("Books")
-                .whereIn("status", whitelist);
+                .whereIn("status", Arrays.asList("Available", "Requested"));
 
-        // show partial matched titles/authors/ISBNs
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    Book book = documentChange.getDocument().toObject(Book.class);
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build()
+                ;
 
-                    // partial titles
-                    if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                        bookList.add(book);
+        // update existing query
+        borrowerAdapter2.updateOptions(options);
+    }
+
+    private void showSearchedAvailable() {
+        // query user's requested books
+        Query query = firebaseFirestore.collection("Books")
+                .whereIn("status", Arrays.asList("Available", "Requested"));
+
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, new SnapshotParser<Book>() {
+                    @NonNull
+                    @Override
+                    public Book parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        Book book = snapshot.toObject(Book.class);
+                        // parse book for partial title match
+                        if (book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
+                            return book;
+                        }
+                        // parse book for partial author match
+                        else if (book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
+                            return book;
+                        }
+                        // parse book for partial ISBN match
+                        else if (book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
+                            return book;
+                        }
+                        // no matches, return a dummy book object
+                        return new Book("", "", "", "", "");
                     }
-                    // partial authors
-                    else if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                        bookList.add(book);
-                    }
-                    // partial ISBNs
-                    else if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
-                        bookList.add(book);
-                    }
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
+                })
+                .build()
+                ;
+
+        // update existing query
+        borrowerAdapter2.updateOptions(options);
     }
 }

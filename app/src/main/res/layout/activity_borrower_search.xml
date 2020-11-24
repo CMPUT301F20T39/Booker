@@ -13,6 +13,8 @@
         android:background="#1C54E3"
         android:minHeight="?attr/actionBarSize"
         android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
+        app:navigationIcon="@drawable/abc_vector_test"
+        app:title=""
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
