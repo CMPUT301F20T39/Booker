@@ -31,6 +31,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -103,11 +104,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    acceptedButton.setChecked(false);
-                    borrowedButton.setChecked(false);
                     showMyRequests();
                 }
                 else {
+                    requestedButton.setSelected(false);
+                    requestedButton.setChecked(false);
                     bookList.clear();
                     borrowerAdapter.notifyDataSetChanged();
                 }
@@ -119,11 +120,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    requestedButton.setChecked(false);
-                    borrowedButton.setChecked(false);
                     showMyAccepts();
                 }
                 else {
+                    acceptedButton.setSelected(false);
+                    acceptedButton.setChecked(false);
                     bookList.clear();
                     borrowerAdapter.notifyDataSetChanged();
                 }
@@ -135,11 +136,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    acceptedButton.setChecked(false);
-                    requestedButton.setChecked(false);
                     showMyBorrows();
                 }
                 else {
+                    borrowedButton.setSelected(false);
+                    borrowedButton.setChecked(false);
                     bookList.clear();
                     borrowerAdapter.notifyDataSetChanged();
                 }
@@ -193,10 +194,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentSnapshot document: value.getDocuments()) {
-                    Book book = document.toObject(Book.class);
-                    bookList.add(book);
-
+                for (DocumentChange documentChange: value.getDocumentChanges()) {
+                    Book book = documentChange.getDocument().toObject(Book.class);
+                    if (documentChange.getType().equals(DocumentChange.Type.ADDED)) {
+                        bookList.add(book);
+                    }
                 }
                 borrowerAdapter.notifyDataSetChanged();
             }
@@ -219,10 +221,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentSnapshot document: value.getDocuments()) {
-                    Book book = document.toObject(Book.class);
-                    bookList.add(book);
-
+                for (DocumentChange documentChange: value.getDocumentChanges()) {
+                    Book book = documentChange.getDocument().toObject(Book.class);
+                    if (documentChange.getType().equals(DocumentChange.Type.ADDED)) {
+                        bookList.add(book);
+                    }
                 }
                 borrowerAdapter.notifyDataSetChanged();
             }
@@ -245,10 +248,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentSnapshot document: value.getDocuments()) {
-                    Book book = document.toObject(Book.class);
-                    bookList.add(book);
-
+                for (DocumentChange documentChange: value.getDocumentChanges()) {
+                    Book book = documentChange.getDocument().toObject(Book.class);
+                    if (documentChange.getType().equals(DocumentChange.Type.ADDED)) {
+                        bookList.add(book);
+                    }
                 }
                 borrowerAdapter.notifyDataSetChanged();
             }
@@ -260,10 +264,25 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         super.onResume();
         // reset to initial home state
         searchViewEditText.clearFocus();
-        acceptedButton.setChecked(false);
-        requestedButton.setChecked(false);
-        borrowedButton.setChecked(false);
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
+
+        if (requestedButton.isChecked()) {
+            requestedButton.setChecked(false);
+            requestedButton.setSelected(false);
+            requestedButton.setChecked(true);
+            requestedButton.setSelected(true);
+        }
+        else if (acceptedButton.isChecked()) {
+            acceptedButton.setChecked(false);
+            acceptedButton.setSelected(false);
+            acceptedButton.setChecked(true);
+            acceptedButton.setSelected(true);
+        }
+        else if (borrowedButton.isChecked()) {
+            borrowedButton.setChecked(false);
+            borrowedButton.setSelected(false);
+            borrowedButton.setChecked(true);
+            borrowedButton.setSelected(true);
+        }
+
     }
 }

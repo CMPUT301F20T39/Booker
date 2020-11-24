@@ -15,10 +15,12 @@
         android:scrollbars="none"
         android:singleLine="true"
         android:theme="@style/Theme.MaterialComponents.Light"
+        app:checkedChip="@id/requestedBttn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/listDisplayTextView"
-        app:singleLine="true">
+        app:singleLine="true"
+        app:singleSelection="true">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/requestedBttn"
