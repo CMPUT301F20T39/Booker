@@ -18,3 +18,6 @@ https://stackoverflow.com/questions/35810229/how-to-display-and-set-click-event-
 https://stackoverflow.com/questions/41735059/how-to-make-an-edittext-not-clickable
 https://stackoverflow.com/questions/3144940/set-imageview-width-and-height-programmatically
 https://stackoverflow.com/questions/13692398/remove-a-marker-from-a-googlemap
+https://www.youtube.com/watch?v=lAGI6jGS4vs
+https://stackoverflow.com/questions/51859652/how-to-exclude-an-element-from-a-firestore-query
+https://stackoverflow.com/questions/13646147/hide-row-from-listview-without-taking-up-space
