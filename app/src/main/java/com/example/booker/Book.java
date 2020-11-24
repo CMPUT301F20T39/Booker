@@ -22,6 +22,7 @@ public class Book implements Serializable {
 	private String UID;
 	private List<String> requesterList;
 	private String imageURI;
+	private List<Float> coordinates;
 
 	/**
 	 * Constructor for Firestore's .toObject()
@@ -43,6 +44,7 @@ public class Book implements Serializable {
 		this.ISBN = ISBN;
 		this.author = author;
 		this.requesterList = Arrays.asList(); // allows a user to be the 0th index instead of an empty string
+		this.coordinates = Arrays.asList(); // no location set yet
 	}
 
 	/**
@@ -197,6 +199,7 @@ public class Book implements Serializable {
 		data.put("UID", UID);
 		data.put("requesterList", requesterList);
 		data.put("imageURI", imageURI);
+		data.put("coordinates", coordinates);
 		return data;
 	}
 
@@ -256,6 +259,32 @@ public class Book implements Serializable {
 			requesterList.clear();
 			requesterList.add(requesterUsername);
 		}
+	}
+
+	public List<Float> getCoordinates() {
+		return coordinates;
+	}
+
+	public void setCoordinates(List<Float> coordinates) {
+		this.coordinates = coordinates;
+	}
+
+	public Float getLatitude() {
+		if (this.hasCoordinates()) {
+			return coordinates.get(0);
+		}
+		return -1.0f; // -1 for unsuccessful
+	}
+
+	public Float getLongitude() {
+		if (this.hasCoordinates()) {
+			return coordinates.get(1);
+		}
+		return -1.0f; // -1 for unsuccessful
+	}
+
+	public boolean hasCoordinates() {
+		return !coordinates.isEmpty();
 	}
 
 }

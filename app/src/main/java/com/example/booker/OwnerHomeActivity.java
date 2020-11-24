@@ -1,11 +1,9 @@
 package com.example.booker;
 
 import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,13 +13,12 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,7 +41,6 @@ import com.google.firebase.storage.StorageReference;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,15 +48,13 @@ import java.util.List;
  * Main hub for Owner's activity
  */
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
+
     private static final String TAG = "DEBUG";
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private FirebaseFirestore db;
+    private FirebaseUser user;
     private String userEmail = user.getEmail();
     private final CollectionReference bookCollection = db.collection("Books");
     FirebaseStorage storage = FirebaseStorage.getInstance();
-    public List<Book> bookList = new ArrayList<Book>();
-    private BookListAdapter adapter;
-    private ImageButton profileBtn;
     public RecyclerView rvBookList;
     Uri image;
     private ImageView imageView;
@@ -68,6 +62,12 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private final static int REQUEST_CODE = 111;
     HashMap<String, Object> imgString = new HashMap<>();
     private ImageButton scanBtn;
+    private BookListAdapter2 bookListAdapter2;
+    private Chip availableButton;
+    private Chip requestedButton;
+    private Chip acceptedButton;
+    private Chip borrowedButton;
+    private androidx.appcompat.widget.Toolbar toolbar;
 
 
     @Override
@@ -75,132 +75,68 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner_home);
 
-        rvBookList = findViewById(R.id.ownerBookListView);
+        // firestore db and user set up
+        db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
-        // connect adapter
-        final BookListAdapter adapter = new BookListAdapter(bookList, this);
-        rvBookList.setAdapter(adapter);
+        // recyclerview set up
+        rvBookList = findViewById(R.id.ownerBookListView);
+        rvBookList.setHasFixedSize(true);
         rvBookList.setLayoutManager(new LinearLayoutManager(this));
 
-        profileBtn = findViewById(R.id.profileButton);
+        setUpAdapter();
 
-        // get owner's books
-        bookCollection.whereEqualTo("ownerUsername", user.getDisplayName())
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
-                        bookList.clear();
-                        assert queryDocumentSnapshots != null;
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Book aBook = doc.toObject(Book.class);
-                            bookList.add(aBook);
-                        }
-                        adapter.notifyDataSetChanged();
-                    }
-                });
+        availableButton = findViewById(R.id.availableBttn);
+        requestedButton = findViewById(R.id.requestedBttn);
+        acceptedButton = findViewById(R.id.acceptedBttn);
+        borrowedButton = findViewById(R.id.borrowedBttn);
+
+        showMyAvailable();
+
+        availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    showMyAvailable();
+                }
+            }
+        });
+
+        requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    showMyRequested();
+                }
+            }
+        });
+
+        acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    showMyAccepted();
+                }
+            }
+        });
+
+        borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    showMyBorrowed();
+                }
+            }
+        });
 
         // set up toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar4);
-        setSupportActionBar(toolbar);
-        ActionBar myToolbar = getSupportActionBar();
-        myToolbar.setTitle("Owner Home");
-        myToolbar.setDisplayHomeAsUpEnabled(true);
+        toolbar = findViewById(R.id.toolbar4);
+
         // toolbar back button
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
-            }
-        });
-
-        // When clicked, the floating action button shows the
-        // AddBook dialog.
-        final FloatingActionButton addBookBtn = findViewById(R.id.add_book_btn);
-        addBookBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AddBookFragment().show(getSupportFragmentManager(), "ADD_BOOK");
-            }
-        });
-
-        // initialize chips
-        final Chip availableButton = findViewById(R.id.availableBttn);
-        final Chip requestedButton = findViewById(R.id.requestedBttn);
-        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
-        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
-
-        // toggled available chip
-        availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            /**
-             * shows available books
-             */
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                bookList.clear();
-                if (availableButton.isChecked())
-                    showAvailableBooks();
-                if (requestedButton.isChecked())
-                    showRequestedBooks();
-                if (acceptedButton.isChecked())
-                    showAcceptedBooks();
-                if (borrowedButton.isChecked())
-                    showBorrowedBooks();
-            }
-        });
-
-        // toggled requested chip
-        requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            /**
-             * shows requested books
-             *
-             */
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                bookList.clear();
-                if (availableButton.isChecked())
-                    showAvailableBooks();
-                if (requestedButton.isChecked())
-                    showRequestedBooks();
-                if (acceptedButton.isChecked())
-                    showAcceptedBooks();
-                if (borrowedButton.isChecked())
-                    showBorrowedBooks();
-
-            }
-        });
-
-        // toggled accepted chip
-        acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            /**
-             * shows accepted books
-             */
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                bookList.clear();
-                if (availableButton.isChecked())
-                    showAvailableBooks();
-                if (requestedButton.isChecked())
-                    showRequestedBooks();
-                if (acceptedButton.isChecked())
-                    showAcceptedBooks();
-                if (borrowedButton.isChecked())
-                    showBorrowedBooks();
-            }
-        });
-
-        // toggled borrowed chip
-        borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                bookList.clear();
-                if (availableButton.isChecked())
-                    showAvailableBooks();
-                if (requestedButton.isChecked())
-                    showRequestedBooks();
-                if (acceptedButton.isChecked())
-                    showAcceptedBooks();
-                if (borrowedButton.isChecked())
-                    showBorrowedBooks();
             }
         });
 
@@ -237,7 +173,18 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                     }
                 });
 
-        // profile button stuff
+        // When clicked, the floating action button shows the
+        // AddBook dialog.
+        final FloatingActionButton addBookBtn = findViewById(R.id.add_book_btn);
+        addBookBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                availableButton.performClick();
+                new AddBookFragment().show(getSupportFragmentManager(), "ADD_BOOK");
+            }
+        });
+
+        // scanning stuff
         scanBtn = findViewById(R.id.scanButton);
 
         // Button takes user to user_profile.java
@@ -328,6 +275,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 data.put("ownerEmail", user.getEmail());
                 data.put("requesterList", Arrays.asList()); // allows a user to be the 0th index instead of an empty string
                 data.put("imageURI", "");
+                data.put("coordinates", Arrays.asList()); // no location set
 
                 // UID is randomly generated for the document/collection
                 // then all the book info is put within it
@@ -368,129 +316,91 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     }
 
-    /**
-     * shows all owner's available books
-     */
-    public void showAvailableBooks() {
-        adapter = (BookListAdapter) rvBookList.getAdapter();
-        List<String> filter = Collections.singletonList("Available"); // whitelist
+    @Override
+    protected void onStart() {
+        super.onStart();
+        bookListAdapter2.startListening();
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        bookListAdapter2.stopListening();
+    }
+
+    private void setUpAdapter() {
+        // used as a dummy query for initial set up
+        Query query = db.collection("doesNotExist").limit(1);
+
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build();
+
+        // initialize adapter and connect to recyclerview
+        bookListAdapter2 = new BookListAdapter2(options,
+                R.layout.owner_list_content, this);
+        rvBookList.setAdapter(bookListAdapter2);
+    }
+
+    private void showMyAvailable() {
         // query available books
-        Query titleQuery = bookCollection
+        Query query = bookCollection
                 .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereIn("status", filter);
+                .whereEqualTo("status", "Available");
 
-        // show available books
-        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Book book = document.toObject(Book.class);
-                        bookList.add(book);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build();
+
+        // update existing query
+        bookListAdapter2.updateOptions(options);
     }
 
-    /**
-     * shows all owner's requested books
-     */
-    public void showRequestedBooks() {
-        adapter = (BookListAdapter) rvBookList.getAdapter();
-        List<String> filter = Collections.singletonList("Requested"); // whitelist
-
-        // query requested books
-        Query titleQuery = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereIn("status", filter);
-
-        // show requested books
-        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Book book = document.toObject(Book.class);
-                        bookList.add(book);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
-    /**
-     * shows all owner's accepted books
-     */
-    public void showAcceptedBooks() {
-        adapter = (BookListAdapter) rvBookList.getAdapter();
-        List<String> filter = Collections.singletonList("Accepted"); // whitelist
-
+    private void showMyRequested() {
         // query available books
-        Query titleQuery = bookCollection
+        Query query = bookCollection
                 .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereIn("status", filter);
+                .whereEqualTo("status", "Requested");
 
-        // show available books
-        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Book book = document.toObject(Book.class);
-                        bookList.add(book);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build();
+
+        // update existing query
+        bookListAdapter2.updateOptions(options);
     }
 
-    /**
-     * shows all owner's borrowed books
-     */
-    public void showBorrowedBooks() {
-        adapter = (BookListAdapter) rvBookList.getAdapter();
-        List<String> filter = Collections.singletonList("Borrowed"); // whitelist
-
-        // query borrowed books
-        Query titleQuery = bookCollection
+    private void showMyAccepted() {
+        // query available books
+        Query query = bookCollection
                 .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereIn("status", filter);
+                .whereEqualTo("status", "Accepted");
 
-        // show borrowed books
-        titleQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Book book = document.toObject(Book.class);
-                        bookList.add(book);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build();
+
+        // update existing query
+        bookListAdapter2.updateOptions(options);
     }
 
-    public void createNotification(String requester, String book, String bookAuthor) {
-        // Create the intent for the notification tap action
-        Intent intent = new Intent(this, OwnerRequestsActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        String textTitle = getString(R.string.app_name);
-        String textContent = MessageFormat.format("{0} has requested the book {1} by {2}", requester, book, bookAuthor);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationChannel.DEFAULT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle(textTitle)
-                .setContentText(textContent)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-                // automatically remove the notification when a user tap on it
-                .setAutoCancel(true);
+    private void showMyBorrowed() {
+        // query available books
+        Query query = bookCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
+                .whereEqualTo("status", "Borrowed");
+
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build();
+
+        // update existing query
+        bookListAdapter2.updateOptions(options);
     }
 
     // Create a Notification Channel for the notification to go through
@@ -509,4 +419,21 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 //            notificationManager.createNotificationChannel(channel);
 //        }
 //    }
+
+    public void createNotification(String requester, String book, String bookAuthor) {
+        // Create the intent for the notification tap action
+        Intent intent = new Intent(this, OwnerRequestsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        String textTitle = getString(R.string.app_name);
+        String textContent = MessageFormat.format("{0} has requested the book {1} by {2}", requester, book, bookAuthor);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationChannel.DEFAULT_CHANNEL_ID)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle(textTitle)
+                .setContentText(textContent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                // automatically remove the notification when a user tap on it
+                .setAutoCancel(true);
+    }
 }

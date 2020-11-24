@@ -1,47 +1,49 @@
 package com.example.booker;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.SearchView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.SearchView;
-import android.widget.TextView;
-import android.widget.Toolbar;
-
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.material.chip.Chip;
+import com.firebase.ui.firestore.ObservableSnapshotArray;
+import com.firebase.ui.firestore.SnapshotParser;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Main hub for Borrow's activities
  */
-public class BorrowerHomeActivity extends AppCompatActivity {
+public class BorrowerSearchActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
     private RecyclerView recyclerView;
+    private BorrowerAdapter2 borrowerAdapter2;
     private SearchView searchView;
     private ImageButton profileBtn;
-    private Chip requestedButton;
-    private Chip acceptedButton;
-    private Chip borrowedButton;
-    private BorrowerAdapter2 borrowerAdapter2;
+    private ImageButton homeButton;
+    private TextView listDisplayTextView;
     private androidx.appcompat.widget.Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_borrower_home);
+        setContentView(R.layout.activity_borrower_search);
 
         // firestore db and user set up
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -54,48 +56,48 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
         setUpAdapter();
 
-        requestedButton = findViewById(R.id.requestedBttn);
-        acceptedButton = findViewById(R.id.acceptedBttn);
-        borrowedButton = findViewById(R.id.borrowedBttn);
+        showAllAvailable();
 
-        showMyRequested();
-
-        requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyRequested();
-                }
-            }
-        });
-
-        acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyAccepted();
-                }
-            }
-        });
-
-        borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyBorrowed();
-                }
-            }
-        });
-
+        listDisplayTextView = findViewById(R.id.listDisplayTextView);
         searchView = findViewById(R.id.searchView);
 
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+        // query on submit
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    Intent gotoSearch = new Intent(getApplicationContext(), BorrowerSearchActivity.class);
-                    startActivity(gotoSearch);
+            public boolean onQueryTextSubmit(String query) {
+                // change text display to titled available
+                String listDisplay = "Displaying available \""
+                        + searchView.getQuery().toString() + "\" books";
+                listDisplayTextView.setText(listDisplay);
+
+                // show searched available books
+                showSearchedAvailable();
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // when search is blank and not on home screen
+                if (newText.length() == 0) {
+                    // change text display to titled available
+                    String listDisplay = "Displaying all available books";
+                    listDisplayTextView.setText(listDisplay);
+
+                    // show all available books
+                    showAllAvailable();
                 }
+                return false;
+            }
+        });
+
+        // home button stuff
+        homeButton = findViewById(R.id.homeButton);
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
 
@@ -124,8 +126,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
-
-
     }
 
     @Override
@@ -143,7 +143,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        searchView.clearFocus();
+        searchView.requestFocus();
     }
 
     private void setUpAdapter() {
@@ -158,15 +158,14 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
         // initialize adapter and connect to recyclerview
         borrowerAdapter2 = new BorrowerAdapter2(options,
-                R.layout.borrower_search_item, this, true);
+                R.layout.borrower_search_item, this, false);
         recyclerView.setAdapter(borrowerAdapter2);
     }
 
-    private void showMyRequested() {
+    private void showAllAvailable() {
         // query user's requested books
         Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Requested")
-                .whereArrayContains("requesterList", user.getDisplayName());
+                .whereIn("status", Arrays.asList("Available", "Requested"));
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
@@ -178,30 +177,34 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         borrowerAdapter2.updateOptions(options);
     }
 
-    private void showMyAccepted() {
-        // query user's accepted books
+    private void showSearchedAvailable() {
+        // query user's requested books
         Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Accepted")
-                .whereArrayContains("requesterList", user.getDisplayName());
+                .whereIn("status", Arrays.asList("Available", "Requested"));
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build()
-                ;
-
-        // update existing query
-        borrowerAdapter2.updateOptions(options);
-    }
-
-    private void showMyBorrowed() {
-        // show user's borrowed books
-        Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Borrowed")
-                .whereArrayContains("requesterList", user.getDisplayName());
-
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
+                .setQuery(query, new SnapshotParser<Book>() {
+                    @NonNull
+                    @Override
+                    public Book parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        Book book = snapshot.toObject(Book.class);
+                        // parse book for partial title match
+                        if (book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
+                            return book;
+                        }
+                        // parse book for partial author match
+                        else if (book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
+                            return book;
+                        }
+                        // parse book for partial ISBN match
+                        else if (book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
+                            return book;
+                        }
+                        // no matches, return a dummy book object
+                        return new Book("", "", "", "", "");
+                    }
+                })
                 .build()
                 ;
 
