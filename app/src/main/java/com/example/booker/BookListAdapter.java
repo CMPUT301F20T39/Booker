@@ -1,6 +1,8 @@
 package com.example.booker;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +16,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
+import java.io.IOException;
 
 public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdapter.BookHolder> {
     private int layoutResource;
@@ -80,10 +88,18 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
         if (model.getImageURI() == null)
             model.setImageURI("");
         if (!model.getImageURI().isEmpty())
-            Glide.with(holder.imageView.getContext() /* context */)
-                    .load(storageRef)
-                    .placeholder(R.drawable.defaultphoto)
-                    .into(holder.imageView);
+            try {
+                final File file = File.createTempFile(model.getTitle(), "jpg");
+                storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        holder.imageView.setImageBitmap(bitmap);
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         // delete a book on click
         holder.deleteButton.setOnClickListener(new View.OnClickListener() {

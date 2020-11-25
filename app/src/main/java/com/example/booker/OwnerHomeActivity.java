@@ -99,43 +99,65 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         borrowedButton = findViewById(R.id.borrowedBttn);
 
         showMyAvailable();
+        showMyRequested();
+        showMyAvailable();
+        showMyBorrowed();
 
-        availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        availableButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
+            public void onClick(View v) {
+                if (availableButton.isChecked())
                     showMyAvailable();
-                }
-            }
-        });
-
-        requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
+                if (requestedButton.isChecked())
                     showMyRequested();
-                }
-            }
-        });
-
-        acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
+                if (acceptedButton.isChecked())
                     showMyAccepted();
-                }
-            }
-        });
-
-        borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
+                if (borrowedButton.isChecked())
                     showMyBorrowed();
-                }
             }
         });
 
+        requestedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (availableButton.isChecked())
+                    showMyAvailable();
+                if (requestedButton.isChecked())
+                    showMyRequested();
+                if (acceptedButton.isChecked())
+                    showMyAccepted();
+                if (borrowedButton.isChecked())
+                    showMyBorrowed();
+            }
+        });
+
+        acceptedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (availableButton.isChecked())
+                    showMyAvailable();
+                if (requestedButton.isChecked())
+                    showMyRequested();
+                if (acceptedButton.isChecked())
+                    showMyAccepted();
+                if (borrowedButton.isChecked())
+                    showMyBorrowed();
+            }
+        });
+
+        borrowedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (availableButton.isChecked())
+                    showMyAvailable();
+                if (requestedButton.isChecked())
+                    showMyRequested();
+                if (acceptedButton.isChecked())
+                    showMyAccepted();
+                if (borrowedButton.isChecked())
+                    showMyBorrowed();
+            }
+        });
         // set up toolbar
         toolbar = findViewById(R.id.toolbar4);
 
@@ -180,7 +202,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                                 final String bookAuthor = dc.getDocument().getString("author");
 
                                 List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = requesterList.get(requesterList.size() - 1);
+                                String recentRequester = "";
+                                if (requesterList.size() > 0)
+                                    recentRequester = requesterList.get(requesterList.size() - 1);
 
                                 assert status != null;
                                 if (status.equals("Requested")) {
