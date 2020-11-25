@@ -447,7 +447,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         Intent intent = new Intent(this, OwnerRequestsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-        String textTitle = getString(R.string.app_name);
+        String textTitle = "Book request";
         String textContent = MessageFormat.format("{0} has requested the book {1} by {2}", requester, book, bookAuthor);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
