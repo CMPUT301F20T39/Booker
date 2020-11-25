@@ -1,30 +1,18 @@
 package com.example.booker;
 
-import android.content.Intent;
-import android.graphics.Color;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -55,6 +43,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
 
     /**
      * adapter for book's requester list
+     *
      * @param book
      * @param instance
      */
@@ -127,8 +116,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         if (book.getStatus().equals("Accepted") || book.getStatus().equals("Borrowed")) {
             holder.rejectButton.setVisibility(View.GONE);
             holder.acceptButton.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             holder.rejectButton.setVisibility(View.VISIBLE);
             holder.acceptButton.setVisibility(View.VISIBLE);
         }
