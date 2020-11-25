@@ -64,16 +64,6 @@ public class OwnerRequestsActivity extends AppCompatActivity {
     }
 
     /**
-     * return to owner home if this activity is paused for another activity
-     * works as a pseudo refresh when editing a book's location
-     */
-    @Override
-    protected void onPause() {
-        super.onPause();
-        finish();
-    }
-
-    /**
      * goes to a user's profile in read only mode
      * @param username
      */

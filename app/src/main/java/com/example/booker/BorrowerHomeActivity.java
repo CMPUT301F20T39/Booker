@@ -8,11 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SearchView;
-import android.widget.TextView;
-import android.widget.Toolbar;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.chip.Chip;
@@ -20,8 +17,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-
-import java.util.List;
 
 /**
  * Main hub for Borrow's activities
@@ -35,7 +30,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private Chip requestedButton;
     private Chip acceptedButton;
     private Chip borrowedButton;
-    private BorrowerAdapter2 borrowerAdapter2;
+    private BorrowerAdapter borrowerAdapter;
     private androidx.appcompat.widget.Toolbar toolbar;
 
     @Override
@@ -131,13 +126,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        borrowerAdapter2.startListening();
+        borrowerAdapter.startListening();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        borrowerAdapter2.stopListening();
+        borrowerAdapter.stopListening();
     }
 
     @Override
@@ -157,9 +152,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 ;
 
         // initialize adapter and connect to recyclerview
-        borrowerAdapter2 = new BorrowerAdapter2(options,
+        borrowerAdapter = new BorrowerAdapter(options,
                 R.layout.borrower_search_item, this, true);
-        recyclerView.setAdapter(borrowerAdapter2);
+        recyclerView.setAdapter(borrowerAdapter);
     }
 
     private void showMyRequested() {
@@ -175,7 +170,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 ;
 
         // update existing query
-        borrowerAdapter2.updateOptions(options);
+        borrowerAdapter.updateOptions(options);
     }
 
     private void showMyAccepted() {
@@ -191,7 +186,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 ;
 
         // update existing query
-        borrowerAdapter2.updateOptions(options);
+        borrowerAdapter.updateOptions(options);
     }
 
     private void showMyBorrowed() {
@@ -206,6 +201,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 ;
 
         // update existing query
-        borrowerAdapter2.updateOptions(options);
+        borrowerAdapter.updateOptions(options);
     }
 }

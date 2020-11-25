@@ -13,17 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.firebase.ui.firestore.ObservableSnapshotArray;
 import com.firebase.ui.firestore.SnapshotParser;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Main hub for Borrow's activities
@@ -32,7 +29,7 @@ public class BorrowerSearchActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
     private RecyclerView recyclerView;
-    private BorrowerAdapter2 borrowerAdapter2;
+    private BorrowerAdapter borrowerAdapter;
     private SearchView searchView;
     private ImageButton profileBtn;
     private ImageButton homeButton;
@@ -131,13 +128,13 @@ public class BorrowerSearchActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        borrowerAdapter2.startListening();
+        borrowerAdapter.startListening();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        borrowerAdapter2.stopListening();
+        borrowerAdapter.stopListening();
     }
 
     @Override
@@ -157,9 +154,9 @@ public class BorrowerSearchActivity extends AppCompatActivity {
                 ;
 
         // initialize adapter and connect to recyclerview
-        borrowerAdapter2 = new BorrowerAdapter2(options,
+        borrowerAdapter = new BorrowerAdapter(options,
                 R.layout.borrower_search_item, this, false);
-        recyclerView.setAdapter(borrowerAdapter2);
+        recyclerView.setAdapter(borrowerAdapter);
     }
 
     private void showAllAvailable() {
@@ -174,7 +171,7 @@ public class BorrowerSearchActivity extends AppCompatActivity {
                 ;
 
         // update existing query
-        borrowerAdapter2.updateOptions(options);
+        borrowerAdapter.updateOptions(options);
     }
 
     private void showSearchedAvailable() {
@@ -209,6 +206,6 @@ public class BorrowerSearchActivity extends AppCompatActivity {
                 ;
 
         // update existing query
-        borrowerAdapter2.updateOptions(options);
+        borrowerAdapter.updateOptions(options);
     }
 }

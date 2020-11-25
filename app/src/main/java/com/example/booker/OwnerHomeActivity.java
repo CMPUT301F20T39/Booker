@@ -48,10 +48,9 @@ import java.util.List;
  * Main hub for Owner's activity
  */
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
-
     private static final String TAG = "DEBUG";
-    private FirebaseFirestore db;
-    private FirebaseUser user;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
     private final CollectionReference bookCollection = db.collection("Books");
     FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -62,7 +61,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private final static int REQUEST_CODE = 111;
     HashMap<String, Object> imgString = new HashMap<>();
     private ImageButton scanBtn;
-    private BookListAdapter2 bookListAdapter2;
+    private BookListAdapter bookListAdapter;
     private Chip availableButton;
     private Chip requestedButton;
     private Chip acceptedButton;
@@ -195,11 +194,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 startActivity(goToScanner);
             }
         });
+
     }
 
     /**
      * opens book requester intent
-     *
      * @param book
      */
     public void createRequestList(Book book) {
@@ -210,9 +209,8 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     /**
      * Get selected imageView from adapter and go to image gallery
-     *
      * @param intent intent to open image gallery
-     * @param view   the selected imageView
+     * @param view the selected imageView
      */
     public void selectImage(Intent intent, ImageView view, Book book) {
         imageView = view;
@@ -224,7 +222,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
      * Retrieves chosen photo from image gallery and sets as book photo in Owner menu.
      * Adds image details to book document in firestore and adds image to firebase storage
      * in a folder titled <username> of the owner.
-     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -235,10 +232,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null)
             image = data.getData();
-        storageRef.putFile(image);
-        imgString.put("imageURI", image.toString());
-        bookCollection.document(book.getUID()).update(imgString);
-        imageView.setImageURI(image);
+            storageRef.putFile(image);
+            imgString.put("imageURI", image.toString());
+            bookCollection.document(book.getUID()).update(imgString);
+            imageView.setImageURI(image);
     }
 
     /**
@@ -319,13 +316,13 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     @Override
     protected void onStart() {
         super.onStart();
-        bookListAdapter2.startListening();
+        bookListAdapter.startListening();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        bookListAdapter2.stopListening();
+        bookListAdapter.stopListening();
     }
 
     private void setUpAdapter() {
@@ -335,12 +332,13 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build();
+                .build()
+                ;
 
         // initialize adapter and connect to recyclerview
-        bookListAdapter2 = new BookListAdapter2(options,
+        bookListAdapter = new BookListAdapter(options,
                 R.layout.owner_list_content, this);
-        rvBookList.setAdapter(bookListAdapter2);
+        rvBookList.setAdapter(bookListAdapter);
     }
 
     private void showMyAvailable() {
@@ -352,10 +350,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build();
+                .build()
+                ;
 
         // update existing query
-        bookListAdapter2.updateOptions(options);
+        bookListAdapter.updateOptions(options);
     }
 
     private void showMyRequested() {
@@ -367,10 +366,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build();
+                .build()
+                ;
 
         // update existing query
-        bookListAdapter2.updateOptions(options);
+        bookListAdapter.updateOptions(options);
     }
 
     private void showMyAccepted() {
@@ -382,10 +382,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build();
+                .build()
+                ;
 
         // update existing query
-        bookListAdapter2.updateOptions(options);
+        bookListAdapter.updateOptions(options);
     }
 
     private void showMyBorrowed() {
@@ -397,10 +398,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build();
+                .build()
+                ;
 
         // update existing query
-        bookListAdapter2.updateOptions(options);
+        bookListAdapter.updateOptions(options);
     }
 
     // Create a Notification Channel for the notification to go through
@@ -436,4 +438,5 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 // automatically remove the notification when a user tap on it
                 .setAutoCancel(true);
     }
+
 }
