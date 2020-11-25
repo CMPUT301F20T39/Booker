@@ -118,9 +118,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
-
     }
 
     @Override
