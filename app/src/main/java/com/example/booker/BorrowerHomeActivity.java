@@ -329,6 +329,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         chipGroup.setVisibility(View.VISIBLE);
         updateBookFilters();
         borrowerAdapter.setHideButton(true);
+        searchView.setQuery("", false);
         searchView.clearFocus();
     }
 
