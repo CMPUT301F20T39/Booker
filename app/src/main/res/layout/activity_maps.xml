@@ -45,4 +45,16 @@
         app:layout_constraintTop_toBottomOf="@+id/map"
         app:layout_constraintVertical_bias="0.74" />
 
+    <TextView
+        android:id="@+id/textViewPermission"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#5E5E5E"
+        android:gravity="center"
+        android:text="Grant permissions then re-enter the map"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/map"
+        app:layout_constraintTop_toTopOf="@+id/map" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
