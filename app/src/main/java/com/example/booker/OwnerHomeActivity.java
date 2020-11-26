@@ -208,7 +208,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                                 final String bookAuthor = dc.getDocument().getString("author");
 
                                 List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = requesterList.get(requesterList.size() - 1);
+                                String recentRequester = "";
+                                if (!requesterList.isEmpty()) {
+                                    recentRequester = requesterList.get(requesterList.size() - 1);
+                                }
 
                                 assert status != null;
                                 if (status.equals("Requested")) {
