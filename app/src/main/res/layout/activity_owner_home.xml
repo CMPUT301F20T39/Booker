@@ -44,7 +44,7 @@
             android:singleLine="true"
             android:theme="@style/Theme.MaterialComponents.Light"
             app:chipSpacing="10dp"
-            app:selectionRequired="true"
+            app:selectionRequired="false"
             app:singleLine="true"
             app:singleSelection="false">
 
