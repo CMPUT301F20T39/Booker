@@ -227,7 +227,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         addBookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                availableButton.performClick();
                 new AddBookFragment().show(getSupportFragmentManager(), "ADD_BOOK");
             }
         });
