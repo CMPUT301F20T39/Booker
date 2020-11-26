@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -44,11 +45,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button buttonConfirm;
     private FirebaseFirestore db;
     private Book book;
+    private TextView textViewPermission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        textViewPermission = findViewById(R.id.textViewPermission);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -89,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        String accessType = getIntent().getStringExtra("accessType");
+
 
         Float latitude = 0.0f;
         Float longitude = 0.0f;
@@ -109,60 +113,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setAllGesturesEnabled(false); // disable map movement
         mMap.getUiSettings().setZoomControlsEnabled(true); // enable zoom controls
 
+        String accessType = getIntent().getStringExtra("accessType");
+
         if (accessType.equals("WRITE")) {
 
+            // check for location permission
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ActivityCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // permission not granted yet
+                textViewPermission.setVisibility(View.VISIBLE);
                 getLocationPermission();
                 return;
             }
-            locationTask = fusedLocationProviderClient.getLastLocation();
-            mMap.setMyLocationEnabled(true);
+            else {
+                // permission already granted
+                textViewPermission.setVisibility(View.GONE);
+                mMap.setMyLocationEnabled(true);
+                buttonConfirm.setVisibility(View.VISIBLE);
+                mMap.getUiSettings().setAllGesturesEnabled(true);
 
-            mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-                @Override
-                public boolean onMyLocationButtonClick() {
-                    getCurrentLocation();
-                    return false;
-                }
-            });
-
-            buttonConfirm.setVisibility(View.VISIBLE);
-
-            mMap.getUiSettings().setAllGesturesEnabled(true); // enable map movement
-
-            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    if (marker != null) {
-                        marker.remove();
+                // current location button listener, go to current location
+                mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                    @Override
+                    public boolean onMyLocationButtonClick() {
+                        getCurrentLocation();
+                        return false;
                     }
-                    marker = mMap.addMarker(new MarkerOptions().position(latLng).title("Retrieval Point"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getCameraPosition().zoom));
-                }
-            });
-        }
+                });
 
-        buttonConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Book book = (Book) getIntent().getSerializableExtra("book");
-                Float latitude = (float) marker.getPosition().latitude;
-                Float longitude = (float) marker.getPosition().longitude;
+                // map click listener, place a marker
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        if (marker != null) {
+                            marker.remove();
+                        }
+                        marker = mMap.addMarker(new MarkerOptions().position(latLng).title("Retrieval Point"));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getCameraPosition().zoom));
+                    }
+                });
 
-                book.setCoordinates(Arrays.asList(latitude, longitude));
+                // confirm button lister
+                buttonConfirm.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Book book = (Book) getIntent().getSerializableExtra("book");
+                        Float latitude = (float) marker.getPosition().latitude;
+                        Float longitude = (float) marker.getPosition().longitude;
 
-                HashMap<String, Object> data = book.getDataHashMap();
+                        book.setCoordinates(Arrays.asList(latitude, longitude));
 
-                db.collection("Books").document(book.getUID()).set(data);
+                        HashMap<String, Object> data = book.getDataHashMap();
 
-                finish();
+                        db.collection("Books").document(book.getUID()).set(data);
+
+                        finish();
+                    }
+                });
             }
-        });
-
-
+            // get location permission (check if granted)
+            locationTask = fusedLocationProviderClient.getLastLocation();
+        }
     }
 
     private void getLocationPermission() {
