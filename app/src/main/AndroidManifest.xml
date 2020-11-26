@@ -49,7 +49,6 @@
         <activity android:name=".OwnerHomeActivity" />
         <activity android:name=".AccountTypeActivity" />
         <activity android:name=".BorrowerHomeActivity" />
-        <activity android:name=".BorrowerSearchActivity" />
         <activity
             android:name=".SignUpActivity"
             android:parentActivityName=".MainActivity"></activity>

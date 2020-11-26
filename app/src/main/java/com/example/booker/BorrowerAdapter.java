@@ -24,7 +24,7 @@ import java.util.HashMap;
 public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdapter.BookHolder> {
     private int layoutResource;
     private AppCompatActivity instance;
-    private boolean hideButton;
+    private boolean hideButton = true;
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
 
@@ -62,13 +62,16 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
      * @param options
      */
     public BorrowerAdapter(@NonNull FirestoreRecyclerOptions<Book> options,
-                           int layoutResource, AppCompatActivity instance, boolean hideButton) {
+                           int layoutResource, AppCompatActivity instance) {
         super(options);
         this.layoutResource = layoutResource;
         this.instance = instance;
-        this.hideButton = hideButton;
         this.firebaseFirestore = FirebaseFirestore.getInstance();
         this.user = FirebaseAuth.getInstance().getCurrentUser();
+    }
+
+    public void setHideButton(boolean hideButton) {
+        this.hideButton = hideButton;
     }
 
     @NonNull
