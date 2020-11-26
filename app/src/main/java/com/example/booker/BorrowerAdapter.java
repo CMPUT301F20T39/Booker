@@ -1,12 +1,15 @@
 package com.example.booker;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,10 +18,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdapter.BookHolder> {
@@ -27,6 +36,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
     private boolean hideButton = true;
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
 
     class BookHolder extends RecyclerView.ViewHolder {
         TextView titleTextView;
@@ -37,6 +47,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
         Button requestButton;
         ImageButton imageButtonLocation;
         View bookView;
+        ImageView bookImage;
 
         public BookHolder(@NonNull View itemView) {
             super(itemView);
@@ -48,6 +59,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
             statusTextView = itemView.findViewById(R.id.statusTextView);
             requestButton = itemView.findViewById(R.id.requestButton);
             imageButtonLocation = itemView.findViewById(R.id.imageButtonLocation);
+            bookImage = itemView.findViewById(R.id.imageView2);
 
             // treat every item as a dummy book object and hide it
             itemView.setLayoutParams(new AbsListView.LayoutParams(-1,1));
@@ -82,12 +94,13 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull BookHolder holder, int position, @NonNull final Book model) {
+    protected void onBindViewHolder(@NonNull final BookHolder holder, int position, @NonNull final Book model) {
         holder.titleTextView.setText(model.getTitle());
         holder.authorTextView.setText(model.getAuthor());
         holder.ISBNTextView.setText(model.getISBN());
         holder.ownerUsernameTextView.setText(model.getOwnerUsername());
         holder.statusTextView.setText(model.getStatus());
+        StorageReference storageRef = storage.getReference(model.getOwnerUsername() + "/" + model.getTitle());
 
         // unhide non-dummy book objects
         if (!model.getStatus().equals("")) {
@@ -117,6 +130,25 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
             holder.requestButton.setEnabled(true);
             holder.statusTextView.setText("Available"); // available to users not in requester list
         }
+
+        /** Getting images (if they exist) */
+        if (model.getImageURI() == null)
+            model.setImageURI("");
+        if (!model.getImageURI().isEmpty())
+            try {
+                final File file = File.createTempFile(model.getTitle(), "jpg");
+                storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        holder.bookImage.setImageBitmap(bitmap);
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        else
+            holder.bookImage.setImageDrawable(null);
 
         // accessing book and changing its status to "Requested"
         holder.requestButton.setOnClickListener(new View.OnClickListener() {

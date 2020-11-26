@@ -51,7 +51,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
             deleteButton = itemView.findViewById(R.id.deleteBook);
             requestsButton = itemView.findViewById(R.id.requestsBtn);
             editButton = itemView.findViewById(R.id.editBook);
-            imageView = itemView.findViewById(R.id.bookImage);
+            imageView = itemView.findViewById(R.id.imageView2);
             ownerBookBorrowerName = itemView.findViewById(R.id.ownerBookBorrowerName);
             imageButtonLocation = itemView.findViewById(R.id.imageButtonLocation3);
         }
