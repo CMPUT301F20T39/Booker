@@ -72,7 +72,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private Chip borrowedButton;
     private androidx.appcompat.widget.Toolbar toolbar;
     private String CHANNEL_ID = "Borrower Requests";
-
+    private ArrayList<String> filters = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,43 +98,71 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         acceptedButton = findViewById(R.id.acceptedBttn);
         borrowedButton = findViewById(R.id.borrowedBttn);
 
-        showMyAvailable();
-
         availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyAvailable();
+                if (b &&!filters.contains("Available")) {
+                    filters.add("Available");
                 }
+                else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Available");
+                }
+                updateBookFilters();
             }
         });
 
         requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyRequested();
+                if (b && !filters.contains("Requested")) {
+                    filters.add("Requested");
                 }
+                else if (!availableButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Requested");
+                }
+                updateBookFilters();
             }
         });
 
         acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyAccepted();
+                if (b && !filters.contains("Accepted")) {
+                    filters.add("Accepted");
                 }
+                else if (!availableButton.isChecked() && !requestedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Accepted");
+                }
+                updateBookFilters();
             }
         });
 
         borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyBorrowed();
+                if (borrowedButton.isChecked() && !filters.contains("Borrowed")) {
+                    filters.add("Borrowed");
                 }
+                else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !availableButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Borrowed");
+                }
+                updateBookFilters();
             }
         });
+
+        checkAll();
 
         // set up toolbar
         toolbar = findViewById(R.id.toolbar4);
@@ -364,56 +392,22 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         rvBookList.setAdapter(bookListAdapter);
     }
 
-    private void showMyAvailable() {
-        // query available books
-        Query query = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereEqualTo("status", "Available");
-
-        // build recyclerOptions object from query (used in place of a list of objects)
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build();
-
-        // update existing query
-        bookListAdapter.updateOptions(options);
+    private void checkAll() {
+        availableButton.setChecked(true);
+        requestedButton.setChecked(true);
+        acceptedButton.setChecked(true);
+        borrowedButton.setChecked(true);
     }
 
-    private void showMyRequested() {
+    private void updateBookFilters() {
         // query available books
         Query query = bookCollection
                 .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereEqualTo("status", "Requested");
-
-        // build recyclerOptions object from query (used in place of a list of objects)
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build();
-
-        // update existing query
-        bookListAdapter.updateOptions(options);
-    }
-
-    private void showMyAccepted() {
-        // query available books
-        Query query = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereEqualTo("status", "Accepted");
-
-        // build recyclerOptions object from query (used in place of a list of objects)
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build();
-
-        // update existing query
-        bookListAdapter.updateOptions(options);
-    }
-
-    private void showMyBorrowed() {
-        // query available books
-        Query query = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereEqualTo("status", "Borrowed");
+                .whereIn("status", filters);
+        if (!availableButton.isChecked() && !requestedButton.isChecked() &&
+                !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+            query = db.collection("doesNotExist").limit(1);
+        }
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()

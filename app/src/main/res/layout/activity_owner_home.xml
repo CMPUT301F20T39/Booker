@@ -43,11 +43,10 @@
             android:scrollbars="none"
             android:singleLine="true"
             android:theme="@style/Theme.MaterialComponents.Light"
-            app:checkedChip="@id/availableBttn"
             app:chipSpacing="10dp"
             app:selectionRequired="true"
             app:singleLine="true"
-            app:singleSelection="true">
+            app:singleSelection="false">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/availableBttn"
