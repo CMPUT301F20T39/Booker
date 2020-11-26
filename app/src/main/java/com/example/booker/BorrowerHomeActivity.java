@@ -256,8 +256,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // query available books
         Query query = bookCollection
                 .whereArrayContains("requesterList", user.getDisplayName())
-                .whereIn("status", filters)
-                .orderBy("status");
+                .whereIn("status", filters);
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
