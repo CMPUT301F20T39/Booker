@@ -402,11 +402,8 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // query available books
         Query query = bookCollection
                 .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereIn("status", filters);
-        if (!availableButton.isChecked() && !requestedButton.isChecked() &&
-                !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
-            query = db.collection("doesNotExist").limit(1);
-        }
+                .whereIn("status", filters)
+                .orderBy("status");
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
