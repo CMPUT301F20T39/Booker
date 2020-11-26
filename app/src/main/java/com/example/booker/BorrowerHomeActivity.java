@@ -161,11 +161,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (listDisplayTextView.getText().toString().equals("Borrower Home")) {
-                    finish();
+                if (!listDisplayTextView.getText().toString().equals("Borrower Home")) {
+                    homeScreen();
                 }
                 else {
-                    homeScreen();
+                    finish();
                 }
             }
         });
