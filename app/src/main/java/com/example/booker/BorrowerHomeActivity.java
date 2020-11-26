@@ -161,11 +161,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (listDisplayTextView.getText().toString().equals("Borrower Home")) {
-                    finish();
+                if (!listDisplayTextView.getText().toString().equals("Borrower Home")) {
+                    homeScreen();
                 }
                 else {
-                    homeScreen();
+                    finish();
                 }
             }
         });
@@ -324,12 +324,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     }
 
     private void homeScreen() {
-        listDisplayTextView.setTextSize(24.0f);
-        listDisplayTextView.setText("Borrower Home");
         chipGroup.setVisibility(View.VISIBLE);
         updateBookFilters();
         borrowerAdapter.setHideButton(true);
+        searchView.setQuery("", false);
         searchView.clearFocus();
+        listDisplayTextView.setTextSize(24.0f);
+        listDisplayTextView.setText("Borrower Home");
     }
 
     private void searchScreen() {
