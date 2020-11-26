@@ -54,6 +54,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private CollectionReference bookCollection;
     private final String TAG = "NOTIF DEBUG";
     private final String CHANNEL_ID = "Accepted Book Requests";
+    private ArrayList<String> filters = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // firestore db and user set up
         firebaseFirestore = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
+
+        bookCollection = firebaseFirestore.collection("Books");
 
         // recyclerview set up
         recyclerView = findViewById(R.id.recyclerView);
@@ -78,34 +81,55 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         acceptedButton = findViewById(R.id.acceptedBttn);
         borrowedButton = findViewById(R.id.borrowedBttn);
 
-        showMyRequested();
-
         requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyRequested();
+                if (b && !filters.contains("Requested")) {
+                    filters.add("Requested");
                 }
+                else if (!acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Requested");
+                }
+                updateBookFilters();
             }
         });
 
         acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyAccepted();
+                if (b && !filters.contains("Accepted")) {
+                    filters.add("Accepted");
                 }
+                else if (!requestedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Accepted");
+                }
+                updateBookFilters();
             }
         });
 
         borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    showMyBorrowed();
+                if (borrowedButton.isChecked() && !filters.contains("Borrowed")) {
+                    filters.add("Borrowed");
                 }
+                else if (!requestedButton.isChecked() && !acceptedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Borrowed");
+                }
+                updateBookFilters();
             }
         });
+
+        checkAll();
 
         searchView = findViewById(R.id.searchView);
 
@@ -144,7 +168,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
-        bookCollection = firebaseFirestore.collection("Books");
         bookCollection
                 .whereNotEqualTo("status", "Available")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -223,48 +246,23 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         recyclerView.setAdapter(borrowerAdapter);
     }
 
-    private void showMyRequested() {
-        // query user's requested books
-        Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Requested")
-                .whereArrayContains("requesterList", user.getDisplayName());
+    private void checkAll() {
+        requestedButton.setChecked(true);
+        acceptedButton.setChecked(true);
+        borrowedButton.setChecked(true);
+    }
+
+    private void updateBookFilters() {
+        // query available books
+        Query query = bookCollection
+                .whereArrayContains("requesterList", user.getDisplayName())
+                .whereIn("status", filters)
+                .orderBy("status");
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build()
-                ;
-
-        // update existing query
-        borrowerAdapter.updateOptions(options);
-    }
-
-    private void showMyAccepted() {
-        // query user's accepted books
-        Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Accepted")
-                .whereArrayContains("requesterList", user.getDisplayName());
-
-        // build recyclerOptions object from query (used in place of a list of objects)
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build()
-                ;
-
-        // update existing query
-        borrowerAdapter.updateOptions(options);
-    }
-
-    private void showMyBorrowed() {
-        // show user's borrowed books
-        Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Borrowed")
-                .whereArrayContains("requesterList", user.getDisplayName());
-
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build()
-                ;
+                .build();
 
         // update existing query
         borrowerAdapter.updateOptions(options);
