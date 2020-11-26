@@ -175,7 +175,10 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                                 final String bookAuthor = dc.getDocument().getString("author");
 
                                 List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = requesterList.get(requesterList.size() - 1);
+                                String recentRequester = "";
+                                if (!requesterList.isEmpty()) { // fails to keep in sync without this check
+                                    requesterList.get(requesterList.size() - 1);
+                                }
 
                                 assert status != null;
                                 if (status.equals("Accepted") && recentRequester.equals(user.getDisplayName())) {
