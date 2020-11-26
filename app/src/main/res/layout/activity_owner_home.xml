@@ -43,7 +43,6 @@
             android:scrollbars="none"
             android:singleLine="true"
             android:theme="@style/Theme.MaterialComponents.Light"
-            app:checkedChip="@id/availableBttn"
             app:chipSpacing="10dp"
             app:selectionRequired="false"
             app:singleLine="true"

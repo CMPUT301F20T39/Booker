@@ -72,7 +72,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     private Chip borrowedButton;
     private androidx.appcompat.widget.Toolbar toolbar;
     private String CHANNEL_ID = "Borrower Requests";
-
+    private ArrayList<String> filters = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,66 +98,72 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         acceptedButton = findViewById(R.id.acceptedBttn);
         borrowedButton = findViewById(R.id.borrowedBttn);
 
-        showMyAvailable();
-        showMyRequested();
-        showMyAvailable();
-        showMyBorrowed();
-
-        availableButton.setOnClickListener(new View.OnClickListener() {
+        availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (availableButton.isChecked())
-                    showMyAvailable();
-                if (requestedButton.isChecked())
-                    showMyRequested();
-                if (acceptedButton.isChecked())
-                    showMyAccepted();
-                if (borrowedButton.isChecked())
-                    showMyBorrowed();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b &&!filters.contains("Available")) {
+                    filters.add("Available");
+                }
+                else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Available");
+                }
+                updateBookFilters();
             }
         });
 
-        requestedButton.setOnClickListener(new View.OnClickListener() {
+        requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (availableButton.isChecked())
-                    showMyAvailable();
-                if (requestedButton.isChecked())
-                    showMyRequested();
-                if (acceptedButton.isChecked())
-                    showMyAccepted();
-                if (borrowedButton.isChecked())
-                    showMyBorrowed();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b && !filters.contains("Requested")) {
+                    filters.add("Requested");
+                }
+                else if (!availableButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Requested");
+                }
+                updateBookFilters();
             }
         });
 
-        acceptedButton.setOnClickListener(new View.OnClickListener() {
+        acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (availableButton.isChecked())
-                    showMyAvailable();
-                if (requestedButton.isChecked())
-                    showMyRequested();
-                if (acceptedButton.isChecked())
-                    showMyAccepted();
-                if (borrowedButton.isChecked())
-                    showMyBorrowed();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b && !filters.contains("Accepted")) {
+                    filters.add("Accepted");
+                }
+                else if (!availableButton.isChecked() && !requestedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Accepted");
+                }
+                updateBookFilters();
             }
         });
 
-        borrowedButton.setOnClickListener(new View.OnClickListener() {
+        borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (availableButton.isChecked())
-                    showMyAvailable();
-                if (requestedButton.isChecked())
-                    showMyRequested();
-                if (acceptedButton.isChecked())
-                    showMyAccepted();
-                if (borrowedButton.isChecked())
-                    showMyBorrowed();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (borrowedButton.isChecked() && !filters.contains("Borrowed")) {
+                    filters.add("Borrowed");
+                }
+                else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !availableButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Borrowed");
+                }
+                updateBookFilters();
             }
         });
+
+        checkAll();
+
         // set up toolbar
         toolbar = findViewById(R.id.toolbar4);
 
@@ -202,9 +208,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                                 final String bookAuthor = dc.getDocument().getString("author");
 
                                 List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = "";
-                                if (requesterList.size() > 0)
-                                    recentRequester = requesterList.get(requesterList.size() - 1);
+                                String recentRequester = requesterList.get(requesterList.size() - 1);
 
                                 assert status != null;
                                 if (status.equals("Requested")) {
@@ -223,7 +227,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         addBookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                availableButton.performClick();
                 new AddBookFragment().show(getSupportFragmentManager(), "ADD_BOOK");
             }
         });
@@ -388,56 +391,22 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         rvBookList.setAdapter(bookListAdapter);
     }
 
-    private void showMyAvailable() {
-        // query available books
-        Query query = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereEqualTo("status", "Available");
-
-        // build recyclerOptions object from query (used in place of a list of objects)
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build();
-
-        // update existing query
-        bookListAdapter.updateOptions(options);
+    private void checkAll() {
+        availableButton.setChecked(true);
+        requestedButton.setChecked(true);
+        acceptedButton.setChecked(true);
+        borrowedButton.setChecked(true);
     }
 
-    private void showMyRequested() {
+    private void updateBookFilters() {
         // query available books
         Query query = bookCollection
                 .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereEqualTo("status", "Requested");
-
-        // build recyclerOptions object from query (used in place of a list of objects)
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build();
-
-        // update existing query
-        bookListAdapter.updateOptions(options);
-    }
-
-    private void showMyAccepted() {
-        // query available books
-        Query query = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereEqualTo("status", "Accepted");
-
-        // build recyclerOptions object from query (used in place of a list of objects)
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
-                .build();
-
-        // update existing query
-        bookListAdapter.updateOptions(options);
-    }
-
-    private void showMyBorrowed() {
-        // query available books
-        Query query = bookCollection
-                .whereEqualTo("ownerUsername", user.getDisplayName())
-                .whereEqualTo("status", "Borrowed");
+                .whereIn("status", filters);
+        if (!availableButton.isChecked() && !requestedButton.isChecked() &&
+                !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+            query = db.collection("doesNotExist").limit(1);
+        }
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
@@ -471,7 +440,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         Intent intent = new Intent(this, OwnerRequestsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-        String textTitle = getString(R.string.app_name);
+        String textTitle = "Book request";
         String textContent = MessageFormat.format("{0} has requested the book {1} by {2}", requester, book, bookAuthor);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
