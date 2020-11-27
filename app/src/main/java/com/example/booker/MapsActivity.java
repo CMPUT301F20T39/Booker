@@ -9,6 +9,8 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
@@ -32,8 +34,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -46,6 +51,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FirebaseFirestore db;
     private Book book;
     private TextView textViewPermission;
+    private TextView textViewAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         buttonConfirm = findViewById(R.id.buttonConfirm);
 
         textViewPermission = findViewById(R.id.textViewPermission);
+        textViewAddress = findViewById(R.id.textViewAddress);
 
         // set up firestore
         db = FirebaseFirestore.getInstance();
@@ -154,6 +161,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng position = new LatLng(latitude, longitude);
 
         marker = mMap.addMarker(new MarkerOptions().position(position).title("Retrieval Point"));
+        setAddressBarText();
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 10.0f));
 
         buttonConfirm.setVisibility(View.GONE);
@@ -184,6 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         marker.remove();
                     }
                     marker = mMap.addMarker(new MarkerOptions().position(latLng).title("Retrieval Point"));
+                    setAddressBarText();
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getCameraPosition().zoom));
                 }
             });
@@ -206,5 +215,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             });
         }
+    }
+
+    // https://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
+    private void setAddressBarText() {
+        // initialize geocoder
+        Geocoder geocoder;
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        List<Address> addressList = null;
+
+        // get latitude and longitude from marker
+        Double latitude = marker.getPosition().latitude;
+        Double longitude = marker.getPosition().longitude;
+
+        // try to get first address from latitude and longitude
+        try {
+            addressList = geocoder.getFromLocation(latitude, longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // get first address line as a string
+        String address = addressList.get(0).getAddressLine(0);
+        textViewAddress.setText(address);
     }
 }
