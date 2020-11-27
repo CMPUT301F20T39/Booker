@@ -287,6 +287,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         searchView.clearFocus();
     }
 
+    public void viewPhoto(Book book) {
+        Intent goToPhoto = new Intent(getApplicationContext(), ViewPhotoActivity.class);
+        goToPhoto.putExtra("Book", book);
+        goToPhoto.putExtra("Type", "borrower");
+        startActivity(goToPhoto);
+    }
+
     private void setUpAdapter() {
         // used as a dummy query for initial set up
         Query query = firebaseFirestore.collection("doesNotExist").limit(1);

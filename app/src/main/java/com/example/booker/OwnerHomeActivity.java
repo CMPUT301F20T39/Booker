@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -61,6 +62,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     public RecyclerView rvBookList;
     Uri image;
     private ImageView imageView;
+    private ImageButton profileBtn;
     private Book book;
     private final static int REQUEST_CODE = 111;
     HashMap<String, Object> imgString = new HashMap<>();
@@ -175,6 +177,18 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
+        // profile button takes user to view/edit their profile
+        profileBtn = findViewById(R.id.ownerProfile);
+        profileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
+                goToProfile.putExtra("profileType", "EDIT");
+                goToProfile.putExtra("profileEmail", user.getEmail());
+                startActivity(goToProfile);
+            }
+        });
+
         // Check if there is any change in the status of the books
         bookCollection
                 .whereEqualTo("ownerEmail", userEmail)
@@ -267,6 +281,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     public void showPhoto(Book book) {
         Intent goToPhoto = new Intent(getApplicationContext(), ViewPhotoActivity.class);
         goToPhoto.putExtra("Book", book);
+        goToPhoto.putExtra("Type", "owner");
         startActivity(goToPhoto);
     }
 
