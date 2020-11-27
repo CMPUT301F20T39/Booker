@@ -22,7 +22,7 @@ public class Book implements Serializable {
 	private String UID;
 	private List<String> requesterList;
 	private String imageURI;
-	private List<Float> coordinates;
+	private List<Double> coordinates;
 
 	/**
 	 * Constructor for Firestore's .toObject()
@@ -261,26 +261,26 @@ public class Book implements Serializable {
 		}
 	}
 
-	public List<Float> getCoordinates() {
+	public List<Double> getCoordinates() {
 		return coordinates;
 	}
 
-	public void setCoordinates(List<Float> coordinates) {
+	public void setCoordinates(List<Double> coordinates) {
 		this.coordinates = coordinates;
 	}
 
-	public Float getLatitude() {
+	public Double getLatitude() {
 		if (this.hasCoordinates()) {
 			return coordinates.get(0);
 		}
-		return -1.0f; // -1 for unsuccessful
+		return -1.0; // -1 for unsuccessful
 	}
 
-	public Float getLongitude() {
+	public Double getLongitude() {
 		if (this.hasCoordinates()) {
 			return coordinates.get(1);
 		}
-		return -1.0f; // -1 for unsuccessful
+		return -1.0; // -1 for unsuccessful
 	}
 
 	public boolean hasCoordinates() {

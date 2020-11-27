@@ -324,13 +324,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     }
 
     private void homeScreen() {
-        chipGroup.setVisibility(View.VISIBLE);
-        updateBookFilters();
-        borrowerAdapter.setHideButton(true);
-        searchView.setQuery("", false);
         searchView.clearFocus();
+        searchView.setQuery("", false);
+        chipGroup.setVisibility(View.VISIBLE);
+        borrowerAdapter.setHideButton(true);
         listDisplayTextView.setTextSize(24.0f);
         listDisplayTextView.setText("Borrower Home");
+        updateBookFilters();
     }
 
     private void searchScreen() {

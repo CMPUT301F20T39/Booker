@@ -108,13 +108,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     // https://www.youtube.com/watch?v=Ak1O9Gip-pg
-    private void getCurrentLocation() {
+    private void getCurrentLocation(final boolean smoothTransition) {
         locationTask.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(final Location location) {
                 if (location != null) {
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getCameraPosition().zoom));
+
+                    if (smoothTransition) {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getCameraPosition().zoom));
+                    }
+                    else {
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10.0f));
+                    }
                 }
             }
         });
@@ -149,20 +155,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // get book
         book = (Book) getIntent().getSerializableExtra("book");
 
-        Float latitude = 0.0f;
-        Float longitude = 0.0f;
+        mMap = googleMap;
+
         if (book.hasCoordinates()) {
-            latitude = book.getLatitude();
-            longitude = book.getLongitude();
+            LatLng latLng = new LatLng(book.getLatitude(), book.getLongitude());
+
+            marker = mMap.addMarker(new MarkerOptions().position(latLng).title("Retrieval Point"));
+            setAddressBarText();
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10.0f));
         }
 
-        // Add a marker and move the camera
-        mMap = googleMap;
-        LatLng position = new LatLng(latitude, longitude);
-
-        marker = mMap.addMarker(new MarkerOptions().position(position).title("Retrieval Point"));
-        setAddressBarText();
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 10.0f));
+        if (marker == null) {
+            getCurrentLocation(false);
+        }
 
         buttonConfirm.setVisibility(View.GONE);
         textViewPermission.setVisibility(View.GONE);
@@ -173,13 +178,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (accessType.equals("WRITE")) {
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setAllGesturesEnabled(true);
-            buttonConfirm.setVisibility(View.VISIBLE);
+
+            if (marker != null) {
+                buttonConfirm.setVisibility(View.VISIBLE);
+            }
 
             // current location button listener, go to current location
             mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
-                    getCurrentLocation();
+                    getCurrentLocation(true);
                     return false;
                 }
             });
@@ -191,6 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (marker != null) {
                         marker.remove();
                     }
+                    buttonConfirm.setVisibility(View.VISIBLE);
                     marker = mMap.addMarker(new MarkerOptions().position(latLng).title("Retrieval Point"));
                     setAddressBarText();
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getCameraPosition().zoom));
@@ -202,8 +211,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onClick(View view) {
                     Book book = (Book) getIntent().getSerializableExtra("book");
-                    Float latitude = (float) marker.getPosition().latitude;
-                    Float longitude = (float) marker.getPosition().longitude;
+                    Double latitude = marker.getPosition().latitude;
+                    Double longitude = marker.getPosition().longitude;
 
                     book.setCoordinates(Arrays.asList(latitude, longitude));
 
