@@ -313,10 +313,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
      * @param title       title of the book to be added
      * @param author      author of the book
      * @param isbn        isbn of the book
-     * @param description description of the book
      */
     @Override
-    public void onOkPressed(String dialogType, final String bookUID, final String title, final String author, final String isbn, String description) {
+    public void onOkPressed(String dialogType, final String bookUID, final String title, final String author, final String isbn) {
         final String TAG = "Add Book method";   // just a tag for debugging purposes
 
         HashMap<String, Object> data = new HashMap<>(); // a data structure for adding info to the db

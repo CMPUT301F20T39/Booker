@@ -26,12 +26,11 @@ public class AddBookFragment extends DialogFragment {
     private EditText titleEdit;
     private EditText authorEdit;
     private EditText isbnEdit;
-    private EditText descrpEdit;
 
     private OnFragmentInteractionListener listener;
 
     public interface OnFragmentInteractionListener {
-        void onOkPressed(String dialogType, String bookUID, String title, String author, String isbn, String description);
+        void onOkPressed(String dialogType, String bookUID, String title, String author, String isbn);
     }
 
     @Override
@@ -54,7 +53,6 @@ public class AddBookFragment extends DialogFragment {
         titleEdit = view.findViewById(R.id.editTextTitle);
         authorEdit = view.findViewById(R.id.editTextAuthor);
         isbnEdit = view.findViewById(R.id.editTextISBN);
-        descrpEdit = view.findViewById(R.id.editTextDescr);
 
         // initialize
         Bundle bundle = getArguments();
@@ -87,9 +85,8 @@ public class AddBookFragment extends DialogFragment {
                         String title = titleEdit.getText().toString();
                         String author = authorEdit.getText().toString();
                         String isbn = isbnEdit.getText().toString();
-                        String description = descrpEdit.getText().toString();
 
-                        listener.onOkPressed(finalDialogType, finalBookUID, title, author, isbn, description);
+                        listener.onOkPressed(finalDialogType, finalBookUID, title, author, isbn);
                     }
                 }).create();
     }
