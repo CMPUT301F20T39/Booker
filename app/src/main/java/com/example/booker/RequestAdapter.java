@@ -31,6 +31,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         public TextView nameView;
         public Button rejectButton;
         public Button acceptButton;
+        private TextView textViewAccepted;
 
         public MyViewHolder(View v) {
             super(v);
@@ -38,6 +39,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             nameView = v.findViewById(R.id.requestsName);
             rejectButton = v.findViewById(R.id.rejectBtn);
             acceptButton = v.findViewById(R.id.acceptBtn);
+            textViewAccepted = v.findViewById(R.id.textViewAccepted);
         }
     }
 
@@ -116,9 +118,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         if (book.getStatus().equals("Accepted") || book.getStatus().equals("Borrowed")) {
             holder.rejectButton.setVisibility(View.GONE);
             holder.acceptButton.setVisibility(View.GONE);
+            holder.textViewAccepted.setText(book.getStatus());
         } else {
             holder.rejectButton.setVisibility(View.VISIBLE);
             holder.acceptButton.setVisibility(View.VISIBLE);
+            holder.textViewAccepted.setText("");
         }
 
     }
