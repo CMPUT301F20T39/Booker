@@ -136,9 +136,15 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
             @Override
             public void onClick(View v) {
                 Intent photoIntent = new Intent();
-                photoIntent.setType("image/*");
-                photoIntent.setAction(Intent.ACTION_GET_CONTENT);
-                instance.selectImage(photoIntent, holder.imageView, model);
+                if (model.getImageURI().isEmpty()) {
+                    photoIntent.setType("image/*");
+                    photoIntent.setAction(Intent.ACTION_GET_CONTENT);
+                    instance.selectImage(photoIntent, holder.imageView, model);
+                }
+                else {
+                    instance.showPhoto(model);
+
+                }
             }
         });
 
