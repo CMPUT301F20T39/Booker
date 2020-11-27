@@ -132,6 +132,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
             }
         });
 
+        // if no photo then select one, else view photo in new activity
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
