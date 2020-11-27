@@ -249,7 +249,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     }
 
     /**
-     * opens book requester intent
+     * opens book requester activity
      *
      * @param book
      */
@@ -257,6 +257,17 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         Intent goToRequests = new Intent(getApplicationContext(), OwnerRequestsActivity.class);
         goToRequests.putExtra("Book", book);
         startActivity(goToRequests);
+    }
+
+    /**
+     * Shows full book image in new activity
+     *
+     * @param book
+     */
+    public void showPhoto(Book book) {
+        Intent goToPhoto = new Intent(getApplicationContext(), ViewPhotoActivity.class);
+        goToPhoto.putExtra("Book", book);
+        startActivity(goToPhoto);
     }
 
     /**

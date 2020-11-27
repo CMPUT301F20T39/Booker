@@ -56,7 +56,9 @@
         <activity
             android:name=".OwnerRequestsActivity"
             android:launchMode="singleTask"
-            android:parentActivityName=".OwnerHomeActivity"></activity>
+            android:parentActivityName=".OwnerHomeActivity">
+        </activity>
+        <activity android:name=".ViewPhotoActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
