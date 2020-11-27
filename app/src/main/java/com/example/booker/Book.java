@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import android.net.Uri;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,10 +10,10 @@ import java.util.List;
 /**
  * Book class for storing data and metadata of books.
  * Firestore can insert the data from a book document directly into one of these.
+ * Description is defined as: title, author, and ISBN
  */
 public class Book implements Serializable {
 	private String title;
-	private String description;
 	private String status;
 	private String ISBN;
 	private String author;
@@ -19,6 +21,8 @@ public class Book implements Serializable {
 	private String ownerEmail;
 	private String UID;
 	private List<String> requesterList;
+	private String imageURI;
+	private List<Double> coordinates;
 
 	/**
 	 * Constructor for Firestore's .toObject()
@@ -33,13 +37,13 @@ public class Book implements Serializable {
 	 * @param ISBN
 	 * @param author
 	 */
-	public Book(String title, String description, String status, String ISBN, String author) {
+	public Book(String title, String status, String ISBN, String author) {
 		this.title = title;
-		this.description = description;
 		this.status = status;
 		this.ISBN = ISBN;
 		this.author = author;
 		this.requesterList = Arrays.asList(); // allows a user to be the 0th index instead of an empty string
+		this.coordinates = Arrays.asList(); // no location set yet
 	}
 
 	/**
@@ -66,28 +70,20 @@ public class Book implements Serializable {
 		this.ownerEmail = ownerEmail;
 	}
 
+	public String getImageURI() {
+		return imageURI;
+	}
+
+	public void setImageURI(String imageURI) {
+		this.imageURI = imageURI;
+	}
+
 	/**
 	 * sets a book's title
 	 * @param title
 	 */
 	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	/**
-	 * gets a book's description
-	 * @return book's description
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
-	 * sets a book's description
-	 * @param description
-	 */
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	/**
@@ -177,7 +173,6 @@ public class Book implements Serializable {
 	public HashMap<String, Object> getDataHashMap() {
 		HashMap<String, Object> data = new HashMap<>();
 		data.put("title", title);
-		data.put("description", description);
 		data.put("status", status);
 		data.put("ISBN", ISBN);
 		data.put("author", author);
@@ -185,6 +180,8 @@ public class Book implements Serializable {
 		data.put("ownerEmail", ownerEmail);
 		data.put("UID", UID);
 		data.put("requesterList", requesterList);
+		data.put("imageURI", imageURI);
+		data.put("coordinates", coordinates);
 		return data;
 	}
 
@@ -244,6 +241,32 @@ public class Book implements Serializable {
 			requesterList.clear();
 			requesterList.add(requesterUsername);
 		}
+	}
+
+	public List<Double> getCoordinates() {
+		return coordinates;
+	}
+
+	public void setCoordinates(List<Double> coordinates) {
+		this.coordinates = coordinates;
+	}
+
+	public Double getLatitude() {
+		if (this.hasCoordinates()) {
+			return coordinates.get(0);
+		}
+		return -1.0; // -1 for unsuccessful
+	}
+
+	public Double getLongitude() {
+		if (this.hasCoordinates()) {
+			return coordinates.get(1);
+		}
+		return -1.0; // -1 for unsuccessful
+	}
+
+	public boolean hasCoordinates() {
+		return !coordinates.isEmpty();
 	}
 
 }

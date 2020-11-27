@@ -16,6 +16,8 @@
         android:background="#1C54E3"
         android:minHeight="?attr/actionBarSize"
         android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
+        app:navigationIcon="@drawable/abc_vector_test"
+        app:title="Owner Home"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -42,7 +44,9 @@
             android:singleLine="true"
             android:theme="@style/Theme.MaterialComponents.Light"
             app:chipSpacing="10dp"
-            app:singleLine="true">
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="false">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/availableBttn"
@@ -98,6 +102,16 @@
         android:focusable="true"
         android:src="@android:drawable/ic_input_add"
         app:backgroundTint="#009688" />
+
+    <ImageButton
+        android:id="@+id/scanButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="6dp"
+        android:backgroundTint="#00FFFFFF"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_baseline_qr_code_scanner_24" />
 
 
 </FrameLayout>

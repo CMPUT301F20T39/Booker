@@ -2,41 +2,46 @@ package com.example.booker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.MotionEvent;
+import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.SnapshotParser;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
 /**
  * Main hub for Borrow's activities
@@ -45,63 +50,134 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
     private RecyclerView recyclerView;
-    private BorrowerAdapter borrowerAdapter;
     private SearchView searchView;
     private ImageButton profileBtn;
+    private ChipGroup chipGroup;
+    private Chip requestedButton;
+    private Chip acceptedButton;
+    private Chip borrowedButton;
+    private BorrowerAdapter borrowerAdapter;
+    private androidx.appcompat.widget.Toolbar toolbar;
+    private CollectionReference bookCollection;
+    private final String TAG = "NOTIF DEBUG";
+    private final String CHANNEL_ID = "Accepted Book Requests";
+    private ArrayList<String> filters = new ArrayList<>();
     private TextView listDisplayTextView;
-    private List<Book> bookList;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_borrower_home);
 
-        // initialize chips
-        final ChipGroup chipGroup = findViewById(R.id.chipGroup);
-        final Chip requestedButton = findViewById(R.id.requestedBttn);
-        final Chip acceptedButton = findViewById(R.id.acceptedBttn);
-        final Chip borrowedButton = findViewById(R.id.borrowedBttn);
-
-        user = FirebaseAuth.getInstance().getCurrentUser();
-
-        // initialize firestore, recyclerview, and adapter stuff
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        recyclerView = findViewById(R.id.recyclerView);
-        bookList = new ArrayList<>();
-        borrowerAdapter = new BorrowerAdapter(R.layout.borrower_search_item, bookList, this);
-
-        // connect adapter to recyclerview
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(borrowerAdapter);
-
-        // searchview stuff
-        searchView = findViewById(R.id.searchView);
         listDisplayTextView = findViewById(R.id.listDisplayTextView);
 
-        // get internal edittext from search view (behaves strangely without)
-        int id = searchView.getContext().getResources()
-                .getIdentifier("android:id/search_src_text", null, null);
-        final EditText searchViewEditText = (EditText) searchView.findViewById(id);
+        // firestore db and user set up
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
-        // touching search edit text
-        searchViewEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        bookCollection = firebaseFirestore.collection("Books");
+
+        // recyclerview set up
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // create the notification channel
+        createNotificationChannel();
+
+        setUpAdapter();
+
+        chipGroup = findViewById(R.id.chipGroup);
+        requestedButton = findViewById(R.id.requestedBttn);
+        acceptedButton = findViewById(R.id.acceptedBttn);
+        borrowedButton = findViewById(R.id.borrowedBttn);
+
+        requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    // change text display to all available
-                    String listDisplay = "Displaying all available books";
-                    listDisplayTextView.setText(listDisplay);
-                    listDisplayTextView.setTextSize(18);
-
-                    // hide chips
-                    chipGroup.setVisibility(View.GONE);
-
-                    // show all available books and show request buttons
-                    showAllAvailableBooks();
-                    borrowerAdapter.setHideButton(false);
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b && !filters.contains("Requested")) {
+                    filters.add("Requested");
                 }
+                else if (!acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Requested");
+                }
+                updateBookFilters();
+            }
+        });
 
+        acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b && !filters.contains("Accepted")) {
+                    filters.add("Accepted");
+                }
+                else if (!requestedButton.isChecked() && !borrowedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Accepted");
+                }
+                updateBookFilters();
+            }
+        });
+
+        borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (borrowedButton.isChecked() && !filters.contains("Borrowed")) {
+                    filters.add("Borrowed");
+                }
+                else if (!requestedButton.isChecked() && !acceptedButton.isChecked()) {
+                    // crashes without this case
+                }
+                else {
+                    filters.remove("Borrowed");
+                }
+                updateBookFilters();
+            }
+        });
+
+        checkAll();
+
+        // home button stuff
+        final ImageButton homeButton = findViewById(R.id.homeButton);
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!listDisplayTextView.getText().toString().equals("Borrower Home")) {
+                    homeScreen();
+                }
+            }
+        });
+
+        // set up toolbar
+        toolbar = findViewById(R.id.toolbar);
+
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!listDisplayTextView.getText().toString().equals("Borrower Home")) {
+                    homeScreen();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
+        searchView = findViewById(R.id.searchView);
+
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    searchScreen();
+                }
             }
         });
 
@@ -114,8 +190,8 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                         + searchView.getQuery().toString() + "\" books";
                 listDisplayTextView.setText(listDisplay);
 
-                // show titled available books
-                showSearchedAvailableBooks();
+                // show searched available books
+                showSearchedAvailable();
 
                 return false;
             }
@@ -123,72 +199,15 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 // when search is blank and not on home screen
-                if (newText.length() == 0 &&
-                !listDisplayTextView.getText().toString().equals("Borrower Home")) {
+                if (newText.length() == 0) {
                     // change text display to titled available
                     String listDisplay = "Displaying all available books";
                     listDisplayTextView.setText(listDisplay);
 
                     // show all available books
-                    showAllAvailableBooks();
+                    showAllAvailable();
                 }
                 return false;
-            }
-        });
-
-        // show requests on request chip click
-        requestedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                acceptedButton.setChecked(false);
-                borrowedButton.setChecked(false);
-                showMyRequests();
-            }
-        });
-
-        // show accepts on accept chip click
-        acceptedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                requestedButton.setChecked(false);
-                borrowedButton.setChecked(false);
-                showMyAccepts();
-            }
-        });
-
-        // show borrows on borrow chip click
-        borrowedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                acceptedButton.setChecked(false);
-                requestedButton.setChecked(false);
-                showMyBorrows();
-            }
-        });
-
-        // home button stuff
-        final ImageButton homeButton = findViewById(R.id.homeButton);
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // change text display to my requests
-                String myRequestsDisplay = "Borrower Home";
-                listDisplayTextView.setTextSize(24);
-                listDisplayTextView.setText(myRequestsDisplay);
-
-                // show chips
-                chipGroup.setVisibility(View.VISIBLE);
-
-                // close keyboard and reset search text
-                searchView.clearFocus();
-                searchView.setQuery("", false);
-
-                // user's personal requests list
-                requestedButton.performClick();
-                requestedButton.setChecked(true);
-
-                // hide buttons
-                borrowerAdapter.setHideButton(true);
             }
         });
 
@@ -206,177 +225,214 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
-        // set up toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar myToolbar = getSupportActionBar();
-        myToolbar.setTitle("");
-        myToolbar.setDisplayHomeAsUpEnabled(true);
+        bookCollection
+                .whereNotEqualTo("status", "Available")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
 
-        // toolbar back button
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listDisplayTextView.getText().toString().startsWith("Displaying")) {
-                    homeButton.performClick();
-                }
-                else {
-                    finish();
-                }
-            }
-        });
+                        // Checking that query works as expected; Can be removed later
+//                        List<String> books = new ArrayList<>();
+//                        for (QueryDocumentSnapshot doc : snapshots) {
+//                            if (doc.get("title") != null) {
+//                                books.add(doc.getString("title"));
+//                            }
+//                        }
 
-    }
+                        // See changes since the last snapshot
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
+                                Log.d(TAG, "Book data" + dc.getDocument().getData());
+                                Log.d(TAG, "Modified book status:" + dc.getDocument().get("status"));
 
-    /**
-     * show user's requested books
-     */
-    public void showMyRequests() {
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
+                                final String status = dc.getDocument().getString("status");
+                                final String bookTitle = dc.getDocument().getString("title");
+                                final String bookAuthor = dc.getDocument().getString("author");
 
-        // query user's requests
-        Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Requested")
-                .whereArrayContains("requesterList", user.getDisplayName());
+                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
+                                String recentRequester = requesterList.get(requesterList.size() - 1);
 
-        // show user's requests
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentSnapshot document: value.getDocuments()) {
-                    Book book = document.toObject(Book.class);
-                    bookList.add(book);
-
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    /**
-     * show user's accepted books
-     */
-    public void showMyAccepts() {
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
-
-        // query user's accepts
-        Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Accepted")
-                .whereArrayContains("requesterList", user.getDisplayName());
-
-        // show user's accepts
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentSnapshot document: value.getDocuments()) {
-                    Book book = document.toObject(Book.class);
-                    bookList.add(book);
-
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    /**
-     * show user's borrowed books
-     */
-    public void showMyBorrows() {
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
-
-        // query user's borrows
-        Query query = firebaseFirestore.collection("Books")
-                .whereEqualTo("status", "Borrowed")
-                .whereArrayContains("requesterList", user.getDisplayName());
-
-        // show user's borrows
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentSnapshot document: value.getDocuments()) {
-                    Book book = document.toObject(Book.class);
-                    bookList.add(book);
-
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    /**
-     * show user's available books
-     */
-    public void showAllAvailableBooks() {
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
-
-        // filter for only available and requested
-        List<String> whitelist = Arrays.asList("Available", "Requested");
-
-        // query all available (available + requested) books
-        Query query = firebaseFirestore.collection("Books")
-                .whereIn("status", whitelist);
-
-        // show all available (available + requested) books
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    Book book = documentChange.getDocument().toObject(Book.class);
-
-                    // add new books to results
-                    if (documentChange.getType() == DocumentChange.Type.ADDED) {
-                        bookList.add(book);
+                                assert status != null;
+                                if (status.equals("Accepted") && recentRequester.equals(user.getDisplayName())) {
+                                    Log.d(TAG, "the requester is " + recentRequester);
+                                    Log.d(TAG, "Requested book title is " + bookTitle);
+                                    createNotification(bookTitle, bookAuthor);
+                                }
+                            }
+                        }
                     }
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
+                });
     }
 
-    /**
-     * show user's requested books using a keyword
-     * Bugs: duplicate search results after requesting a book
-     */
-    public void showSearchedAvailableBooks() {
-        bookList.clear();
-        borrowerAdapter.notifyDataSetChanged();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        borrowerAdapter.startListening();
+    }
 
-        // filter for only available and requested
-        List<String> whitelist = Arrays.asList("Available", "Requested");
+    @Override
+    protected void onStop() {
+        super.onStop();
+        borrowerAdapter.stopListening();
+    }
 
-        // query partial matched titles/authors/ISBNs
+    @Override
+    protected void onResume() {
+        super.onResume();
+        searchView.clearFocus();
+    }
+
+    private void setUpAdapter() {
+        // used as a dummy query for initial set up
+        Query query = firebaseFirestore.collection("doesNotExist").limit(1);
+
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build()
+                ;
+
+        // initialize adapter and connect to recyclerview
+        borrowerAdapter = new BorrowerAdapter(options, R.layout.borrower_search_item, this);
+        recyclerView.setAdapter(borrowerAdapter);
+    }
+
+    private void checkAll() {
+        requestedButton.setChecked(true);
+        acceptedButton.setChecked(true);
+        borrowedButton.setChecked(true);
+    }
+
+    private void updateBookFilters() {
+        // query available books
+        Query query = bookCollection
+                .whereArrayContains("requesterList", user.getDisplayName())
+                .whereIn("status", filters);
+
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build();
+
+        // update existing query
+        borrowerAdapter.updateOptions(options);
+    }
+
+    private void homeScreen() {
+        searchView.clearFocus();
+        searchView.setQuery("", false);
+        chipGroup.setVisibility(View.VISIBLE);
+        borrowerAdapter.setHideButton(true);
+        listDisplayTextView.setTextSize(24.0f);
+        listDisplayTextView.setText("Borrower Home");
+        updateBookFilters();
+    }
+
+    private void searchScreen() {
+        listDisplayTextView.setTextSize(18.0f);
+        listDisplayTextView.setText("Displaying all available books");
+        chipGroup.setVisibility(View.GONE);
+        borrowerAdapter.setHideButton(false);
+        showAllAvailable();
+    }
+
+    private void showAllAvailable() {
+        // query user's requested books
         Query query = firebaseFirestore.collection("Books")
-                .whereIn("status", whitelist);
+                .whereNotEqualTo("ownerUsername", user.getDisplayName())
+                .whereIn("status", Arrays.asList("Available", "Requested"));
 
-        // show partial matched titles/authors/ISBNs
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                for (DocumentChange documentChange: value.getDocumentChanges()) {
-                    Book book = documentChange.getDocument().toObject(Book.class);
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build()
+                ;
 
-                    // partial titles
-                    if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                        bookList.add(book);
+        // update existing query
+        borrowerAdapter.updateOptions(options);
+    }
+
+    private void showSearchedAvailable() {
+        // query user's requested books
+        Query query = firebaseFirestore.collection("Books")
+                .whereNotEqualTo("ownerUsername", user.getDisplayName())
+                .whereIn("status", Arrays.asList("Available", "Requested"));
+
+        // build recyclerOptions object from query (used in place of a list of objects)
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, new SnapshotParser<Book>() {
+                    @NonNull
+                    @Override
+                    public Book parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        Book book = snapshot.toObject(Book.class);
+                        // parse book for partial title match
+                        if (book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
+                            return book;
+                        }
+                        // parse book for partial author match
+                        else if (book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
+                            return book;
+                        }
+                        // parse book for partial ISBN match
+                        else if (book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
+                            return book;
+                        }
+                        // no matches, return a dummy book object
+                        return new Book("", "", "", "");
                     }
-                    // partial authors
-                    else if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                        bookList.add(book);
-                    }
-                    // partial ISBNs
-                    else if (documentChange.getType() == DocumentChange.Type.ADDED &&
-                            book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
-                        bookList.add(book);
-                    }
-                }
-                borrowerAdapter.notifyDataSetChanged();
-            }
-        });
+                })
+                .build()
+                ;
+
+        // update existing query
+        borrowerAdapter.updateOptions(options);
+    }
+
+    //     Create a Notification Channel for the notification to go through
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or  other notification behaviours after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+            Log.d(TAG, "Notification channel successfully created");
+        }
+    }
+
+    public void createNotification(String bookTitle, String bookAuthor) {
+        // Create the intent for the notification tap action
+        Intent intent = new Intent(this, BorrowerHomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+        String textTitle = "Request accepted";
+        String textContent = MessageFormat.format("Your request for the book {0} by {1} has been accepted.", bookTitle, bookAuthor);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle(textTitle)
+                .setContentText(textContent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                // automatically remove the notification when a user tap on it
+                .setAutoCancel(true);
+
+        // Show the notification
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+
+        Random notification_id = new Random();
+        notificationManager.notify(notification_id.nextInt(100), builder.build());
+        Log.d(TAG, "Notification created successfully");
     }
 }

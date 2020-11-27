@@ -1,6 +1,5 @@
 package com.example.booker;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +9,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.List;
 
 /**
+ * DEPRECATED
  * Converts book objects into elements of a recyclerview
  */
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHolder> {
@@ -37,7 +31,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         public TextView nameView;
         public Button rejectButton;
         public Button acceptButton;
-
+        private TextView textViewAccepted;
 
         public MyViewHolder(View v) {
             super(v);
@@ -45,11 +39,13 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             nameView = v.findViewById(R.id.requestsName);
             rejectButton = v.findViewById(R.id.rejectBtn);
             acceptButton = v.findViewById(R.id.acceptBtn);
+            textViewAccepted = v.findViewById(R.id.textViewAccepted);
         }
     }
 
     /**
      * adapter for book's requester list
+     *
      * @param book
      * @param instance
      */
@@ -119,15 +115,17 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         });
 
         // hide buttons on requested
-        if (book.getStatus().equals("Accepted")) {
+        if (book.getStatus().equals("Accepted") || book.getStatus().equals("Borrowed")) {
             holder.rejectButton.setVisibility(View.GONE);
             holder.acceptButton.setVisibility(View.GONE);
+            holder.textViewAccepted.setText(book.getStatus());
+        } else {
+            holder.rejectButton.setVisibility(View.VISIBLE);
+            holder.acceptButton.setVisibility(View.VISIBLE);
+            holder.textViewAccepted.setText("");
         }
 
-
     }
-
-
 
     @Override
     public int getItemCount() {
