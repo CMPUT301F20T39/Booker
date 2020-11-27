@@ -236,7 +236,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         // get first address line as a string
-        String address = addressList.get(0).getAddressLine(0);
-        textViewAddress.setText(address);
+        if (!addressList.isEmpty()) {
+            String address = addressList.get(0).getAddressLine(0);
+            textViewAddress.setText(address);
+        }
+
     }
 }
