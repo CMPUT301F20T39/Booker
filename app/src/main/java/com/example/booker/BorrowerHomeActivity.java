@@ -355,7 +355,19 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
+                .setQuery(query, new SnapshotParser<Book>() {
+                    @NonNull
+                    @Override
+                    public Book parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        Book book = snapshot.toObject(Book.class);
+                        // check for user's books and return a dummy book object
+                        if (book.getOwnerUsername().equals(user.getDisplayName())) {
+                            return new Book("", "", "", "");
+                        }
+                        // else, return the book regularly
+                        return book;
+                    }
+                })
                 .build()
                 ;
 
@@ -375,16 +387,14 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                     @Override
                     public Book parseSnapshot(@NonNull DocumentSnapshot snapshot) {
                         Book book = snapshot.toObject(Book.class);
-                        // parse book for partial title match
-                        if (book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                            return book;
-                        }
-                        // parse book for partial author match
-                        else if (book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                            return book;
-                        }
-                        // parse book for partial ISBN match
-                        else if (book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
+                        // check for user's books and return a dummy book object
+                        if (book.getOwnerUsername().equals(user.getDisplayName())) {
+                            return new Book("", "", "", "");
+                        } // parse book for partial title, description or ISBN match
+                        else if (book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase()) ||
+                                book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase()) ||
+                                book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
+                            // return book regularly
                             return book;
                         }
                         // no matches, return a dummy book object
