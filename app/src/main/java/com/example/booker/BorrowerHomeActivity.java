@@ -225,6 +225,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             }
         });
 
+        // Checks which requests are not available, i.e requested or accepted
         bookCollection
                 .whereNotEqualTo("status", "Available")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -236,27 +237,26 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // Checking that query works as expected; Can be removed later
-//                        List<String> books = new ArrayList<>();
-//                        for (QueryDocumentSnapshot doc : snapshots) {
-//                            if (doc.get("title") != null) {
-//                                books.add(doc.getString("title"));
-//                            }
-//                        }
-
                         // See changes since the last snapshot
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            // If a document has been modified
                             if (dc.getType() == DocumentChange.Type.MODIFIED) {
+                                // For debugging purposes, show which book has been modified
                                 Log.d(TAG, "Book data" + dc.getDocument().getData());
-                                Log.d(TAG, "Modified book status:" + dc.getDocument().get("status"));
 
+                                // Get the status, title, author of the book
                                 final String status = dc.getDocument().getString("status");
                                 final String bookTitle = dc.getDocument().getString("title");
                                 final String bookAuthor = dc.getDocument().getString("author");
 
+                                // requesterList is an array in firestore
+                                // Take the array and cast it into a list of strings
+                                // then take the most recent requester
                                 List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
                                 String recentRequester = requesterList.get(requesterList.size() - 1);
 
+                                // if the user is the most recent requester of a book and the request has been accepted
+                                // send a notification
                                 assert status != null;
                                 if (status.equals("Accepted") && recentRequester.equals(user.getDisplayName())) {
                                     Log.d(TAG, "the requester is " + recentRequester);
@@ -401,23 +401,31 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     }
 
     //     Create a Notification Channel for the notification to go through
+    //     Important for proper notification display
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
+            CharSequence name = getString(R.string.channel_name);                   // channel name
+            String description = getString(R.string.channel_description); // channel description
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            // Create a new notification channel
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or  other notification behaviours after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
+            // For debugging purposes
             Log.d(TAG, "Notification channel successfully created");
         }
     }
 
+    /**
+     * Function for creating a notification when a request has been accepted
+     * @param bookTitle  Title of the book which was requested
+     * @param bookAuthor Author of the book
+     */
     public void createNotification(String bookTitle, String bookAuthor) {
         // Create the intent for the notification tap action
         Intent intent = new Intent(this, BorrowerHomeActivity.class);

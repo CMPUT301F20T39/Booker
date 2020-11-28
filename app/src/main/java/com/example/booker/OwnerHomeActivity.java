@@ -53,7 +53,7 @@ import java.util.Random;
  * Main hub for Owner's activity
  */
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
-    private static final String TAG = "NOTIF DEBUG";
+    private static final String TAG = "NOTIF DEBUG"; // tag used for debugging purposes
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
@@ -188,8 +188,10 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                 startActivity(goToProfile);
             }
         });
-
+        
+        // Check books owned by the user
         // Check if there is any change in the status of the books
+
         bookCollection
                 .whereEqualTo("ownerEmail", userEmail)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -201,18 +203,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                             return;
                         }
 
-                        // Checking that query works as expected; Can be removed later
-                        List<String> books = new ArrayList<>();
-                        for (QueryDocumentSnapshot doc : snapshots) {
-                            if (doc.get("title") != null) {
-                                books.add(doc.getString("title"));
-                            }
-                        }
-
-                        Log.d(TAG, "Current books owned by " + user.getDisplayName() + " : " + books);
-
                         // See changes since the last snapshot
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            // when document is modified
                             if (dc.getType() == DocumentChange.Type.MODIFIED) {
                                 Log.d(TAG, "Book data" + dc.getDocument().getData());
                                 Log.d(TAG, "Modified book status:" + dc.getDocument().get("status"));
@@ -221,12 +214,19 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                                 final String bookTitle = dc.getDocument().getString("title");
                                 final String bookAuthor = dc.getDocument().getString("author");
 
+                                // Take the array in the firestore and convert it to a list of strings
                                 List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
                                 String recentRequester = "";
+
+                                // if there is at least one requester
+                                // Get the most recent one
+                                assert requesterList != null;
                                 if (!requesterList.isEmpty()) {
                                     recentRequester = requesterList.get(requesterList.size() - 1);
                                 }
 
+                                // If one of the books of the user has been requested,
+                                // send a notification
                                 assert status != null;
                                 if (status.equals("Requested")) {
                                     Log.d(TAG, "the requester is " + recentRequester);
@@ -461,7 +461,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     public void createNotification(String requester, String book, String bookAuthor) {
         // Create the intent for the notification tap action
-        Intent intent = new Intent(this, OwnerRequestsActivity.class);
+        Intent intent = new Intent(this, OwnerHomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
         String textTitle = "Book request";
