@@ -48,6 +48,8 @@
         <activity android:name=".OwnerScanSelect"/>
         <activity android:name=".AccountTypeActivity" />
         <activity android:name=".BorrowerHomeActivity" />
+        <activity android:name=".borrowerScanSelect"
+            android:parentActivityName=".BorrowerHomeActivity"></activity>
         <activity
             android:name=".SignUpActivity"
             android:parentActivityName=".MainActivity" />

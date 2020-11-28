@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.SearchView;
@@ -63,6 +64,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private final String CHANNEL_ID = "Accepted Book Requests";
     private ArrayList<String> filters = new ArrayList<>();
     private TextView listDisplayTextView;
+    private ImageButton scanBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -272,6 +274,18 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        // scanning stuff
+        scanBtn = findViewById(R.id.scanButton);
+
+        // Button takes user to OwnerScanSelect.java
+        scanBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToScanner = new Intent(getApplicationContext(), OwnerScanSelect.class);
+                startActivity(goToScanner);
+            }
+        });
     }
 
     @Override
