@@ -3,6 +3,7 @@ package com.example.booker;
 import android.app.Activity;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -113,8 +114,21 @@ public class OwnerHomeActivityTest {
 		solo.clickOnButton("Delete");
 		assertFalse(solo.searchText("TestBook title"));
 	}
-	
-	
+
+	@Test
+	public void checkBookImage() {
+		solo.assertCurrentActivity("Wrong Activity", OwnerHomeActivity.class);
+		OwnerHomeActivity activity = (OwnerHomeActivity) solo.getCurrentActivity();
+		RecyclerView bookList = activity.rvBookList;
+		BookListAdapter.BookHolder bookHolder = (BookListAdapter.BookHolder) bookList.findViewHolderForAdapterPosition(0);
+		ImageView listImage = bookHolder.imageView;
+		solo.clickOnImage(0);
+		solo.assertCurrentActivity("Wrong Activity", ViewPhotoActivity.class);
+		ViewPhotoActivity newActivity = (ViewPhotoActivity) solo.getCurrentActivity();
+		ImageView image = newActivity.findViewById(R.id.fullImage);
+		assertEquals(listImage.getDrawable(), image.getDrawable());
+
+	}
 	
 	
 	/**
