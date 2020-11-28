@@ -144,18 +144,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
         checkAll();
 
-        // home button stuff
-        final ImageButton homeButton = findViewById(R.id.homeButton);
-
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!listDisplayTextView.getText().toString().equals("Borrower Home")) {
-                    homeScreen();
-                }
-            }
-        });
-
         // set up toolbar
         toolbar = findViewById(R.id.toolbar);
 

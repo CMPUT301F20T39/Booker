@@ -150,10 +150,11 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
         });
 
         if (model.getStatus().equals("Borrowed")) {
-            holder.ownerBookBorrowerName.setText(model.getRequesterList().get(0));
+            String borrowedDisplay = "Borrowed: " + model.getRequesterList().get(0);
+            holder.ownerBookBorrowerName.setText(borrowedDisplay);
         }
         else {
-            holder.ownerBookBorrowerName.setText("None");
+            holder.ownerBookBorrowerName.setText("Borrowed: None");
         }
 
         // hide location button if not set
