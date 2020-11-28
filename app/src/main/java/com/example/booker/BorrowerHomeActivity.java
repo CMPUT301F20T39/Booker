@@ -249,11 +249,16 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                                 final String bookTitle = dc.getDocument().getString("title");
                                 final String bookAuthor = dc.getDocument().getString("author");
 
-                                // requesterList is an array in firestore
-                                // Take the array and cast it into a list of strings
-                                // then take the most recent requester
+                                // Take the array in the firestore and convert it to a list of strings
                                 List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = requesterList.get(requesterList.size() - 1);
+                                String recentRequester = "";
+
+                                // if there is at least one requester
+                                // Get the most recent one
+                                assert requesterList != null;
+                                if (!requesterList.isEmpty()) {
+                                    recentRequester = requesterList.get(requesterList.size() - 1);
+                                }
 
                                 // if the user is the most recent requester of a book and the request has been accepted
                                 // send a notification
