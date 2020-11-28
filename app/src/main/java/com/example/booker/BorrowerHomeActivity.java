@@ -351,7 +351,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private void showAllAvailable() {
         // query user's requested books
         Query query = firebaseFirestore.collection("Books")
-                .whereNotEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", Arrays.asList("Available", "Requested"));
 
         // build recyclerOptions object from query (used in place of a list of objects)
@@ -367,7 +366,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private void showSearchedAvailable() {
         // query user's requested books
         Query query = firebaseFirestore.collection("Books")
-                .whereNotEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", Arrays.asList("Available", "Requested"));
 
         // build recyclerOptions object from query (used in place of a list of objects)
