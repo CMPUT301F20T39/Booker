@@ -1,6 +1,7 @@
 package com.example.booker;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -25,12 +27,15 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class barcodeScanner extends AppCompatActivity {
 
@@ -131,12 +136,15 @@ public class barcodeScanner extends AppCompatActivity {
                                 barcodeData = barcodes.valueAt(0).email.address;
                                 barcodeText.setText(barcodeData);
                                 toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
+                                stopCamera();
+                                checkBookBorrowed(barcodeData);
                             } else {
 
                                 barcodeData = barcodes.valueAt(0).displayValue;
                                 barcodeText.setText(barcodeData);
                                 toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
-
+                                stopCamera();
+                                checkBookBorrowed(barcodeData);
                             }
                         }
                     });
@@ -146,16 +154,73 @@ public class barcodeScanner extends AppCompatActivity {
         });
     }
     
+    private void stopCamera() {
+        cameraSource.stop();
+    }
+    
     private void checkBookBorrowed(String ISBN) {
-        Query query = bookCollection.whereEqualTo("ownerEmail", userEmail).whereEqualTo("ISBN", ISBN);
+        Query query = bookCollection.whereEqualTo("ownerEmail", userEmail).whereEqualTo("ISBN", ISBN).whereEqualTo("status", "Accepted");
         
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        document.getData();
+                        Map<String, Object> book = document.getData();
+                        List<String> requesterList = (List<String>) book.get("requesterList");
+                        if (requesterList.size() > 0) {
+                            String borrower = requesterList.get(0);
+                            // from here https://stackoverflow.com/questions/2115758/how-do-i-display-an-alert-dialog-on-android
+                            new AlertDialog.Builder(barcodeScanner.this)
+                                    .setTitle("Hand book to this user?")
+                                    .setMessage(borrower)
+            
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                    
+                                        }
+                                    })
+            
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                    
+                                        }
+                                    })
+                                    .show();
+                        } else {
+                            new AlertDialog.Builder(barcodeScanner.this)
+                                    .setTitle("No requests on this book")
+                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            finish();
+                                        }
+                                    })
+                                    .show();
+                        }
+                        
                     }
+                    new AlertDialog.Builder(barcodeScanner.this)
+                            .setTitle("This book has no accepted requests")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
+                            .show();
+                } else {
+                    new AlertDialog.Builder(barcodeScanner.this)
+                            .setTitle("This book has no accepted requests")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
+                            .show();
                 }
             }
         });
