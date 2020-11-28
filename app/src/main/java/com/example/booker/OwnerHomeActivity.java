@@ -251,11 +251,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // scanning stuff
         scanBtn = findViewById(R.id.scanButton);
 
-        // Button takes user to user_profile.java
+        // Button takes user to OwnerScanSelect.java
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToScanner = new Intent(getApplicationContext(), barcodeScanner.class);
+                Intent goToScanner = new Intent(getApplicationContext(), OwnerScanSelect.class);
                 startActivity(goToScanner);
             }
         });
