@@ -26,7 +26,9 @@ import java.util.HashMap;
 
 public class ViewPhotoActivity extends AppCompatActivity {
     private Book book;
+    private String type;
     private ImageView imageView;
+    private Button deleteBtn;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageRef;
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -38,6 +40,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_photo);
 
         book = (Book) getIntent().getSerializableExtra("Book");
+        type = getIntent().getStringExtra("Type");
 
         // set up toolbar
         Toolbar toolbar = findViewById(R.id.toolbar6);
@@ -53,8 +56,34 @@ public class ViewPhotoActivity extends AppCompatActivity {
         });
         myToolbar.setTitle(book.getTitle());
 
+        deleteBtn = findViewById(R.id.deletePhotoBtn);
+        final CollectionReference collection = db.collection("Books");
+        final HashMap<String, Object> map = new HashMap<>();
+        map.put("imageURI", "");
+        if (type.compareTo("borrower") == 0) {
+            storageRef = storage.getReference(book.getOwnerUsername() + "/" + book.getTitle());
+            deleteBtn.setClickable(false);
+            deleteBtn.setVisibility(View.GONE);
+        }
+        else if (type.compareTo("owner") == 0) {
+            storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
+            deleteBtn.setClickable(true);
+            deleteBtn.setVisibility(View.VISIBLE);
+            deleteBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    book.setImageURI("");
+                    collection.document(book.getUID()).update(map);
+                    storageRef.delete();
+                    imageView.setImageResource(R.drawable.defaultphoto);
+                    deleteBtn.setAlpha(0.9f);
+                    deleteBtn.setEnabled(false);
+                }
+            });
+        }
+
+        // Code for loading photo into the imageView
         imageView = findViewById(R.id.fullImage);
-        storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
         try {
             final File file = File.createTempFile(book.getTitle(), "jpg");
             storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -68,19 +97,6 @@ public class ViewPhotoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        final CollectionReference collection = db.collection("Books");
-        final HashMap<String, Object> map = new HashMap<>();
-        map.put("imageURI", "");
-        Button deleteBtn = findViewById(R.id.deletePhotoBtn);
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                book.setImageURI("");
-                collection.document(book.getUID()).update(map);
-                storageRef.delete();
-                imageView.setImageResource(R.drawable.defaultphoto);
-            }
-        });
-
     }
+
 }

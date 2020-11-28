@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -61,6 +62,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     public RecyclerView rvBookList;
     Uri image;
     private ImageView imageView;
+    private ImageButton profileBtn;
     private Book book;
     private final static int REQUEST_CODE = 111;
     HashMap<String, Object> imgString = new HashMap<>();
@@ -175,7 +177,21 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             }
         });
 
+        // profile button takes user to view/edit their profile
+        profileBtn = findViewById(R.id.ownerProfile);
+        profileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfile = new Intent(getApplicationContext(), user_profile.class);
+                goToProfile.putExtra("profileType", "EDIT");
+                goToProfile.putExtra("profileEmail", user.getEmail());
+                startActivity(goToProfile);
+            }
+        });
+        
         // Check books owned by the user
+        // Check if there is any change in the status of the books
+
         bookCollection
                 .whereEqualTo("ownerEmail", userEmail)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -265,6 +281,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
     public void showPhoto(Book book) {
         Intent goToPhoto = new Intent(getApplicationContext(), ViewPhotoActivity.class);
         goToPhoto.putExtra("Book", book);
+        goToPhoto.putExtra("Type", "owner");
         startActivity(goToPhoto);
     }
 
@@ -444,7 +461,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
 
     public void createNotification(String requester, String book, String bookAuthor) {
         // Create the intent for the notification tap action
-        Intent intent = new Intent(this, OwnerRequestsActivity.class);
+        Intent intent = new Intent(this, OwnerHomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
         String textTitle = "Book request";
