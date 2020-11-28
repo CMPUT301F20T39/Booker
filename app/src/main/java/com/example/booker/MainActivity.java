@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // validate password length
-                if (Password.length() < 5) {
+                if (Password.length() < 6) {
                     password.setError("Password Must Be >= 6 Characters");
                     return;
                 }
