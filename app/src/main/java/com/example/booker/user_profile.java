@@ -137,9 +137,13 @@ public class user_profile extends AppCompatActivity {
                 data.put("name", nameEditText.getText().toString());
                 data.put("email", newEmail);
                 data.put("phone", phoneEditText.getText().toString());
+                data.put("username", textViewUsername.getText().toString());
 
-                // update in Users on firestore
-                db.collection("Users").document(firebaseUser.getEmail()).set(data);
+                // add new user with old information but new email
+                db.collection("Users").document(newEmail).set(data);
+
+                // delete old user with old email
+                db.collection("Users").document(profileEmail).delete();
 
                 // update email for FiresbaseAuth
                 firebaseUser.updateEmail(emailEditText.getText().toString());
