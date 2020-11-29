@@ -68,11 +68,11 @@ public class user_profile extends AppCompatActivity {
         final EditText nameEditText = findViewById(R.id.editTextName);
         final EditText emailEditText = findViewById(R.id.editTextEmail);
         final EditText phoneEditText = findViewById(R.id.editTextPhone);
-        final EditText usernameEditText = findViewById(R.id.editTextUsername);
+        final TextView textViewUsername = findViewById(R.id.textViewUsername);
 
         // get passed access type and email
         String profileType = getIntent().getStringExtra("profileType");
-        String profileEmail = getIntent().getStringExtra("profileEmail");
+        final String profileEmail = getIntent().getStringExtra("profileEmail");
 
         // disable editing if read only
         if (profileType.equals("READ_ONLY")) {
@@ -80,11 +80,10 @@ public class user_profile extends AppCompatActivity {
             nameEditText.setInputType(InputType.TYPE_NULL);
             emailEditText.setInputType(InputType.TYPE_NULL);
             phoneEditText.setInputType(InputType.TYPE_NULL);
-            usernameEditText.setInputType(InputType.TYPE_NULL);
         }
 
         // access user's document
-        Query query = db.collection("Users")
+        final Query query = db.collection("Users")
                 .whereEqualTo("email", profileEmail);
 
         // set edit text to current values
@@ -95,7 +94,7 @@ public class user_profile extends AppCompatActivity {
                     nameEditText.setText(documentSnapshot.getString("name"));
                     emailEditText.setText(documentSnapshot.getString("email"));
                     phoneEditText.setText(documentSnapshot.getString("phone"));
-                    usernameEditText.setText(documentSnapshot.getString("username"));
+                    textViewUsername.setText(documentSnapshot.getString("username"));
                 }
             }
         });
@@ -105,23 +104,49 @@ public class user_profile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 HashMap<String, String> data = new HashMap<>();
-                data.put("name", nameEditText.getText().toString());
-                data.put("email", emailEditText.getText().toString());
-                data.put("phone", phoneEditText.getText().toString());
-                data.put("username", usernameEditText.getText().toString());
+                final String newEmail = emailEditText.getText().toString();
 
-                // update in Users on firestore
-                db.collection("Users").document(firebaseUser.getEmail()).set(data);
+                // search books for old email and change to new email
+                Query queryBooks = db.collection("Books")
+                        .whereEqualTo("ownerEmail", profileEmail);
+                queryBooks.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
+                            db.collection("Books")
+                                    .document(documentSnapshot.getId())
+                                    .update("ownerEmail", newEmail);
+                        }
+                    }
+                });
+
+                // search requests for old email and change to new email
+                Query queryRequests = db.collection("Requests")
+                        .whereEqualTo("ownerEmail", profileEmail);
+                queryRequests.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
+                            db.collection("Requests")
+                                    .document(documentSnapshot.getId())
+                                    .update("ownerEmail", newEmail);
+                        }
+                    }
+                });
+
+                data.put("name", nameEditText.getText().toString());
+                data.put("email", newEmail);
+                data.put("phone", phoneEditText.getText().toString());
+                data.put("username", textViewUsername.getText().toString());
+
+                // add new user with old information but new email
+                db.collection("Users").document(newEmail).set(data);
+
+                // delete old user with old email
+                db.collection("Users").document(profileEmail).delete();
 
                 // update email for FiresbaseAuth
                 firebaseUser.updateEmail(emailEditText.getText().toString());
-
-                // Update the DisplayName for FirebaseAuth
-                UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(usernameEditText.getText().toString())
-                        .build();
-
-                firebaseUser.updateProfile(profileChangeRequest);
 
                 finish();
             }
