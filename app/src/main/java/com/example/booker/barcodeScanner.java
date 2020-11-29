@@ -68,8 +68,8 @@ public class barcodeScanner extends AppCompatActivity {
         toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC,     100);
         surfaceView = findViewById(R.id.surface_view);
         barcodeText = findViewById(R.id.barcode_text);
-        name = findViewById(R.id.name);
-        author = findViewById(R.id.author);
+        //name = findViewById(R.id.name);
+        //author = findViewById(R.id.author);
         
         // Grabs the type of scan this activity is doing
         scanType = getIntent().getExtras().getString("ScanType");
