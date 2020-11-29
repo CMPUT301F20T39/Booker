@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.text.InputType;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,7 +20,9 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.booker.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -31,6 +35,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.auth.User;
+import com.google.firebase.firestore.model.Document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,14 +48,9 @@ import java.util.List;
  */
 public class user_profile extends AppCompatActivity {
 
-    private String userID, userEmail;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    private FirebaseAuth firebaseAuth;
-    private TextView name, email, phone;
     private Button saveBtn;
-    private List<String> s;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,18 +104,37 @@ public class user_profile extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HashMap<String, String> data = new HashMap<>();
-                final String newEmail = emailEditText.getText().toString();
+                String username = textViewUsername.getText().toString();
+                String name = nameEditText.getText().toString();
+                final String email = emailEditText.getText().toString();
+                String phone = phoneEditText.getText().toString();
 
-                data.put("name", nameEditText.getText().toString());
-                data.put("email", newEmail);
-                data.put("phone", phoneEditText.getText().toString());
-                data.put("username", textViewUsername.getText().toString());
+                if (name.isEmpty()) {
+                    nameEditText.setError("Name field is empty");
+                    return;
+                }
+
+                if (!(Patterns.EMAIL_ADDRESS.matcher(email).matches())) {
+                    emailEditText.setError("Email is wrong format");
+                    return;
+                }
+                if (phone.length() != 10) {
+                    phoneEditText.setError("Phone number must be exactly 10 digits");
+                    return;
+                }
+
+                HashMap<String, String> data = new HashMap<>();
+
+                data.put("name", name);
+                data.put("email", email);
+                data.put("phone", phone);
+                data.put("username", username);
 
                 // add new user with with input information or update user (email not modified)
-                db.collection("Users").document(newEmail).set(data);
+                db.collection("Users").document(email).set(data);
 
-                if (!newEmail.equals(profileEmail)) {
+                // email is different from old email
+                if (!email.equals(profileEmail)) {
                     // search books for old email and change to new email
                     Query queryBooks = db.collection("Books")
                             .whereEqualTo("ownerEmail", profileEmail);
@@ -124,7 +144,7 @@ public class user_profile extends AppCompatActivity {
                             for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
                                 db.collection("Books")
                                         .document(documentSnapshot.getId())
-                                        .update("ownerEmail", newEmail);
+                                        .update("ownerEmail", email);
                             }
                         }
                     });
@@ -138,21 +158,17 @@ public class user_profile extends AppCompatActivity {
                             for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
                                 db.collection("Requests")
                                         .document(documentSnapshot.getId())
-                                        .update("ownerEmail", newEmail);
+                                        .update("ownerEmail", email);
                             }
                         }
                     });
 
+                    // update email for FiresbaseAuth
+                    firebaseUser.updateEmail(email);
+
                     // delete old user with old email
                     db.collection("Users").document(profileEmail).delete();
-
-                    // update email for FiresbaseAuth
-                    firebaseUser.updateEmail(emailEditText.getText().toString());
                 }
-
-
-
-
                 finish();
             }
         });
