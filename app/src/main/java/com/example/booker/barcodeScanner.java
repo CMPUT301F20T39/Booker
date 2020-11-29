@@ -52,6 +52,7 @@ public class barcodeScanner extends AppCompatActivity {
     private String userEmail = user.getEmail();
     private CollectionReference bookCollection = db.collection("Books");
     private String scanType;
+    private boolean bookCheck;
 
 
 
@@ -165,7 +166,9 @@ public class barcodeScanner extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    bookCheck = false;
                     for (QueryDocumentSnapshot document : task.getResult()) {
+                        bookCheck = true;
                         Map<String, Object> book = document.getData();
                         List<String> requesterList = (List<String>) book.get("requesterList");
                         if (requesterList.size() > 0) {
@@ -178,14 +181,20 @@ public class barcodeScanner extends AppCompatActivity {
                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                    
+                                            // TODO: Change book status depending on scanType variable
+                                            // 4 scanTypes: OwnerHandOver, OwnerReceive, BorrowerHandOver, BorrowerReceive
+                                            if (scanType.equals("OwnerHandOver")) {
+                                                document.ref.path.update("status", "Borrowed");
+                                            }
+                                            
                                         }
                                     })
             
                                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                    
+                                            
+                                            finish();
                                         }
                                     })
                                     .show();
@@ -202,15 +211,17 @@ public class barcodeScanner extends AppCompatActivity {
                         }
                         
                     }
-                    new AlertDialog.Builder(barcodeScanner.this)
-                            .setTitle("This book has no accepted requests")
-                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            })
-                            .show();
+                    if (!bookCheck) {
+                        new AlertDialog.Builder(barcodeScanner.this)
+                                .setTitle("This book has no accepted requests")
+                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                    }
+                                })
+                                .show();
+                    }
                 } else {
                     new AlertDialog.Builder(barcodeScanner.this)
                             .setTitle("This book has no accepted requests")
