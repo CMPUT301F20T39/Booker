@@ -100,7 +100,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
         holder.ISBNTextView.setText(model.getISBN());
         holder.ownerUsernameTextView.setText(model.getOwnerUsername());
         holder.statusTextView.setText(model.getStatus());
-        StorageReference storageRef = storage.getReference(model.getOwnerUsername() + "/" + model.getTitle());
+        StorageReference storageRef = storage.getReference(model.getOwnerUsername() + "/" + model.getUID());
 
         // unhide non-dummy book objects
         if (!model.getStatus().equals("")) {
@@ -136,7 +136,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
             model.setImageURI("");
         if (!model.getImageURI().isEmpty())
             try {
-                final File file = File.createTempFile(model.getTitle(), "jpg");
+                final File file = File.createTempFile(model.getUID(), "jpg");
                 storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
@@ -175,6 +175,10 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
 
                 // set book's status to requested
                 firebaseFirestore.collection("Books").document(UID).set(data);
+
+                // For notifications purposes
+                data.put("notified", false);
+                firebaseFirestore.collection("Requests").document(model.getTitle()).set(data);
             }
         });
 

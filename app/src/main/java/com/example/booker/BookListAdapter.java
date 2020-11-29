@@ -76,7 +76,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
     @Override
     protected void onBindViewHolder(@NonNull final BookListAdapter.BookHolder holder, final int position, @NonNull final Book model) {
         final String UID = model.getUID();
-        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + model.getTitle());
+        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + model.getUID());
 
         // set texts to their values
         holder.titleView.setText(model.getTitle());
@@ -87,7 +87,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
             model.setImageURI("");
         if (!model.getImageURI().isEmpty())
             try {
-                final File file = File.createTempFile(model.getTitle(), "jpg");
+                final File file = File.createTempFile(model.getUID(), "jpg");
                 storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
@@ -150,10 +150,11 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
         });
 
         if (model.getStatus().equals("Borrowed")) {
-            holder.ownerBookBorrowerName.setText(model.getRequesterList().get(0));
+            String borrowedDisplay = "Borrowed: " + model.getRequesterList().get(0);
+            holder.ownerBookBorrowerName.setText(borrowedDisplay);
         }
         else {
-            holder.ownerBookBorrowerName.setText("None");
+            holder.ownerBookBorrowerName.setText("Borrowed: None");
         }
 
         // hide location button if not set

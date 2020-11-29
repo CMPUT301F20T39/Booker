@@ -61,12 +61,12 @@ public class ViewPhotoActivity extends AppCompatActivity {
         final HashMap<String, Object> map = new HashMap<>();
         map.put("imageURI", "");
         if (type.compareTo("borrower") == 0) {
-            storageRef = storage.getReference(book.getOwnerUsername() + "/" + book.getTitle());
+            storageRef = storage.getReference(book.getOwnerUsername() + "/" + book.getUID());
             deleteBtn.setClickable(false);
             deleteBtn.setVisibility(View.GONE);
         }
         else if (type.compareTo("owner") == 0) {
-            storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
+            storageRef = storage.getReference(user.getDisplayName() + "/" + book.getUID());
             deleteBtn.setClickable(true);
             deleteBtn.setVisibility(View.VISIBLE);
             deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -85,7 +85,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
         // Code for loading photo into the imageView
         imageView = findViewById(R.id.fullImage);
         try {
-            final File file = File.createTempFile(book.getTitle(), "jpg");
+            final File file = File.createTempFile(book.getUID(), "jpg");
             storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {

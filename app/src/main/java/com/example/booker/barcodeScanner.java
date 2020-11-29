@@ -55,7 +55,9 @@ public class barcodeScanner extends AppCompatActivity {
     private String userEmail = user.getEmail();
     private CollectionReference bookCollection = db.collection("Books");
     private String scanType;
+
     private boolean bookCheck;
+
 
 
 
@@ -66,6 +68,8 @@ public class barcodeScanner extends AppCompatActivity {
         toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC,     100);
         surfaceView = findViewById(R.id.surface_view);
         barcodeText = findViewById(R.id.barcode_text);
+        name = findViewById(R.id.name);
+        author = findViewById(R.id.author);
         
         // Grabs the type of scan this activity is doing
         scanType = getIntent().getExtras().getString("ScanType");
@@ -118,6 +122,8 @@ public class barcodeScanner extends AppCompatActivity {
         });
 
 
+
+
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
@@ -146,6 +152,7 @@ public class barcodeScanner extends AppCompatActivity {
 
                                 barcodeData = barcodes.valueAt(0).displayValue;
                                 barcodeText.setText(barcodeData);
+                                checkBookBorrowed(barcodeData);
                                 toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
                                 stopCamera();
                                 checkBookBorrowed(barcodeData);
@@ -171,6 +178,7 @@ public class barcodeScanner extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     bookCheck = false;
                     for (QueryDocumentSnapshot document : task.getResult()) {
+
                         final String bookID = document.getId();
                         bookCheck = true;
                         Map<String, Object> book = document.getData();
@@ -216,6 +224,9 @@ public class barcodeScanner extends AppCompatActivity {
                                     .show();
                         }
                         
+
+                        
+
                     }
                     if (!bookCheck) {
                         new AlertDialog.Builder(barcodeScanner.this)
