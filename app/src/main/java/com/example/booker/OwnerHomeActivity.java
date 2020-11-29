@@ -188,6 +188,8 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                             final String bookAuthor = doc.getString("author");
                             final boolean notified = doc.getBoolean("notified");
 
+                            Log.d(TAG, doc.getData().toString());
+
                             // Take the array in the firestore and convert it to a list of strings
                             List<String> requesterList = (List<String>) doc.get("requesterList");
                             String recentRequester = "";
@@ -208,49 +210,45 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                                 Log.d(TAG, "Requested book title is " + bookTitle);
                                 createNotification(recentRequester, bookTitle, bookAuthor);
 
-                                Map<String, Object> data = doc.getData();
-                                data.put("notified", true);
+                                requestsCollection.document(bookTitle).update("notified",true);
                             }
                         }
 
                         // See changes since the last snapshot
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            // when document is modified
-                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
-                                Log.d(TAG, "Book data" + dc.getDocument().getData());
-
-                                final String status = dc.getDocument().getString("status");
-                                final String bookTitle = dc.getDocument().getString("title");
-                                final String bookAuthor = dc.getDocument().getString("author");
-                                final boolean notified = dc.getDocument().getBoolean("notified");
-
-                                // Take the array in the firestore and convert it to a list of strings
-                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = "";
-
-                                // if there is at least one requester
-                                // Get the most recent one
-                                assert requesterList != null;
-                                if (!requesterList.isEmpty()) {
-                                    recentRequester = requesterList.get(requesterList.size() - 1);
-                                }
-
-                                // If one of the books of the user has been requested,
-                                // send a notification
-                                assert status != null;
-                                if (status.equals("Accepted") && !notified) {
-                                    // For debugging purposes, make sure that we are getting the right data
-                                    Log.d(TAG, "the requester is " + recentRequester);
-                                    Log.d(TAG, "Requested book title is " + bookTitle);
-                                    createNotification(recentRequester, bookTitle, bookAuthor);
-
-                                    //
-                                    Map<String, Object> data = dc.getDocument().getData();
-                                    data.put("notified", true);
-                                    requestsCollection.document(bookTitle).set(data);
-                                }
-                            }
-                        }
+//                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+//                            // when document is modified
+//                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
+//                                Log.d(TAG, "Book data" + dc.getDocument().getData());
+//
+//                                final String status = dc.getDocument().getString("status");
+//                                final String bookTitle = dc.getDocument().getString("title");
+//                                final String bookAuthor = dc.getDocument().getString("author");
+//                                final boolean notified = dc.getDocument().getBoolean("notified");
+//
+//                                // Take the array in the firestore and convert it to a list of strings
+//                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
+//                                String recentRequester = "";
+//
+//                                // if there is at least one requester
+//                                // Get the most recent one
+//                                assert requesterList != null;
+//                                if (!requesterList.isEmpty()) {
+//                                    recentRequester = requesterList.get(requesterList.size() - 1);
+//                                }
+//
+//                                // If one of the books of the user has been requested,
+//                                // send a notification
+//                                assert status != null;
+//                                if (status.equals("Accepted") && notified) {
+//                                    // For debugging purposes, make sure that we are getting the right data
+//                                    Log.d(TAG, "the requester is " + recentRequester);
+//                                    Log.d(TAG, "Requested book title is " + bookTitle);
+//                                    requestsCollection.document(bookTitle).update("notified",true);
+//
+//                                    createNotification(recentRequester, bookTitle, bookAuthor);
+//                                }
+//                            }
+//                        }
                     }
                 });
 
