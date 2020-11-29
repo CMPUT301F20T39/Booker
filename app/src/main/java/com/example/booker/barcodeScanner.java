@@ -374,7 +374,7 @@ public class barcodeScanner extends AppCompatActivity {
     }
 
     private void checkOwnerReceived(String ISBN) {
-        Query query = bookCollection.whereEqualTo("ownerEmail", userEmail).whereEqualTo("ISBN", ISBN).whereEqualTo("status", "Returned");
+        Query query = bookCollection.whereEqualTo("ownerEmail", userEmail).whereEqualTo("ISBN", ISBN).whereEqualTo("status", "Borrowed");
 
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
