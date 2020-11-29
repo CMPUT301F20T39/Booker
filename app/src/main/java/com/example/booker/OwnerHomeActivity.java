@@ -308,7 +308,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
+        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + book.getUID());
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null)
             image = data.getData();
