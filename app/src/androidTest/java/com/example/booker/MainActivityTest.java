@@ -60,6 +60,17 @@ public class MainActivityTest {
 	@Test
 	public void checkInvalidSignIn(){
 		solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
+
+		solo.clickOnButton("Sign In");
+		assertTrue(solo.waitForActivity(MainActivity.class));
+
+		solo.enterText((EditText) solo.getView(R.id.usernameEditText), "intent@test.com");
+		solo.enterText((EditText) solo.getView(R.id.passwordEditText), "1234");
+		solo.clickOnButton("Sign In");
+		assertTrue(solo.waitForActivity(MainActivity.class));
+
+		solo.clearEditText((EditText) solo.getView(R.id.usernameEditText));
+		solo.clearEditText((EditText) solo.getView(R.id.passwordEditText));
 		
 		solo.enterText((EditText) solo.getView(R.id.usernameEditText), "not a username");
 		solo.enterText((EditText) solo.getView(R.id.passwordEditText), "not a password");

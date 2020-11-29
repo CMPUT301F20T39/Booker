@@ -3,6 +3,7 @@ package com.example.booker;
 import android.app.Activity;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -113,8 +114,34 @@ public class OwnerHomeActivityTest {
 		solo.clickOnButton("Delete");
 		assertFalse(solo.searchText("TestBook title"));
 	}
-	
-	
+
+	/**
+	 * Changes user information on edit profile page and saves
+	 * Opens edit profile page once more to make sure profile was updated correctly
+	 */
+	@Test
+	public void checkEditProfile() {
+		solo.assertCurrentActivity("Wrong Activity", OwnerHomeActivity.class);
+		solo.clickOnImageButton(4);
+		solo.assertCurrentActivity("Wrong Activity", user_profile.class);
+		EditText name = solo.getEditText(0);
+		EditText email = solo.getEditText(1);
+		EditText phone = solo.getEditText(2);
+		solo.clearEditText(name);
+		solo.clearEditText(email);
+		solo.clearEditText(phone);
+		solo.enterText(name, "Tester");
+		solo.enterText(email, "intent@test.com");
+		solo.enterText(phone, "1234567890");
+		solo.clickOnButton("Save");
+		solo.assertCurrentActivity("Wrong Activity", OwnerHomeActivity.class);
+		solo.clickOnImageButton(3);
+		solo.assertCurrentActivity("Wrong Activity", user_profile.class);
+		assertEquals("Tester", name.getText().toString());
+		assertEquals("intent@test.com", email.getText().toString());
+		assertEquals("1234567890", phone.getText().toString());
+
+	}
 	
 	
 	/**

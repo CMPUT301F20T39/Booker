@@ -61,12 +61,12 @@ public class ViewPhotoActivity extends AppCompatActivity {
         final HashMap<String, Object> map = new HashMap<>();
         map.put("imageURI", "");
         if (type.compareTo("borrower") == 0) {
-            storageRef = storage.getReference(book.getOwnerUsername() + "/" + book.getTitle());
+            storageRef = storage.getReference(book.getOwnerUsername() + "/" + book.getUID());
             deleteBtn.setClickable(false);
             deleteBtn.setVisibility(View.GONE);
         }
         else if (type.compareTo("owner") == 0) {
-            storageRef = storage.getReference(user.getDisplayName() + "/" + book.getTitle());
+            storageRef = storage.getReference(user.getDisplayName() + "/" + book.getUID());
             deleteBtn.setClickable(true);
             deleteBtn.setVisibility(View.VISIBLE);
             deleteBtn.setOnClickListener(new View.OnClickListener() {
