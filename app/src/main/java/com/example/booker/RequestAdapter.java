@@ -94,6 +94,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
                 HashMap<String, Object> data = book.getDataHashMap();
                 db.collection("Books").document(book.getUID()).set(data);
                 nameList.remove(username);
+
+                // remove the book from the requests collection
+                db.collection("Requests").document(book.getTitle()).delete();
                 notifyDataSetChanged();
             }
         });

@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.SearchView;
@@ -63,6 +64,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private final String CHANNEL_ID = "Accepted Book Requests";
     private ArrayList<String> filters = new ArrayList<>();
     private TextView listDisplayTextView;
+    private ImageButton scanBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,18 +143,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
 
         checkAll();
-
-        // home button stuff
-        final ImageButton homeButton = findViewById(R.id.homeButton);
-
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!listDisplayTextView.getText().toString().equals("Borrower Home")) {
-                    homeScreen();
-                }
-            }
-        });
 
         // set up toolbar
         toolbar = findViewById(R.id.toolbar);
@@ -249,11 +239,16 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                                 final String bookTitle = dc.getDocument().getString("title");
                                 final String bookAuthor = dc.getDocument().getString("author");
 
-                                // requesterList is an array in firestore
-                                // Take the array and cast it into a list of strings
-                                // then take the most recent requester
+                                // Take the array in the firestore and convert it to a list of strings
                                 List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = requesterList.get(requesterList.size() - 1);
+                                String recentRequester = "";
+
+                                // if there is at least one requester
+                                // Get the most recent one
+                                assert requesterList != null;
+                                if (!requesterList.isEmpty()) {
+                                    recentRequester = requesterList.get(requesterList.size() - 1);
+                                }
 
                                 // if the user is the most recent requester of a book and the request has been accepted
                                 // send a notification
@@ -267,6 +262,18 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        // scanning stuff
+        scanBtn = findViewById(R.id.scanButton);
+
+        // Button takes user to OwnerScanSelect.java
+        scanBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToScanner = new Intent(getApplicationContext(), OwnerScanSelect.class);
+                startActivity(goToScanner);
+            }
+        });
     }
 
     @Override
@@ -285,6 +292,13 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         searchView.clearFocus();
+    }
+
+    public void viewPhoto(Book book) {
+        Intent goToPhoto = new Intent(getApplicationContext(), ViewPhotoActivity.class);
+        goToPhoto.putExtra("Book", book);
+        goToPhoto.putExtra("Type", "borrower");
+        startActivity(goToPhoto);
     }
 
     private void setUpAdapter() {
@@ -344,12 +358,23 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private void showAllAvailable() {
         // query user's requested books
         Query query = firebaseFirestore.collection("Books")
-                .whereNotEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", Arrays.asList("Available", "Requested"));
 
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(query, Book.class)
+                .setQuery(query, new SnapshotParser<Book>() {
+                    @NonNull
+                    @Override
+                    public Book parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        Book book = snapshot.toObject(Book.class);
+                        // check for user's books and return a dummy book object
+                        if (book.getOwnerUsername().equals(user.getDisplayName())) {
+                            return new Book("", "", "", "");
+                        }
+                        // else, return the book regularly
+                        return book;
+                    }
+                })
                 .build()
                 ;
 
@@ -360,7 +385,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
     private void showSearchedAvailable() {
         // query user's requested books
         Query query = firebaseFirestore.collection("Books")
-                .whereNotEqualTo("ownerUsername", user.getDisplayName())
                 .whereIn("status", Arrays.asList("Available", "Requested"));
 
         // build recyclerOptions object from query (used in place of a list of objects)
@@ -370,16 +394,14 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                     @Override
                     public Book parseSnapshot(@NonNull DocumentSnapshot snapshot) {
                         Book book = snapshot.toObject(Book.class);
-                        // parse book for partial title match
-                        if (book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                            return book;
-                        }
-                        // parse book for partial author match
-                        else if (book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase())) {
-                            return book;
-                        }
-                        // parse book for partial ISBN match
-                        else if (book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
+                        // check for user's books and return a dummy book object
+                        if (book.getOwnerUsername().equals(user.getDisplayName())) {
+                            return new Book("", "", "", "");
+                        } // parse book for partial title, description or ISBN match
+                        else if (book.getTitle().toLowerCase().contains(searchView.getQuery().toString().toLowerCase()) ||
+                                book.getAuthor().toLowerCase().contains(searchView.getQuery().toString().toLowerCase()) ||
+                                book.getISBN().toLowerCase().contains(searchView.getQuery().toString())) {
+                            // return book regularly
                             return book;
                         }
                         // no matches, return a dummy book object

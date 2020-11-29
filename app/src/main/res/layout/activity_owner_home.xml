@@ -62,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                android:text="requested" />
+                android:text="Requested" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/acceptedBttn"
@@ -70,7 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                android:text="accepted" />
+                android:text="Accepted" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/borrowedBttn"
@@ -78,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                android:text="borrowed" />
+                android:text="Borrowed" />
         </com.google.android.material.chip.ChipGroup>
     </android.widget.HorizontalScrollView>
 
@@ -109,9 +109,26 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginTop="6dp"
+        android:layout_marginEnd="48dp"
         android:backgroundTint="#00FFFFFF"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_baseline_qr_code_scanner_24" />
+
+    <ImageButton
+        android:id="@+id/ownerProfile"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="6dp"
+        android:adjustViewBounds="true"
+        android:background="#00FFFFFF"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/homeButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/profile_icon" />
 
 
 </FrameLayout>

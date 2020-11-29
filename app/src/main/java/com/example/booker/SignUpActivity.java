@@ -136,7 +136,7 @@ public class SignUpActivity extends AppCompatActivity {
                 }
 
                 // password should be >= 6
-                if (Password.length() < 5) {
+                if (Password.length() < 6) {
                     password.setError("Password must at least have 6 characters");
                     if (validInput)
                         password.requestFocus();

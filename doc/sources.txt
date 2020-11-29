@@ -24,3 +24,5 @@ https://stackoverflow.com/questions/13646147/hide-row-from-listview-without-taki
 https://www.pngfind.com/mpng/Toiioo_location-clipart-location-pin-office-location-icon-png/
 https://www.youtube.com/watch?v=Ak1O9Gip-pg
 https://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
+For getting images from Firebase storage: https://www.youtube.com/watch?v=sGnazb9RjNs
+https://stackoverflow.com/questions/10748796/android-how-to-limit-width-of-textview-and-add-three-dots-at-the-end-of-text

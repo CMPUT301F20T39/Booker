@@ -32,7 +32,7 @@ import java.util.HashMap;
 
 public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdapter.BookHolder> {
     private int layoutResource;
-    private AppCompatActivity instance;
+    private BorrowerHomeActivity instance;
     private boolean hideButton = true;
     private FirebaseFirestore firebaseFirestore;
     private FirebaseUser user;
@@ -74,7 +74,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
      * @param options
      */
     public BorrowerAdapter(@NonNull FirestoreRecyclerOptions<Book> options,
-                           int layoutResource, AppCompatActivity instance) {
+                           int layoutResource, BorrowerHomeActivity instance) {
         super(options);
         this.layoutResource = layoutResource;
         this.instance = instance;
@@ -131,7 +131,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
             holder.statusTextView.setText("Available"); // available to users not in requester list
         }
 
-        /** Getting images (if they exist) */
+        // Getting images (if they exist)
         if (model.getImageURI() == null)
             model.setImageURI("");
         if (!model.getImageURI().isEmpty())
@@ -149,6 +149,14 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
             }
         else
             holder.bookImage.setImageDrawable(null);
+
+        holder.bookImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!model.getImageURI().isEmpty())
+                    instance.viewPhoto(model);
+            }
+        });
 
         // accessing book and changing its status to "Requested"
         holder.requestButton.setOnClickListener(new View.OnClickListener() {
