@@ -19,6 +19,10 @@
     <string name="add_book_button">Add Book Button</string>
     <string name="title">Title</string>
     <string name="isbn">ISBN</string>
+    <string name="request">Request</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="channel_description">Notifications to Owner when a book is requested</string>
+    <string name="channel_name">Request Notifications</string>
 
 
 </resources>

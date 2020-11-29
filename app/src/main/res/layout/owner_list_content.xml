@@ -17,68 +17,123 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/OwnerBookAuthor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="fill_vertical"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="36dp"
-            android:text="@string/BookAuthor" />
-
-        <TextView
-            android:id="@+id/OwnerBookTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="fill_vertical"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="4dp"
-            android:text="Title"
-            android:textColor="#000000"
-            android:textSize="24sp" />
-
-        <TextView
-            android:id="@+id/OwnerBookStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="fill_vertical"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="76dp"
-            android:paddingBottom="4dp"
-            android:text="@string/BookStatus" />
-
-        <TextView
-            android:id="@+id/OwnerBookISBN"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="fill_vertical"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="56dp"
-            android:text="123-123456789" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/editBook"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="37dp"
-                android:text="Edit" />
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <Button
-                android:id="@+id/deleteBook"
-                android:layout_width="wrap_content"
-                android:layout_height="37dp"
-                android:text="Delete" />
+                <TextView
+                    android:id="@+id/OwnerBookTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_vertical"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="Title"
+                    android:textColor="#000000"
+                    android:textSize="24sp" />
 
-            <Button
-                android:id="@+id/requestsBtn"
+                <TextView
+                    android:id="@+id/OwnerBookAuthor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_vertical"
+                    android:layout_marginStart="4dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="@string/BookAuthor" />
+
+                <TextView
+                    android:id="@+id/OwnerBookStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_vertical"
+                    android:layout_marginStart="4dp"
+                    android:singleLine="true"
+                    android:text="@string/BookStatus" />
+
+                <TextView
+                    android:id="@+id/OwnerBookISBN"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_vertical"
+                    android:layout_marginStart="4dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="123-123456789" />
+
+                <TextView
+                    android:id="@+id/ownerBookBorrowerName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="None" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="37dp"
-                android:text="Requests" />
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="93dp"
+                    android:layout_height="82dp"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/defaultphoto" />
+
+                <ImageButton
+                    android:id="@+id/imageButtonLocation3"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="8dp"
+                    android:backgroundTint="#00FFFFFF"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/location_icon" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/editBook"
+                        android:layout_width="wrap_content"
+                        android:layout_height="37dp"
+                        android:layout_marginTop="4dp"
+                        android:text="Edit" />
+
+                    <Button
+                        android:id="@+id/deleteBook"
+                        android:layout_width="wrap_content"
+                        android:layout_height="37dp"
+                        android:text="Delete" />
+
+                    <Button
+                        android:id="@+id/requestsBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="37dp"
+                        android:text="Requests"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>

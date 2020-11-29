@@ -2,17 +2,31 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/AppTheme"
     tools:context=".BorrowerHomeActivity">
 
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1C54E3"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
+        app:navigationIcon="@drawable/abc_vector_test"
+        app:title="Owner Home"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <android.widget.HorizontalScrollView
         android:id="@+id/BorrowerFilters"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="56dp"
         android:layout_marginBottom="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +44,9 @@
             android:singleLine="true"
             android:theme="@style/Theme.MaterialComponents.Light"
             app:chipSpacing="10dp"
-            app:singleLine="true">
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="false">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/availableBttn"
@@ -46,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                android:text="requested" />
+                android:text="Requested" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/acceptedBttn"
@@ -54,7 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                android:text="accepted" />
+                android:text="Accepted" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/borrowedBttn"
@@ -62,15 +78,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                android:text="borrowed" />
+                android:text="Borrowed" />
         </com.google.android.material.chip.ChipGroup>
     </android.widget.HorizontalScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ownerBookListView"
         android:layout_width="match_parent"
-        android:layout_height="656dp"
-        android:layout_marginTop="74dp">
+        android:layout_height="match_parent"
+        android:layout_marginTop="114dp">
 
     </androidx.recyclerview.widget.RecyclerView>
 
@@ -86,6 +102,33 @@
         android:focusable="true"
         android:src="@android:drawable/ic_input_add"
         app:backgroundTint="#009688" />
+
+    <ImageButton
+        android:id="@+id/scanButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="48dp"
+        android:backgroundTint="#00FFFFFF"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_baseline_qr_code_scanner_24" />
+
+    <ImageButton
+        android:id="@+id/ownerProfile"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="6dp"
+        android:adjustViewBounds="true"
+        android:background="#00FFFFFF"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@+id/homeButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/profile_icon" />
 
 
 </FrameLayout>

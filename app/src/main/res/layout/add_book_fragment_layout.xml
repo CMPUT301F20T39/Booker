@@ -13,10 +13,11 @@
         android:autofillHints="Book Title"
         android:ems="10"
         android:hint="@string/title"
+        android:inputType="text"
         android:padding="18dp"
         android:text=""
-        android:textSize="18sp"
-        android:inputType="text" />
+        android:textIsSelectable="true"
+        android:textSize="18sp" />
 
     <EditText
         android:id="@+id/editTextAuthor"
@@ -29,6 +30,7 @@
         android:padding="16dp"
         android:text=""
 
+        android:textIsSelectable="true"
         android:textSize="18sp" />
 
     <EditText
@@ -40,17 +42,7 @@
         android:importantForAutofill="no"
         android:inputType="number"
         android:padding="16dp"
+        android:textIsSelectable="true"
         android:textSize="18sp" />
-
-    <EditText
-        android:id="@+id/editTextDescr"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/BookDescription"
-        android:inputType="textMultiLine"
-        android:padding="16dp"
-        android:textSize="18sp"
-        android:importantForAutofill="no" />
 
 </LinearLayout>

@@ -1,12 +1,17 @@
 package com.example.booker;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ *  Allows user to switch between Owner activities or Borrower activities
+ */
 public class AccountTypeActivity extends AppCompatActivity {
 
     @Override
@@ -31,6 +36,21 @@ public class AccountTypeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent goToBorrowerHome = new Intent(getApplicationContext(), BorrowerHomeActivity.class);
                 startActivity(goToBorrowerHome);
+            }
+        });
+
+        // set up toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar3);
+        setSupportActionBar(toolbar);
+        ActionBar myToolbar = getSupportActionBar();
+        myToolbar.setTitle("");
+        myToolbar.setDisplayHomeAsUpEnabled(true);
+
+        // toolbar back button
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
