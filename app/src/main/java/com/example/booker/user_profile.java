@@ -106,47 +106,52 @@ public class user_profile extends AppCompatActivity {
                 HashMap<String, String> data = new HashMap<>();
                 final String newEmail = emailEditText.getText().toString();
 
-                // search books for old email and change to new email
-                Query queryBooks = db.collection("Books")
-                        .whereEqualTo("ownerEmail", profileEmail);
-                queryBooks.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
-                            db.collection("Books")
-                                    .document(documentSnapshot.getId())
-                                    .update("ownerEmail", newEmail);
-                        }
-                    }
-                });
-
-                // search requests for old email and change to new email
-                Query queryRequests = db.collection("Requests")
-                        .whereEqualTo("ownerEmail", profileEmail);
-                queryRequests.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
-                            db.collection("Requests")
-                                    .document(documentSnapshot.getId())
-                                    .update("ownerEmail", newEmail);
-                        }
-                    }
-                });
-
                 data.put("name", nameEditText.getText().toString());
                 data.put("email", newEmail);
                 data.put("phone", phoneEditText.getText().toString());
                 data.put("username", textViewUsername.getText().toString());
 
-                // add new user with old information but new email
+                // add new user with with input information or update user (email not modified)
                 db.collection("Users").document(newEmail).set(data);
 
-                // delete old user with old email
-                db.collection("Users").document(profileEmail).delete();
+                if (!newEmail.equals(profileEmail)) {
+                    // search books for old email and change to new email
+                    Query queryBooks = db.collection("Books")
+                            .whereEqualTo("ownerEmail", profileEmail);
+                    queryBooks.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
+                                db.collection("Books")
+                                        .document(documentSnapshot.getId())
+                                        .update("ownerEmail", newEmail);
+                            }
+                        }
+                    });
 
-                // update email for FiresbaseAuth
-                firebaseUser.updateEmail(emailEditText.getText().toString());
+                    // search requests for old email and change to new email
+                    Query queryRequests = db.collection("Requests")
+                            .whereEqualTo("ownerEmail", profileEmail);
+                    queryRequests.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
+                                db.collection("Requests")
+                                        .document(documentSnapshot.getId())
+                                        .update("ownerEmail", newEmail);
+                            }
+                        }
+                    });
+
+                    // delete old user with old email
+                    db.collection("Users").document(profileEmail).delete();
+
+                    // update email for FiresbaseAuth
+                    firebaseUser.updateEmail(emailEditText.getText().toString());
+                }
+
+
+
 
                 finish();
             }
