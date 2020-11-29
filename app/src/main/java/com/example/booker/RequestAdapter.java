@@ -94,6 +94,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
                 HashMap<String, Object> data = book.getDataHashMap();
                 db.collection("Books").document(book.getUID()).set(data);
                 nameList.remove(username);
+
+                // remove the book from the requests collection
+                db.collection("Requests").document(book.getTitle()).delete();
                 notifyDataSetChanged();
             }
         });
@@ -110,6 +113,12 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
 
                 db.collection("Books").document(book.getUID()).set(data);
 
+                // Why is notified false?
+                // Book request has just been accepted and notification has not yet been sent
+                // notified is true only when a notification has been sent.
+                // In this case, the notification is pending
+                db.collection("Requests").document(book.getTitle()).update("status", "Accepted");
+                db.collection("Requests").document(book.getTitle()).update("notified",false);
                 notifyDataSetChanged();
             }
         });

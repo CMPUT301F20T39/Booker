@@ -1,13 +1,5 @@
 package com.example.booker;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -16,11 +8,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.SnapshotParser;
@@ -29,7 +28,6 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -99,11 +97,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b && !filters.contains("Requested")) {
                     filters.add("Requested");
-                }
-                else if (!acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                } else if (!acceptedButton.isChecked() && !borrowedButton.isChecked()) {
                     // crashes without this case
-                }
-                else {
+                } else {
                     filters.remove("Requested");
                 }
                 updateBookFilters();
@@ -115,11 +111,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b && !filters.contains("Accepted")) {
                     filters.add("Accepted");
-                }
-                else if (!requestedButton.isChecked() && !borrowedButton.isChecked()) {
+                } else if (!requestedButton.isChecked() && !borrowedButton.isChecked()) {
                     // crashes without this case
-                }
-                else {
+                } else {
                     filters.remove("Accepted");
                 }
                 updateBookFilters();
@@ -131,11 +125,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (borrowedButton.isChecked() && !filters.contains("Borrowed")) {
                     filters.add("Borrowed");
-                }
-                else if (!requestedButton.isChecked() && !acceptedButton.isChecked()) {
+                } else if (!requestedButton.isChecked() && !acceptedButton.isChecked()) {
                     // crashes without this case
-                }
-                else {
+                } else {
                     filters.remove("Borrowed");
                 }
                 updateBookFilters();
@@ -153,8 +145,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!listDisplayTextView.getText().toString().equals("Borrower Home")) {
                     homeScreen();
-                }
-                else {
+                } else {
                     finish();
                 }
             }
@@ -216,8 +207,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         });
 
         // Checks which requests are not available, i.e requested or accepted
-        bookCollection
-                .whereNotEqualTo("status", "Available")
+        final CollectionReference requestsCollection = firebaseFirestore.collection("Requests");
+        requestsCollection
+                .whereEqualTo("status", "Accepted")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots,
@@ -227,39 +219,75 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // See changes since the last snapshot
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            // If a document has been modified
-                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
-                                // For debugging purposes, show which book has been modified
-                                Log.d(TAG, "Book data" + dc.getDocument().getData());
+                        // for every request in the collection of requests
+                        for (QueryDocumentSnapshot doc : snapshots) {
+                            final String status = doc.getString("status");
+                            final String bookTitle = doc.getString("title");
+                            final String bookAuthor = doc.getString("author");
+                            boolean notified = doc.getBoolean("notified");
 
-                                // Get the status, title, author of the book
-                                final String status = dc.getDocument().getString("status");
-                                final String bookTitle = dc.getDocument().getString("title");
-                                final String bookAuthor = dc.getDocument().getString("author");
+                            Log.d(TAG, "The book in this snapshot is " + bookTitle + " and the status is " + notified);
 
-                                // Take the array in the firestore and convert it to a list of strings
-                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = "";
+                            // Take the array in the firestore and convert it to a list of strings
+                            List<String> requesterList = (List<String>) doc.get("requesterList");
+                            String recentRequester = "";
 
-                                // if there is at least one requester
-                                // Get the most recent one
-                                assert requesterList != null;
-                                if (!requesterList.isEmpty()) {
-                                    recentRequester = requesterList.get(requesterList.size() - 1);
-                                }
+                            // if there is at least one requester
+                            // Get the most recent one
+                            assert requesterList != null;
+                            if (!requesterList.isEmpty()) {
+                                recentRequester = requesterList.get(requesterList.size() - 1);
+                            }
 
-                                // if the user is the most recent requester of a book and the request has been accepted
-                                // send a notification
-                                assert status != null;
-                                if (status.equals("Accepted") && recentRequester.equals(user.getDisplayName())) {
+                            // If one of the books of the user has been requested
+                            // and the owner of the book hasn't been notified yet
+                            // send a notification
+                            assert status != null;
+                            if (requesterList.contains(user.getDisplayName())) {
+                                if (!notified) {
                                     Log.d(TAG, "the requester is " + recentRequester);
                                     Log.d(TAG, "Requested book title is " + bookTitle);
+                                    assert bookTitle != null;
+                                    requestsCollection.document(bookTitle).update("notified", true);
                                     createNotification(bookTitle, bookAuthor);
+                                    requestsCollection.document(bookTitle).delete();
                                 }
                             }
                         }
+
+                        // See changes since the last snapshot
+//                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+//                            // If a document has been modified
+//                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
+//                                // For debugging purposes, show which book has been modified
+//                                Log.d(TAG, "Book data" + dc.getDocument().getData());
+//
+//                                // Get the status, title, author of the book
+//                                final String status = dc.getDocument().getString("status");
+//                                final String bookTitle = dc.getDocument().getString("title");
+//                                final String bookAuthor = dc.getDocument().getString("author");
+//
+//                                // Take the array in the firestore and convert it to a list of strings
+//                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
+//                                String recentRequester = "";
+//
+//                                // if there is at least one requester
+//                                // Get the most recent one
+//                                assert requesterList != null;
+//                                if (!requesterList.isEmpty()) {
+//                                    recentRequester = requesterList.get(requesterList.size() - 1);
+//                                }
+//
+//                                // if the user is the most recent requester of a book and the request has been accepted
+//                                // send a notification
+//                                assert status != null;
+//                                if (status.equals("Accepted") && recentRequester.equals(user.getDisplayName())) {
+//                                    Log.d(TAG, "the requester is " + recentRequester);
+//                                    Log.d(TAG, "Requested book title is " + bookTitle);
+//                                    createNotification(bookTitle, bookAuthor);
+//                                }
+//                            }
+//                        }
                     }
                 });
 
@@ -308,8 +336,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // build recyclerOptions object from query (used in place of a list of objects)
         FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
                 .setQuery(query, Book.class)
-                .build()
-                ;
+                .build();
 
         // initialize adapter and connect to recyclerview
         borrowerAdapter = new BorrowerAdapter(options, R.layout.borrower_search_item, this);
@@ -375,8 +402,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                         return book;
                     }
                 })
-                .build()
-                ;
+                .build();
 
         // update existing query
         borrowerAdapter.updateOptions(options);
@@ -408,8 +434,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                         return new Book("", "", "", "");
                     }
                 })
-                .build()
-                ;
+                .build();
 
         // update existing query
         borrowerAdapter.updateOptions(options);
@@ -438,6 +463,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
     /**
      * Function for creating a notification when a request has been accepted
+     *
      * @param bookTitle  Title of the book which was requested
      * @param bookAuthor Author of the book
      */

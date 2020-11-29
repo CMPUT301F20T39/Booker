@@ -175,6 +175,10 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
 
                 // set book's status to requested
                 firebaseFirestore.collection("Books").document(UID).set(data);
+
+                // For notifications purposes
+                data.put("notified", false);
+                firebaseFirestore.collection("Requests").document(model.getTitle()).set(data);
             }
         });
 

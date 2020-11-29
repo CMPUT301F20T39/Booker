@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -54,18 +55,19 @@ import java.util.Random;
  */
 public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragment.OnFragmentInteractionListener {
     private static final String TAG = "NOTIF DEBUG"; // tag used for debugging purposes
+    private final static int REQUEST_CODE = 111;
+    public RecyclerView rvBookList;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    Uri image;
+    HashMap<String, Object> imgString = new HashMap<>();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference bookCollection = db.collection("Books");
+    private final CollectionReference requestsCollection = db.collection("Requests");
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String userEmail = user.getEmail();
-    private final CollectionReference bookCollection = db.collection("Books");
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    public RecyclerView rvBookList;
-    Uri image;
     private ImageView imageView;
     private ImageButton profileBtn;
     private Book book;
-    private final static int REQUEST_CODE = 111;
-    HashMap<String, Object> imgString = new HashMap<>();
     private ImageButton scanBtn;
     private BookListAdapter bookListAdapter;
     private Chip availableButton;
@@ -103,13 +105,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b &&!filters.contains("Available")) {
+                if (b && !filters.contains("Available")) {
                     filters.add("Available");
-                }
-                else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                } else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
                     // crashes without this case
-                }
-                else {
+                } else {
                     filters.remove("Available");
                 }
                 updateBookFilters();
@@ -121,11 +121,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b && !filters.contains("Requested")) {
                     filters.add("Requested");
-                }
-                else if (!availableButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
+                } else if (!availableButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
                     // crashes without this case
-                }
-                else {
+                } else {
                     filters.remove("Requested");
                 }
                 updateBookFilters();
@@ -137,11 +135,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b && !filters.contains("Accepted")) {
                     filters.add("Accepted");
-                }
-                else if (!availableButton.isChecked() && !requestedButton.isChecked() && !borrowedButton.isChecked()) {
+                } else if (!availableButton.isChecked() && !requestedButton.isChecked() && !borrowedButton.isChecked()) {
                     // crashes without this case
-                }
-                else {
+                } else {
                     filters.remove("Accepted");
                 }
                 updateBookFilters();
@@ -153,11 +149,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (borrowedButton.isChecked() && !filters.contains("Borrowed")) {
                     filters.add("Borrowed");
-                }
-                else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !availableButton.isChecked()) {
+                } else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !availableButton.isChecked()) {
                     // crashes without this case
-                }
-                else {
+                } else {
                     filters.remove("Borrowed");
                 }
                 updateBookFilters();
@@ -190,10 +184,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         });
         
         // Check books owned by the user
-        // Check if there is any change in the status of the books
 
-        bookCollection
-                .whereEqualTo("ownerEmail", userEmail)
+        requestsCollection
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots,
@@ -203,38 +196,74 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                             return;
                         }
 
-                        // See changes since the last snapshot
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            // when document is modified
-                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
-                                Log.d(TAG, "Book data" + dc.getDocument().getData());
-                                Log.d(TAG, "Modified book status:" + dc.getDocument().get("status"));
+                        // for every request in the collection of requests
+                        for (QueryDocumentSnapshot doc : snapshots) {
+                            final String status = doc.getString("status");
+                            final String bookTitle = doc.getString("title");
+                            final String bookAuthor = doc.getString("author");
+                            final boolean notified = doc.getBoolean("notified");
 
-                                final String status = dc.getDocument().getString("status");
-                                final String bookTitle = dc.getDocument().getString("title");
-                                final String bookAuthor = dc.getDocument().getString("author");
+                            Log.d(TAG, "Book in this snapshot is " + bookTitle);
 
-                                // Take the array in the firestore and convert it to a list of strings
-                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-                                String recentRequester = "";
+                            // Take the array in the firestore and convert it to a list of strings
+                            List<String> requesterList = (List<String>) doc.get("requesterList");
+                            String recentRequester = "";
 
-                                // if there is at least one requester
-                                // Get the most recent one
-                                assert requesterList != null;
-                                if (!requesterList.isEmpty()) {
-                                    recentRequester = requesterList.get(requesterList.size() - 1);
-                                }
+                            // if there is at least one requester
+                            // Get the most recent one
+                            assert requesterList != null;
+                            if (!requesterList.isEmpty()) {
+                                recentRequester = requesterList.get(requesterList.size() - 1);
+                            }
 
-                                // If one of the books of the user has been requested,
-                                // send a notification
-                                assert status != null;
-                                if (status.equals("Requested")) {
-                                    Log.d(TAG, "the requester is " + recentRequester);
-                                    Log.d(TAG, "Requested book title is " + bookTitle);
-                                    createNotification(recentRequester, bookTitle, bookAuthor);
-                                }
+                            // If one of the books of the user has been requested
+                            // and the owner of the book hasn't been notified yet
+                            // send a notification
+                            assert status != null;
+                            if (status.equals("Requested") && !notified) {
+                                Log.d(TAG, "the requester is " + recentRequester);
+                                Log.d(TAG, "Requested book title is " + bookTitle);
+                                requestsCollection.document(bookTitle).update("notified",true);
+
+                                createNotification(recentRequester, bookTitle, bookAuthor);
                             }
                         }
+
+                        // See changes since the last snapshot
+//                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+//                            // when document is modified
+//                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
+//                                Log.d(TAG, "Book data" + dc.getDocument().getData());
+//
+//                                final String status = dc.getDocument().getString("status");
+//                                final String bookTitle = dc.getDocument().getString("title");
+//                                final String bookAuthor = dc.getDocument().getString("author");
+//                                final boolean notified = dc.getDocument().getBoolean("notified");
+//
+//                                // Take the array in the firestore and convert it to a list of strings
+//                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
+//                                String recentRequester = "";
+//
+//                                // if there is at least one requester
+//                                // Get the most recent one
+//                                assert requesterList != null;
+//                                if (!requesterList.isEmpty()) {
+//                                    recentRequester = requesterList.get(requesterList.size() - 1);
+//                                }
+//
+//                                // If one of the books of the user has been requested,
+//                                // send a notification
+//                                assert status != null;
+//                                if (status.equals("Accepted") && notified) {
+//                                    // For debugging purposes, make sure that we are getting the right data
+//                                    Log.d(TAG, "the requester is " + recentRequester);
+//                                    Log.d(TAG, "Requested book title is " + bookTitle);
+//                                    requestsCollection.document(bookTitle).update("notified",true);
+//
+//                                    createNotification(recentRequester, bookTitle, bookAuthor);
+//                                }
+//                            }
+//                        }
                     }
                 });
 
@@ -323,11 +352,11 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
      * Add the book to Firestore
      * Used in AddBookFragment.java
      *
-     * @param dialogType  determines behavior of dialog
-     * @param bookUID     for editing a specific book
-     * @param title       title of the book to be added
-     * @param author      author of the book
-     * @param isbn        isbn of the book
+     * @param dialogType determines behavior of dialog
+     * @param bookUID    for editing a specific book
+     * @param title      title of the book to be added
+     * @param author     author of the book
+     * @param isbn       isbn of the book
      */
     @Override
     public void onOkPressed(String dialogType, final String bookUID, final String title, final String author, final String isbn) {
