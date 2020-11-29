@@ -87,7 +87,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
             model.setImageURI("");
         if (!model.getImageURI().isEmpty())
             try {
-                final File file = File.createTempFile(model.getTitle(), "jpg");
+                final File file = File.createTempFile(model.getUID(), "jpg");
                 storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {

@@ -85,7 +85,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
         // Code for loading photo into the imageView
         imageView = findViewById(R.id.fullImage);
         try {
-            final File file = File.createTempFile(book.getTitle(), "jpg");
+            final File file = File.createTempFile(book.getUID(), "jpg");
             storageRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
