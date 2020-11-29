@@ -229,7 +229,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // https://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
     private void setAddressBarText() {
         // initialize geocoder
-        Geocoder geocoder;
+        /*Geocoder geocoder;
         geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         List<Address> addressList = null;
 
@@ -248,7 +248,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (!addressList.isEmpty()) {
             String address = addressList.get(0).getAddressLine(0);
             textViewAddress.setText(address);
-        }
+        }*/
 
     }
 }
