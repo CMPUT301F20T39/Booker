@@ -19,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -27,6 +29,7 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -168,6 +171,7 @@ public class barcodeScanner extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     bookCheck = false;
                     for (QueryDocumentSnapshot document : task.getResult()) {
+                        final String bookID = document.getId();
                         bookCheck = true;
                         Map<String, Object> book = document.getData();
                         List<String> requesterList = (List<String>) book.get("requesterList");
@@ -183,8 +187,10 @@ public class barcodeScanner extends AppCompatActivity {
                                         public void onClick(DialogInterface dialog, int which) {
                                             // TODO: Change book status depending on scanType variable
                                             // 4 scanTypes: OwnerHandOver, OwnerReceive, BorrowerHandOver, BorrowerReceive
-                                            if (scanType.equals("OwnerHandOver")) {
-                                                document.ref.path.update("status", "Borrowed");
+                                            if (scanType.equals("OwnerHandOver")) { // Make book "Borrowed"
+                                                updateBookStatus(bookID, "Borrowed");
+                                            } else if (false) {
+                                            
                                             }
                                             
                                         }
@@ -238,6 +244,21 @@ public class barcodeScanner extends AppCompatActivity {
         
     }
 
-
+    private void updateBookStatus(String bookID, String status) {
+        final String TAG = "updateBookStatus";
+        
+        bookCollection.document(bookID).update("status", status).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                finish();
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error updating document", e);
+            }
+        });
+    }
     
 }
