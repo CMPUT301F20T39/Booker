@@ -141,13 +141,13 @@ public class barcodeScanner extends AppCompatActivity {
                         @Override
                         public void run() {
 
-                            if (barcodes.valueAt(0).email != null) {
+                            if (barcodes.valueAt(0).email != null) { // I dont think this ever happens?
                                 barcodeText.removeCallbacks(null);
                                 barcodeData = barcodes.valueAt(0).email.address;
                                 barcodeText.setText(barcodeData);
                                 toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
                                 stopCamera();
-                                checkBookBorrowed(barcodeData);
+                                finish();
                             } else {
 
                                 barcodeData = barcodes.valueAt(0).displayValue;
