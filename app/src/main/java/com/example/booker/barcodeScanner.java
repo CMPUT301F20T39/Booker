@@ -197,10 +197,13 @@ public class barcodeScanner extends AppCompatActivity {
                                             // 4 scanTypes: OwnerHandOver, OwnerReceive, BorrowerHandOver, BorrowerReceive
                                             if (scanType.equals("OwnerHandOver")) { // Make book "Borrowed"
                                                 updateBookStatus(bookID, "Borrowed");
-                                            } else if (false) {
+                                            } else if (scanType.equals("OwnerReceive")) {
+                                            
+                                            } else if (scanType.equals("BorrowerHandOver")) {
+                                                updateBookStatus(bookID, "Available");
+                                            } else if (scanType.equals("BorrowerReceive")) {
                                             
                                             }
-                                            
                                         }
                                     })
             
