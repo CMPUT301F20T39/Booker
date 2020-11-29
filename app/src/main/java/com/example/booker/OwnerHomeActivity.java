@@ -186,7 +186,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         // Check books owned by the user
 
         requestsCollection
-                .whereEqualTo("ownerEmail", userEmail)
+                .whereEqualTo("ownerUsername", user.getDisplayName())
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots,
