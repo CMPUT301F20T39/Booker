@@ -224,9 +224,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                             final String status = doc.getString("status");
                             final String bookTitle = doc.getString("title");
                             final String bookAuthor = doc.getString("author");
-                            final boolean notified = doc.getBoolean("notified");
+                            boolean notified = doc.getBoolean("notified");
 
-                            Log.d(TAG, doc.getData().toString());
+                            Log.d(TAG, "The book in this snapshot is " + bookTitle + " and the status is " + notified);
 
                             // Take the array in the firestore and convert it to a list of strings
                             List<String> requesterList = (List<String>) doc.get("requesterList");
@@ -247,10 +247,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                                 if (!notified) {
                                     Log.d(TAG, "the requester is " + recentRequester);
                                     Log.d(TAG, "Requested book title is " + bookTitle);
-                                    createNotification(bookTitle, bookAuthor);
-
+                                    assert bookTitle != null;
                                     requestsCollection.document(bookTitle).update("notified", true);
-                                } else {
+                                    createNotification(bookTitle, bookAuthor);
                                     requestsCollection.document(bookTitle).delete();
                                 }
                             }
@@ -293,9 +292,7 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                 });
 
         // scanning stuff
-        scanBtn =
-
-                findViewById(R.id.scanButton);
+        scanBtn = findViewById(R.id.scanButton);
 
         // Button takes user to OwnerScanSelect.java
         scanBtn.setOnClickListener(new View.OnClickListener() {

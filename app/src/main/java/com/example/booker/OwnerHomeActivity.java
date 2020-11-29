@@ -203,7 +203,7 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                             final String bookAuthor = doc.getString("author");
                             final boolean notified = doc.getBoolean("notified");
 
-                            Log.d(TAG, doc.getData().toString());
+                            Log.d(TAG, "Book in this snapshot is " + bookTitle);
 
                             // Take the array in the firestore and convert it to a list of strings
                             List<String> requesterList = (List<String>) doc.get("requesterList");
@@ -223,9 +223,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                             if (status.equals("Requested") && !notified) {
                                 Log.d(TAG, "the requester is " + recentRequester);
                                 Log.d(TAG, "Requested book title is " + bookTitle);
-                                createNotification(recentRequester, bookTitle, bookAuthor);
-
                                 requestsCollection.document(bookTitle).update("notified",true);
+
+                                createNotification(recentRequester, bookTitle, bookAuthor);
                             }
                         }
 
