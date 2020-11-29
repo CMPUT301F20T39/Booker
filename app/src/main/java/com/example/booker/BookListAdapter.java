@@ -76,7 +76,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
     @Override
     protected void onBindViewHolder(@NonNull final BookListAdapter.BookHolder holder, final int position, @NonNull final Book model) {
         final String UID = model.getUID();
-        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + model.getTitle());
+        StorageReference storageRef = storage.getReference(user.getDisplayName() + "/" + model.getUID());
 
         // set texts to their values
         holder.titleView.setText(model.getTitle());

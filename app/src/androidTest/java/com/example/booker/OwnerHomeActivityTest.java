@@ -115,6 +115,10 @@ public class OwnerHomeActivityTest {
 		assertFalse(solo.searchText("TestBook title"));
 	}
 
+	/**
+	 * Changes user information on edit profile page and saves
+	 * Opens edit profile page once more to make sure profile was updated correctly
+	 */
 	@Test
 	public void checkEditProfile() {
 		solo.assertCurrentActivity("Wrong Activity", OwnerHomeActivity.class);
@@ -122,16 +126,13 @@ public class OwnerHomeActivityTest {
 		solo.assertCurrentActivity("Wrong Activity", user_profile.class);
 		EditText name = solo.getEditText(0);
 		EditText email = solo.getEditText(1);
-		EditText phone = solo.getEditText(3);
-		EditText username = solo.getEditText(2);
+		EditText phone = solo.getEditText(2);
 		solo.clearEditText(name);
 		solo.clearEditText(email);
 		solo.clearEditText(phone);
-		solo.clearEditText(username);
 		solo.enterText(name, "Tester");
 		solo.enterText(email, "intent@test.com");
 		solo.enterText(phone, "1234567890");
-		solo.enterText(username, "tester");
 		solo.clickOnButton("Save");
 		solo.assertCurrentActivity("Wrong Activity", OwnerHomeActivity.class);
 		solo.clickOnImageButton(3);
@@ -139,7 +140,6 @@ public class OwnerHomeActivityTest {
 		assertEquals("Tester", name.getText().toString());
 		assertEquals("intent@test.com", email.getText().toString());
 		assertEquals("1234567890", phone.getText().toString());
-		assertEquals("tester", username.getText().toString());
 
 	}
 	

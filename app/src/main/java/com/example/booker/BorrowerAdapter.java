@@ -100,7 +100,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
         holder.ISBNTextView.setText(model.getISBN());
         holder.ownerUsernameTextView.setText(model.getOwnerUsername());
         holder.statusTextView.setText(model.getStatus());
-        StorageReference storageRef = storage.getReference(model.getOwnerUsername() + "/" + model.getTitle());
+        StorageReference storageRef = storage.getReference(model.getOwnerUsername() + "/" + model.getUID());
 
         // unhide non-dummy book objects
         if (!model.getStatus().equals("")) {
