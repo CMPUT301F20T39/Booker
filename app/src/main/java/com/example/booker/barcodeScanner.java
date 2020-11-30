@@ -390,7 +390,7 @@ public class barcodeScanner extends AppCompatActivity {
 
     }
 
-    private void updateBookStatus(String bookID, String status) {
+    private void updateBookStatus(final String bookID, final String status) {
         final String TAG = "updateBookStatus";
 
         // change book's status on firestore
@@ -398,6 +398,11 @@ public class barcodeScanner extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        // empty requester list if status is "Available" on firestore
+                        if (status.equals("Available")) {
+                            bookCollection.document(bookID)
+                                    .update("requesterList", Arrays.asList());
+                        }
                         finish();
                     }
                 })
@@ -407,23 +412,6 @@ public class barcodeScanner extends AppCompatActivity {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
-
-        // empty requester list if status is "Available" on firestore
-        if (status.equals("Available")) {
-            bookCollection.document(bookID).update("requesterList", Arrays.asList())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            finish();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error updating document", e);
-                        }
-                    });
-        }
     }
 
     private void updateOwnerScanBool(String bookID, boolean state) {
