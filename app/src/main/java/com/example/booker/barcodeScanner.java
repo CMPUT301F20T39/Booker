@@ -37,6 +37,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -392,18 +393,37 @@ public class barcodeScanner extends AppCompatActivity {
     private void updateBookStatus(String bookID, String status) {
         final String TAG = "updateBookStatus";
 
-        bookCollection.document(bookID).update("status", status).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                finish();
-            }
-        })
+        // change book's status on firestore
+        bookCollection.document(bookID).update("status", status)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        finish();
+                    }
+                })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
+
+        // empty requester list if status is "Available" on firestore
+        if (status.equals("Available")) {
+            bookCollection.document(bookID).update("requesterList", Arrays.asList())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            finish();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error updating document", e);
+                        }
+                    });
+        }
     }
 
     private void updateOwnerScanBool(String bookID, boolean state) {
