@@ -23,6 +23,8 @@ public class Book implements Serializable {
 	private List<String> requesterList;
 	private String imageURI;
 	private List<Double> coordinates;
+	private boolean scannedByBorrower;
+	private boolean scannedByOwner;
 
 	/**
 	 * Constructor for Firestore's .toObject()
@@ -32,7 +34,6 @@ public class Book implements Serializable {
 	/**
 	 * constructor for set parameters
 	 * @param title
-	 * @param description
 	 * @param status
 	 * @param ISBN
 	 * @param author
@@ -44,6 +45,8 @@ public class Book implements Serializable {
 		this.author = author;
 		this.requesterList = Arrays.asList(); // allows a user to be the 0th index instead of an empty string
 		this.coordinates = Arrays.asList(); // no location set yet
+		this.scannedByBorrower = false;
+		this.scannedByOwner = false;
 	}
 
 	/**
@@ -182,6 +185,8 @@ public class Book implements Serializable {
 		data.put("requesterList", requesterList);
 		data.put("imageURI", imageURI);
 		data.put("coordinates", coordinates);
+		data.put("scannedByBorrower", scannedByBorrower);
+		data.put("scannedByOwner", scannedByOwner);
 		return data;
 	}
 
@@ -267,6 +272,26 @@ public class Book implements Serializable {
 
 	public boolean hasCoordinates() {
 		return !coordinates.isEmpty();
+	}
+
+	public void setRequesterList(List<String> requesterList) {
+		this.requesterList = requesterList;
+	}
+
+	public boolean isScannedByBorrower() {
+		return scannedByBorrower;
+	}
+
+	public void setScannedByBorrower(boolean scannedByBorrower) {
+		this.scannedByBorrower = scannedByBorrower;
+	}
+
+	public boolean isScannedByOwner() {
+		return scannedByOwner;
+	}
+
+	public void setScannedByOwner(boolean scannedByOwner) {
+		this.scannedByOwner = scannedByOwner;
 	}
 
 }
