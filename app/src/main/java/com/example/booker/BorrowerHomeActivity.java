@@ -294,11 +294,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         // scanning stuff
         scanBtn = findViewById(R.id.scanButton);
 
-        // Button takes user to OwnerScanSelect.java
+        // Button takes user to borrowerScanSelect.java
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToScanner = new Intent(getApplicationContext(), OwnerScanSelect.class);
+                Intent goToScanner = new Intent(getApplicationContext(), borrowerScanSelect.class);
                 startActivity(goToScanner);
             }
         });
