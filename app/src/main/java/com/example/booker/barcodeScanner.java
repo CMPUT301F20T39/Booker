@@ -40,9 +40,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Handles barcode scanner for owner or borrower
- */
 public class barcodeScanner extends AppCompatActivity {
 
     private SurfaceView surfaceView;
@@ -150,12 +147,11 @@ public class barcodeScanner extends AppCompatActivity {
                                 barcodeText.setText(barcodeData);
                                 toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
                                 stopCamera();
-
+                                finish();
                             } else {
 
                                 barcodeData = barcodes.valueAt(0).displayValue;
                                 barcodeText.setText(barcodeData);
-
                                 toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
                                 stopCamera();
 
@@ -168,6 +164,7 @@ public class barcodeScanner extends AppCompatActivity {
                                 } else if (scanType.equals("OwnerHandOver")) {
                                     checkBookAccepted(barcodeData);
                                 }
+
                             }
                         }
                     });
@@ -320,8 +317,9 @@ public class barcodeScanner extends AppCompatActivity {
                                                                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                                                     @Override
                                                                     public void onClick(DialogInterface dialog, int which) {
+                                                                        updateBorrowerScanBool(bookID, false);
                                                                         updateOwnerScanBool(bookID, false);
-                                                                        finish();
+                                                                        
                                                                     }
                                                                 })
                                                                 .show();
@@ -391,187 +389,6 @@ public class barcodeScanner extends AppCompatActivity {
 
     }
 
-    private void checkBorrowerReceived(String ISBN) {
-        Query query = bookCollection.whereEqualTo("ownerEmail", userEmail).whereEqualTo("ISBN", ISBN).whereEqualTo("status", "Accepted");
-
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    bookCheck = false;
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        final String bookID = document.getId();
-                        bookCheck = true;
-                        Map<String, Object> book = document.getData();
-                        List<String> requesterList = (List<String>) book.get("requesterList");
-                        if (requesterList.size() > 0) {
-                            String borrower = requesterList.get(0);
-
-                            new AlertDialog.Builder(barcodeScanner.this)
-                                    .setTitle("receive book from user?")
-                                    .setMessage("unknown")
-
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            // TODO: Change book status depending on scanType variable
-                                            // 4 scanTypes: OwnerHandOver, OwnerReceive, BorrowerHandOver, BorrowerReceive
-                                            // Make book "Borrowed"
-                                            updateBookStatus(bookID, "Borrowed");
-
-                                            new AlertDialog.Builder(barcodeScanner.this)
-                                                    .setTitle("Confirmation")
-                                                    .setMessage("Book Received!")
-                                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            finish();
-                                                        }
-                                                    })
-                                                    .show();
-
-
-                                        }
-                                    })
-
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            finish();
-                                        }
-                                    })
-                                    .show();
-                        } else {
-                            new AlertDialog.Builder(barcodeScanner.this)
-                                    .setTitle("")
-                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            finish();
-                                        }
-                                    })
-                                    .show();
-                        }
-
-                    }
-                    if (!bookCheck) {
-                        new AlertDialog.Builder(barcodeScanner.this)
-                                .setTitle("not in posession")
-                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        finish();
-                                    }
-                                })
-                                .show();
-                    }
-                } else {
-                    new AlertDialog.Builder(barcodeScanner.this)
-                            .setTitle("not in possession")
-                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            })
-                            .show();
-                }
-            }
-        });
-
-    }
-
-    private void checkOwnerReceived(String ISBN) {
-        Query query = bookCollection.whereEqualTo("ownerEmail", userEmail).whereEqualTo("ISBN", ISBN).whereEqualTo("status", "Borrowed");
-
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    bookCheck = false;
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        final String bookID = document.getId();
-                        bookCheck = true;
-                        Map<String, Object> book = document.getData();
-                        List<String> requesterList = (List<String>) book.get("requesterList");
-                        if (requesterList.size() > 0) {
-                            String borrower = requesterList.get(0);
-
-
-                            new AlertDialog.Builder(barcodeScanner.this)
-                                    .setTitle("receive book from a borrower?")
-                                    .setMessage(borrower)
-
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            // TODO: Change book status depending on scanType variable
-                                            // 4 scanTypes: OwnerHandOver, OwnerReceive, BorrowerHandOver, BorrowerReceive
-
-                                            updateBookStatus(bookID, "Available");
-                                            new AlertDialog.Builder(barcodeScanner.this)
-                                                    .setTitle("Confirmation")
-                                                    .setMessage("Book Received!")
-                                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            finish();
-                                                        }
-                                                    })
-                                                    .show();
-
-                                        }
-                                    })
-
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            finish();
-                                        }
-                                    })
-                                    .show();
-                        } else {
-                            new AlertDialog.Builder(barcodeScanner.this)
-                                    .setTitle("book not loaned out")
-                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            finish();
-                                        }
-                                    })
-                                    .show();
-                        }
-
-                    }
-                    if (!bookCheck) {
-                        new AlertDialog.Builder(barcodeScanner.this)
-                                .setTitle("book not loaned out")
-                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        finish();
-                                    }
-                                })
-                                .show();
-                    }
-                } else {
-                    new AlertDialog.Builder(barcodeScanner.this)
-                            .setTitle("book not loaned out")
-                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            })
-                            .show();
-                }
-            }
-        });
-
-    }
-
     private void updateBookStatus(String bookID, String status) {
         final String TAG = "updateBookStatus";
 
@@ -612,7 +429,7 @@ public class barcodeScanner extends AppCompatActivity {
         bookCollection.document(bookID).update("scannedByBorrower", state).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-            
+                return;
             }
         })
                 .addOnFailureListener(new OnFailureListener() {
