@@ -109,15 +109,19 @@ public class user_profile extends AppCompatActivity {
                 final String email = emailEditText.getText().toString();
                 String phone = phoneEditText.getText().toString();
 
+                // error check name
                 if (name.isEmpty()) {
                     nameEditText.setError("Name field is empty");
                     return;
                 }
 
+                // error check email
                 if (!(Patterns.EMAIL_ADDRESS.matcher(email).matches())) {
                     emailEditText.setError("Email is wrong format");
                     return;
                 }
+
+                // error check phone
                 if (phone.length() != 10) {
                     phoneEditText.setError("Phone number must be exactly 10 digits");
                     return;

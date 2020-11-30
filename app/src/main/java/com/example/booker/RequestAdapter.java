@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * DEPRECATED
  * Converts book objects into elements of a recyclerview
  */
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHolder> {
@@ -85,12 +84,15 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         holder.rejectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // removes requester from requester list
                 book.removeRequester(username);
 
+                // set status back to available if nobody is requesting it anymore
                 if (book.numRequesters() == 0) {
                     book.setStatus("Available");
                 }
 
+                // remove user from local name list and firestore Books collection
                 HashMap<String, Object> data = book.getDataHashMap();
                 db.collection("Books").document(book.getUID()).set(data);
                 nameList.remove(username);
@@ -105,6 +107,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
         holder.acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // leaves only that requester in the requester list
                 book.leaveOneRequester(username);
 
                 book.setStatus("Accepted");
@@ -123,7 +126,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             }
         });
 
-        // hide buttons on requested
+        // hide buttons on requested or borrowed
         if (book.getStatus().equals("Accepted") || book.getStatus().equals("Borrowed")) {
             holder.rejectButton.setVisibility(View.GONE);
             holder.acceptButton.setVisibility(View.GONE);

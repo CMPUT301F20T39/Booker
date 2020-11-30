@@ -40,11 +40,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * controls map viewing: either read only or edit mode
+ */
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private SupportMapFragment mapFragment;
     private FusedLocationProviderClient fusedLocationProviderClient;
-    Task<Location> locationTask;
+    private Task<Location> locationTask;
     private GoogleMap mMap;
     private Marker marker;
     private Button buttonConfirm;
@@ -58,6 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        // initialize everything
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -86,6 +90,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /**
+     * checks if permission is already granted or asks permission
+     */
     private void getLocationPermission() {
         if (ActivityCompat.checkSelfPermission(MapsActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -97,6 +104,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * pop up screen for selecting location permission
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -107,7 +120,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    // https://www.youtube.com/watch?v=Ak1O9Gip-pg
+    /**
+     * https://www.youtube.com/watch?v=Ak1O9Gip-pg
+     * gets the user's current location and moves the camera to it
+     * @param smoothTransition
+     */
     private void getCurrentLocation(final boolean smoothTransition) {
         locationTask.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
@@ -148,6 +165,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         locationTask = fusedLocationProviderClient.getLastLocation();
 
+        // hide text permission screen
         textViewPermission.setVisibility(View.GONE);
 
         String accessType = getIntent().getStringExtra("accessType");
@@ -157,6 +175,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap = googleMap;
 
+        // if book has corrdinates, set a marker and move to it
         if (book.hasCoordinates()) {
             LatLng latLng = new LatLng(book.getLatitude(), book.getLongitude());
 
@@ -165,20 +184,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10.0f));
         }
 
+        // no marker placed, go to current location
         if (marker == null) {
             getCurrentLocation(false);
         }
 
-        buttonConfirm.setVisibility(View.GONE);
-        textViewPermission.setVisibility(View.GONE);
-
+        // read only disables editing functionality
+        buttonConfirm.setVisibility(View.GONE); // hide confirm button
         mMap.getUiSettings().setAllGesturesEnabled(false); // disable map movement
-        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true); // enable zoom
 
+        // borrower map view type
         if (accessType.equals("WRITE")) {
+            // enable my location button and enable movement gestures
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setAllGesturesEnabled(true);
 
+            // enable confirm button if marker placed
             if (marker != null) {
                 buttonConfirm.setVisibility(View.VISIBLE);
             }
@@ -196,9 +218,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
+                    // remove last marker
                     if (marker != null) {
                         marker.remove();
                     }
+                    // enable confirm button and place new marker
                     buttonConfirm.setVisibility(View.VISIBLE);
                     marker = mMap.addMarker(new MarkerOptions().position(latLng).title("Retrieval Point"));
                     setAddressBarText();
@@ -210,14 +234,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buttonConfirm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    // get book's data and current marker's position
                     Book book = (Book) getIntent().getSerializableExtra("book");
                     Double latitude = marker.getPosition().latitude;
                     Double longitude = marker.getPosition().longitude;
 
+                    // set book's location to current marker's location
                     book.setCoordinates(Arrays.asList(latitude, longitude));
 
+                    // save new book's location
                     HashMap<String, Object> data = book.getDataHashMap();
-
                     db.collection("Books").document(book.getUID()).set(data);
 
                     finish();
@@ -226,7 +252,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    // https://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
+    /**
+     * https://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
+     * sets the address bar text using the marker's current position
+     */
     private void setAddressBarText() {
         // initialize geocoder
         Geocoder geocoder;

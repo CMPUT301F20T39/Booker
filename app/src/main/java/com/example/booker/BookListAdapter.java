@@ -28,6 +28,9 @@ import com.google.firebase.storage.StorageReference;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Controls behavior of owner's book display on recyclerview
+ */
 public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdapter.BookHolder> {
     private int layoutResource;
     private OwnerHomeActivity instance;
@@ -57,6 +60,12 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
         }
     }
 
+    /**
+     * initialize firestore adapter for owner books
+     * @param options
+     * @param layoutResource
+     * @param instance
+     */
     public BookListAdapter(@NonNull FirestoreRecyclerOptions<Book> options,
                            int layoutResource, OwnerHomeActivity instance) {
         super(options);
@@ -83,8 +92,12 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
         holder.authorView.setText(model.getAuthor());
         holder.ISBNView.setText(model.getISBN());
         holder.statusView.setText(model.getStatus());
+
+        // book has no URI, set it to empty string
         if (model.getImageURI() == null)
             model.setImageURI("");
+
+        // book has a URI, try getting its picture
         if (!model.getImageURI().isEmpty())
             try {
                 final File file = File.createTempFile(model.getUID(), "jpg");
@@ -99,6 +112,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
                 e.printStackTrace();
             }
         else
+            // set its picture to the default picture
             holder.imageView.setImageResource(R.drawable.defaultphoto);
 
         // delete a book on click
@@ -149,6 +163,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
             }
         });
 
+        // set borrower name if borrowed
         if (model.getStatus().equals("Borrowed")) {
             String borrowedDisplay = "Borrowed: " + model.getRequesterList().get(0);
             holder.ownerBookBorrowerName.setText(borrowedDisplay);
@@ -157,7 +172,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
             holder.ownerBookBorrowerName.setText("Borrowed: None");
         }
 
-        // hide location button if not set
+        // location button is only visible on accepted or borrowed books
         if (model.getStatus().equals("Accepted") || model.getStatus().equals("Borrowed")) {
             holder.imageButtonLocation.setVisibility(View.VISIBLE);
         }
@@ -165,6 +180,7 @@ public class BookListAdapter extends FirestoreRecyclerAdapter<Book, BookListAdap
             holder.imageButtonLocation.setVisibility(View.GONE);
         }
 
+        // clicking a book's picture to view it
         holder.imageButtonLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

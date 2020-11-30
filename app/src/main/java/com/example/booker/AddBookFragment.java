@@ -75,6 +75,7 @@ public class AddBookFragment extends DialogFragment {
         final String finalDialogType = dialogType;
         final String finalBookUID = bookUID;
 
+        // save title, author, and ISBN when Ok is pressed
         return builder
                 .setView(view)
                 .setTitle(dialogType)

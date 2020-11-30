@@ -102,62 +102,67 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         acceptedButton = findViewById(R.id.acceptedBttn);
         borrowedButton = findViewById(R.id.borrowedBttn);
 
+        // checked status for available button
         availableButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b && !filters.contains("Available")) {
+                if (b && !filters.contains("Available")) { // button is checked
                     filters.add("Available");
                 } else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
-                    // crashes without this case
-                } else {
+                    // simply do nothing, crashes without this case
+                } else { // button is not checked
                     filters.remove("Available");
                 }
                 updateBookFilters();
             }
         });
 
+        // checked status for requested button
         requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b && !filters.contains("Requested")) {
+                if (b && !filters.contains("Requested")) { // button is checked
                     filters.add("Requested");
                 } else if (!availableButton.isChecked() && !acceptedButton.isChecked() && !borrowedButton.isChecked()) {
-                    // crashes without this case
-                } else {
+                    // simply do nothing, crashes without this case
+                } else { // button is not checked
                     filters.remove("Requested");
                 }
                 updateBookFilters();
             }
         });
 
+        // checked status for accepted button
         acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b && !filters.contains("Accepted")) {
+                if (b && !filters.contains("Accepted")) { // button is checked
                     filters.add("Accepted");
                 } else if (!availableButton.isChecked() && !requestedButton.isChecked() && !borrowedButton.isChecked()) {
-                    // crashes without this case
-                } else {
+                    // simply do nothing, crashes without this case
+                } else { // button is not checked
                     filters.remove("Accepted");
                 }
                 updateBookFilters();
             }
         });
 
+        // checked status for borrowed button
         borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (borrowedButton.isChecked() && !filters.contains("Borrowed")) {
+                if (borrowedButton.isChecked() && !filters.contains("Borrowed")) { // button is checked
                     filters.add("Borrowed");
                 } else if (!requestedButton.isChecked() && !acceptedButton.isChecked() && !availableButton.isChecked()) {
-                    // crashes without this case
-                } else {
+                    // simply do nothing, crashes without this case
+                } else { // button is not checked
                     filters.remove("Borrowed");
                 }
                 updateBookFilters();
             }
         });
 
+        // check all filters initially
         checkAll();
 
         // set up toolbar
@@ -184,7 +189,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         });
         
         // Check books owned by the user
-
         requestsCollection
                 .whereEqualTo("ownerUsername", user.getDisplayName())
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -228,42 +232,6 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
                                 createNotification(recentRequester, bookTitle, bookAuthor);
                             }
                         }
-
-                        // See changes since the last snapshot
-//                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-//                            // when document is modified
-//                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
-//                                Log.d(TAG, "Book data" + dc.getDocument().getData());
-//
-//                                final String status = dc.getDocument().getString("status");
-//                                final String bookTitle = dc.getDocument().getString("title");
-//                                final String bookAuthor = dc.getDocument().getString("author");
-//                                final boolean notified = dc.getDocument().getBoolean("notified");
-//
-//                                // Take the array in the firestore and convert it to a list of strings
-//                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-//                                String recentRequester = "";
-//
-//                                // if there is at least one requester
-//                                // Get the most recent one
-//                                assert requesterList != null;
-//                                if (!requesterList.isEmpty()) {
-//                                    recentRequester = requesterList.get(requesterList.size() - 1);
-//                                }
-//
-//                                // If one of the books of the user has been requested,
-//                                // send a notification
-//                                assert status != null;
-//                                if (status.equals("Accepted") && notified) {
-//                                    // For debugging purposes, make sure that we are getting the right data
-//                                    Log.d(TAG, "the requester is " + recentRequester);
-//                                    Log.d(TAG, "Requested book title is " + bookTitle);
-//                                    requestsCollection.document(bookTitle).update("notified",true);
-//
-//                                    createNotification(recentRequester, bookTitle, bookAuthor);
-//                                }
-//                            }
-//                        }
                     }
                 });
 
@@ -435,6 +403,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         bookListAdapter.stopListening();
     }
 
+    /**
+     * Sets up the firestoreRecycler adapter with an empty query
+     */
     private void setUpAdapter() {
         // used as a dummy query for initial set up
         Query query = db.collection("doesNotExist").limit(1);
@@ -450,6 +421,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         rvBookList.setAdapter(bookListAdapter);
     }
 
+    /**
+     * Checks all filters
+     */
     private void checkAll() {
         availableButton.setChecked(true);
         requestedButton.setChecked(true);
@@ -457,6 +431,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         borrowedButton.setChecked(true);
     }
 
+    /**
+     * Replaces firestoreRecycler adapter query with current filters
+     */
     private void updateBookFilters() {
         // query available books
         Query query = bookCollection
@@ -472,7 +449,9 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         bookListAdapter.updateOptions(options);
     }
 
-    //     Create a Notification Channel for the notification to go through
+    /**
+     * Create a Notification Channel for the notification to go through
+     */
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -490,6 +469,12 @@ public class OwnerHomeActivity extends AppCompatActivity implements AddBookFragm
         }
     }
 
+    /**
+     * creates a notification when a book is requested
+     * @param requester
+     * @param book
+     * @param bookAuthor
+     */
     public void createNotification(String requester, String book, String bookAuthor) {
         // Create the intent for the notification tap action
         Intent intent = new Intent(this, OwnerHomeActivity.class);

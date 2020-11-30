@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ * screen for selecting owner scan type: hand over or receive
+ */
 public class OwnerScanSelect extends AppCompatActivity {
 	
 	
@@ -17,7 +20,8 @@ public class OwnerScanSelect extends AppCompatActivity {
 		
 		Button handOverBtn = findViewById(R.id.Owner_HandOverBtn);
 		Button receiveBtn = findViewById(R.id.Owner_ReceivingBtn);
-		
+
+		// go to owner hand over activity on button click
 		handOverBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -27,6 +31,8 @@ public class OwnerScanSelect extends AppCompatActivity {
 				finish();
 			}
 		});
+
+		// go to owner receive activity on button click
 		receiveBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

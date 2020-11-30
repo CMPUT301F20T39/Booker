@@ -92,48 +92,52 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         acceptedButton = findViewById(R.id.acceptedBttn);
         borrowedButton = findViewById(R.id.borrowedBttn);
 
+        // checked status for requested button
         requestedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b && !filters.contains("Requested")) {
+                if (b && !filters.contains("Requested")) { // button is checked
                     filters.add("Requested");
                 } else if (!acceptedButton.isChecked() && !borrowedButton.isChecked()) {
-                    // crashes without this case
-                } else {
+                    // simply do nothing, crashes without this case
+                } else { // button is not checked
                     filters.remove("Requested");
                 }
                 updateBookFilters();
             }
         });
 
+        // checked status for accepted button
         acceptedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b && !filters.contains("Accepted")) {
+                if (b && !filters.contains("Accepted")) { // button is checked
                     filters.add("Accepted");
                 } else if (!requestedButton.isChecked() && !borrowedButton.isChecked()) {
-                    // crashes without this case
-                } else {
+                    // simply do nothing, crashes without this case
+                } else { // button is not checked
                     filters.remove("Accepted");
                 }
                 updateBookFilters();
             }
         });
 
+        // checked status for borrowed button
         borrowedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (borrowedButton.isChecked() && !filters.contains("Borrowed")) {
+                if (borrowedButton.isChecked() && !filters.contains("Borrowed")) { // button is checked
                     filters.add("Borrowed");
                 } else if (!requestedButton.isChecked() && !acceptedButton.isChecked()) {
-                    // crashes without this case
-                } else {
+                    // simply do nothing, crashes without this case
+                } else { // button is not checked
                     filters.remove("Borrowed");
                 }
                 updateBookFilters();
             }
         });
 
+        // check all filters initially
         checkAll();
 
         // set up toolbar
@@ -153,10 +157,11 @@ public class BorrowerHomeActivity extends AppCompatActivity {
 
         searchView = findViewById(R.id.searchView);
 
+        // when searchview has focus
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                if (b) {
+                if (b) { // show initial search results (all available books)
                     searchScreen();
                 }
             }
@@ -254,40 +259,6 @@ public class BorrowerHomeActivity extends AppCompatActivity {
                                 }
                             }
                         }
-
-                        // See changes since the last snapshot
-//                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-//                            // If a document has been modified
-//                            if (dc.getType() == DocumentChange.Type.MODIFIED) {
-//                                // For debugging purposes, show which book has been modified
-//                                Log.d(TAG, "Book data" + dc.getDocument().getData());
-//
-//                                // Get the status, title, author of the book
-//                                final String status = dc.getDocument().getString("status");
-//                                final String bookTitle = dc.getDocument().getString("title");
-//                                final String bookAuthor = dc.getDocument().getString("author");
-//
-//                                // Take the array in the firestore and convert it to a list of strings
-//                                List<String> requesterList = (List<String>) dc.getDocument().get("requesterList");
-//                                String recentRequester = "";
-//
-//                                // if there is at least one requester
-//                                // Get the most recent one
-//                                assert requesterList != null;
-//                                if (!requesterList.isEmpty()) {
-//                                    recentRequester = requesterList.get(requesterList.size() - 1);
-//                                }
-//
-//                                // if the user is the most recent requester of a book and the request has been accepted
-//                                // send a notification
-//                                assert status != null;
-//                                if (status.equals("Accepted") && recentRequester.equals(user.getDisplayName())) {
-//                                    Log.d(TAG, "the requester is " + recentRequester);
-//                                    Log.d(TAG, "Requested book title is " + bookTitle);
-//                                    createNotification(bookTitle, bookAuthor);
-//                                }
-//                            }
-//                        }
                     }
                 });
 
@@ -322,6 +293,10 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         searchView.clearFocus();
     }
 
+    /**
+     * Takes a book and view's it photo
+     * @param book
+     */
     public void viewPhoto(Book book) {
         Intent goToPhoto = new Intent(getApplicationContext(), ViewPhotoActivity.class);
         goToPhoto.putExtra("Book", book);
@@ -329,6 +304,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         startActivity(goToPhoto);
     }
 
+    /**
+     * Sets up the firestoreRecycler adapter with an empty query
+     */
     private void setUpAdapter() {
         // used as a dummy query for initial set up
         Query query = firebaseFirestore.collection("doesNotExist").limit(1);
@@ -343,12 +321,18 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         recyclerView.setAdapter(borrowerAdapter);
     }
 
+    /**
+     * Checks all filters
+     */
     private void checkAll() {
         requestedButton.setChecked(true);
         acceptedButton.setChecked(true);
         borrowedButton.setChecked(true);
     }
 
+    /**
+     * Replaces firestoreRecycler adapter query with current filters
+     */
     private void updateBookFilters() {
         // query available books
         Query query = bookCollection
@@ -364,6 +348,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         borrowerAdapter.updateOptions(options);
     }
 
+    /**
+     * reset state to home screen
+     */
     private void homeScreen() {
         searchView.clearFocus();
         searchView.setQuery("", false);
@@ -374,6 +361,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         updateBookFilters();
     }
 
+    /**
+     * reset state to initial search screen
+     */
     private void searchScreen() {
         listDisplayTextView.setTextSize(18.0f);
         listDisplayTextView.setText("Displaying all available books");
@@ -382,6 +372,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         showAllAvailable();
     }
 
+    /**
+     * show all books that are available to be requested
+     */
     private void showAllAvailable() {
         // query user's requested books
         Query query = firebaseFirestore.collection("Books")
@@ -408,6 +401,9 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         borrowerAdapter.updateOptions(options);
     }
 
+    /**
+     * show all books that are available to be requested if matching search query
+     */
     private void showSearchedAvailable() {
         // query user's requested books
         Query query = firebaseFirestore.collection("Books")
@@ -440,8 +436,10 @@ public class BorrowerHomeActivity extends AppCompatActivity {
         borrowerAdapter.updateOptions(options);
     }
 
-    //     Create a Notification Channel for the notification to go through
-    //     Important for proper notification display
+    /**
+     * Create a Notification Channel for the notification to go through
+     * Important for proper notification display
+     */
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library

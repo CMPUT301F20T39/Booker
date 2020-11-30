@@ -73,10 +73,18 @@ public class Book implements Serializable {
 		this.ownerEmail = ownerEmail;
 	}
 
+	/**
+	 * gets a book's picture identifier (storage location)
+	 * @return imageURI
+	 */
 	public String getImageURI() {
 		return imageURI;
 	}
 
+	/**
+	 * sets a book's picture identifier (storage location)
+	 * @return imageURI
+	 */
 	public void setImageURI(String imageURI) {
 		this.imageURI = imageURI;
 	}
@@ -198,10 +206,6 @@ public class Book implements Serializable {
 		return requesterList;
 	}
 
-	public void setRequesterArray(List<String> requesterList) {
-		this.requesterList = requesterList;
-	}
-
 	/**
 	 * add a requester to the requester list
 	 * @param requesterUsername
@@ -248,14 +252,26 @@ public class Book implements Serializable {
 		}
 	}
 
+	/**
+	 * gets a list of double that represent coordinates (latitude, longitude)
+	 * @return coordinates
+	 */
 	public List<Double> getCoordinates() {
 		return coordinates;
 	}
 
+	/**
+	 * sets a list of double that represent coordinates (latitude, longitude)
+	 * @return coordinates
+	 */
 	public void setCoordinates(List<Double> coordinates) {
 		this.coordinates = coordinates;
 	}
 
+	/**
+	 * gets the book's latitude
+	 * @return latitude
+	 */
 	public Double getLatitude() {
 		if (this.hasCoordinates()) {
 			return coordinates.get(0);
@@ -263,6 +279,10 @@ public class Book implements Serializable {
 		return -1.0; // -1 for unsuccessful
 	}
 
+	/**
+	 * gets the book's longitude
+	 * @return longitude
+	 */
 	public Double getLongitude() {
 		if (this.hasCoordinates()) {
 			return coordinates.get(1);
@@ -270,26 +290,50 @@ public class Book implements Serializable {
 		return -1.0; // -1 for unsuccessful
 	}
 
+	/**
+	 * checks if a book has coordinates
+	 * @return true if not empty, false otherwise
+	 */
 	public boolean hasCoordinates() {
 		return !coordinates.isEmpty();
 	}
 
+	/**
+	 * sets a list of requesters directly (string usernames)
+	 * @param requesterList
+	 */
 	public void setRequesterList(List<String> requesterList) {
 		this.requesterList = requesterList;
 	}
 
+	/**
+	 * checks if a book has been scanned by a borrower
+	 * @return true if scanned by borrower, false otherwise
+	 */
 	public boolean isScannedByBorrower() {
 		return scannedByBorrower;
 	}
 
+	/**
+	 * sets borrower scanned status for a book
+	 * @param scannedByBorrower
+	 */
 	public void setScannedByBorrower(boolean scannedByBorrower) {
 		this.scannedByBorrower = scannedByBorrower;
 	}
 
+	/**
+	 * checks if a book has been scanned by an owner
+	 * @return true if scanned by owner, false otherwise
+	 */
 	public boolean isScannedByOwner() {
 		return scannedByOwner;
 	}
 
+	/**
+	 * sets owner scanned status for a book
+	 * @param scannedByOwner
+	 */
 	public void setScannedByOwner(boolean scannedByOwner) {
 		this.scannedByOwner = scannedByOwner;
 	}
