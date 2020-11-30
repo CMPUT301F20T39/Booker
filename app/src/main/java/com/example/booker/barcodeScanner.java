@@ -40,6 +40,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles barcode scanner for owner or borrower
+ */
 public class barcodeScanner extends AppCompatActivity {
 
     private SurfaceView surfaceView;

@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="requested" />
+            android:text="Requested" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/acceptedBttn"
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="accepted" />
+            android:text="Accepted" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/borrowedBttn"
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="borrowed" />
+            android:text="Borrowed" />
     </com.google.android.material.chip.ChipGroup>
 
     <androidx.appcompat.widget.Toolbar

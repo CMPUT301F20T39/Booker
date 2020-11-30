@@ -24,6 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * Handles viewing a photo by owner or borrower
+ */
 public class ViewPhotoActivity extends AppCompatActivity {
     private Book book;
     private String type;
@@ -39,6 +42,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_photo);
 
+        // get book and user's access type
         book = (Book) getIntent().getSerializableExtra("Book");
         type = getIntent().getStringExtra("Type");
 
@@ -59,12 +63,14 @@ public class ViewPhotoActivity extends AppCompatActivity {
         deleteBtn = findViewById(R.id.deletePhotoBtn);
         final CollectionReference collection = db.collection("Books");
         final HashMap<String, Object> map = new HashMap<>();
+
+        // borrower can only view
         map.put("imageURI", "");
         if (type.compareTo("borrower") == 0) {
             storageRef = storage.getReference(book.getOwnerUsername() + "/" + book.getUID());
             deleteBtn.setClickable(false);
             deleteBtn.setVisibility(View.GONE);
-        }
+        } // owner can delete picture
         else if (type.compareTo("owner") == 0) {
             storageRef = storage.getReference(user.getDisplayName() + "/" + book.getUID());
             deleteBtn.setClickable(true);
