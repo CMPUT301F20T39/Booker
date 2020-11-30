@@ -7,6 +7,9 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * screen for selecting borrower scan type: hand over or receive
+ */
 public class borrowerScanSelect extends AppCompatActivity {
 
     @Override
@@ -17,6 +20,7 @@ public class borrowerScanSelect extends AppCompatActivity {
         Button handOverBtn = findViewById(R.id.Owner_HandOverBtn);
         Button receiveBtn = findViewById(R.id.Owner_ReceivingBtn);
 
+        // go to borrower hand over activity on button click
         handOverBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -26,6 +30,8 @@ public class borrowerScanSelect extends AppCompatActivity {
                 finish();
             }
         });
+
+        // go to borrower receive activity on button click
         receiveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

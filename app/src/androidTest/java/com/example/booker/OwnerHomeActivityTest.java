@@ -122,7 +122,7 @@ public class OwnerHomeActivityTest {
 	@Test
 	public void checkEditProfile() {
 		solo.assertCurrentActivity("Wrong Activity", OwnerHomeActivity.class);
-		solo.clickOnImageButton(4);
+		solo.clickOnImageButton(3);
 		solo.assertCurrentActivity("Wrong Activity", user_profile.class);
 		EditText name = solo.getEditText(0);
 		EditText email = solo.getEditText(1);

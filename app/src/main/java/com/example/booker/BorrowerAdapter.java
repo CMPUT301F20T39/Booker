@@ -30,6 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * Controls behavior for book display in recyclerview for borrower
+ */
 public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdapter.BookHolder> {
     private int layoutResource;
     private BorrowerHomeActivity instance;
@@ -62,8 +65,8 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
             bookImage = itemView.findViewById(R.id.imageView2);
 
             // treat every item as a dummy book object and hide it
-            itemView.setLayoutParams(new AbsListView.LayoutParams(-1,1));
-            itemView.setVisibility(View.GONE);
+            itemView.setLayoutParams(new AbsListView.LayoutParams(-1,1)); // minimize size
+            itemView.setVisibility(View.GONE); // hide it
         }
     }
 
@@ -82,6 +85,10 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
         this.user = FirebaseAuth.getInstance().getCurrentUser();
     }
 
+    /**
+     * Used for controlling the visibility of the request button
+     * @param hideButton
+     */
     public void setHideButton(boolean hideButton) {
         this.hideButton = hideButton;
     }
@@ -95,6 +102,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
 
     @Override
     protected void onBindViewHolder(@NonNull final BookHolder holder, int position, @NonNull final Book model) {
+        // set texts and get storage reference
         holder.titleTextView.setText(model.getTitle());
         holder.authorTextView.setText(model.getAuthor());
         holder.ISBNTextView.setText(model.getISBN());
@@ -104,15 +112,15 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
 
         // unhide non-dummy book objects
         if (!model.getStatus().equals("")) {
-            holder.bookView.setLayoutParams(new AbsListView.LayoutParams(-1,-2));
-            holder.bookView.setVisibility(View.VISIBLE);
+            holder.bookView.setLayoutParams(new AbsListView.LayoutParams(-1,-2)); // unminimize
+            holder.bookView.setVisibility(View.VISIBLE); // show
         }
         else {
-            holder.bookView.setLayoutParams(new AbsListView.LayoutParams(-1,1));
-            holder.bookView.setVisibility(View.GONE);
+            holder.bookView.setLayoutParams(new AbsListView.LayoutParams(-1,1)); // minimize
+            holder.bookView.setVisibility(View.GONE); // hide
         }
 
-        // hiding button
+        // hide button if set by function or if dummy book
         if (hideButton || model.getStatus().equals("")) {
             holder.requestButton.setVisibility(View.GONE);
         }
@@ -126,9 +134,11 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
             holder.requestButton.setEnabled(false);
         }
         else {
+            // book's with "Requested" status should still show as "Available"
+            // to anyone who hasn't requested it
             holder.requestButton.setAlpha(1.0f);
             holder.requestButton.setEnabled(true);
-            holder.statusTextView.setText("Available"); // available to users not in requester list
+            holder.statusTextView.setText("Available");
         }
 
         // Getting images (if they exist)
@@ -150,6 +160,7 @@ public class BorrowerAdapter extends FirestoreRecyclerAdapter<Book, BorrowerAdap
         else
             holder.bookImage.setImageDrawable(null);
 
+        // viewing a book's picture on click
         holder.bookImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
